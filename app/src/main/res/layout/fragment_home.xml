@@ -6,4 +6,22 @@
     android:layout_height="match_parent"
     tools:context=".HomeFragment">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        >
+
+        <!-- Place higher -->
+        <Button
+            android:id="@+id/social_bnt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_person_black_24dp"
+            android:layout_alignParentEnd="true"
+            />
+
+    </RelativeLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
