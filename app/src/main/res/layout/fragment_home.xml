@@ -6,16 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".HomeFragment">
 
-    <!-- Used for position of object in the screen -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         >
-        <!--
-        Social page button
-        TODO: design better -->
+        <!-- TODO: design better -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/social_bnt"
             android:layout_width="wrap_content"
@@ -23,9 +20,7 @@
             android:layout_alignParentEnd="true"
             app:icon="@drawable/ic_person_black_24dp" />
 
-        <!--
-        Store page button
-        TODO: design better -->
+        <!-- TODO: design better -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/store_bnt"
             android:layout_width="wrap_content"
@@ -33,7 +28,6 @@
             android:layout_alignParentStart="true"
             app:icon="@drawable/ic_store_black_24dp" />
 
-        <!-- Start level box-->
         <View
             android:id="@+id/level_rectangle"
             android:layout_width="80dp"
@@ -43,55 +37,24 @@
             android:layout_alignParentStart="true"
             android:background="@drawable/level_rectangle" />
 
-        <!-- Text tag positioned below View so the text is over the box -->
         <TextView
-            android:id="@+id/level_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/level_rectangle"
-            android:layout_alignTop="@+id/level_rectangle"
-            android:layout_alignEnd="@+id/level_rectangle"
-            android:layout_alignStart="@+id/level_rectangle"
-            android:text="LVL 12"
-            android:gravity="center"
-            android:layout_margin="5dp"
-            android:textColor="@color/black"
-            />
-        <!-- End level box-->
-
-        <!-- Start exp bar -->
-        <TextView
-            android:id="@+id/experience_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignEnd="@+id/experience_rectangle"
             android:layout_alignBottom="@+id/experience_rectangle"
             android:layout_marginBottom="@dimen/rectangle_exp_life_height"
-            android:text="bububu"
+            android:text="dio cane"
             android:textColor="@color/black"
             />
 
         <View
             android:id="@+id/experience_rectangle"
             android:layout_width="300dp"
-            android:layout_height="@dimen/rectangle_exp_life_height"
+            android:layout_height="30dp"
             android:layout_toEndOf="@+id/level_rectangle"
             android:layout_alignTop="@+id/level_rectangle"
             android:layout_marginLeft="3dp"
             android:background="@drawable/experience_rectangle" />
-        <!-- End exp bar -->
-
-        <!-- Start life bar -->
-        <TextView
-            android:id="@+id/life_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/life_rectangle"
-            android:layout_alignBottom="@+id/life_rectangle"
-            android:layout_marginBottom="@dimen/rectangle_exp_life_height"
-            android:text="bububu"
-            android:textColor="@color/black"
-            />
 
         <View
             android:id="@+id/life_rectangle"
@@ -101,18 +64,7 @@
             android:layout_alignStart="@+id/experience_rectangle"
             android:layout_marginTop="20dp"
             android:background="@drawable/life_rectangle" />
-        <!-- End life bar -->
 
-        <!-- Creates clickable area over character stats -->
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignEnd="@+id/experience_rectangle"
-            android:layout_alignStart="@+id/level_rectangle"
-            android:layout_alignTop="@+id/level_rectangle"
-            android:layout_alignBottom="@+id/level_rectangle"
-            android:visibility="invisible"
-            />
     </RelativeLayout>
 
 
