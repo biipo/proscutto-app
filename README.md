@@ -1,1 +1,5 @@
-# progetto_ingegneria_del_software
+# Progetto di ingegneria del software
+
+Gruppo: Proscutto
+
+![](aseprite/tartegas.png)

@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.ingegneria.app.databinding.FragmentHomeBinding
 
@@ -30,11 +32,23 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.socialBnt.setOnClickListener {
+        val level: TextView = binding.levelText
+        level.text = "Lvl bubu"
+
+        val exp: TextView = binding.expText
+        exp.text = "gugu"
+
+        val life: TextView = binding.lifeText
+        life.text = "gaga"
+
+        binding.socialButton.setOnClickListener {
                 startActivity(Intent(context, SocialActivity::class.java))
         }
-        binding.storeBnt.setOnClickListener {
+        binding.storeButton.setOnClickListener {
             startActivity(Intent(context, StoreActivity::class.java))
+        }
+        binding.statsAreaButton.setOnClickListener {
+            startActivity(Intent(context, StatsActivity::class.java))
         }
     }
 
