@@ -5,14 +5,14 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.ingegneria.app.databinding.ActivitySocialBinding
 
-class SocialActivity : AppCompatActivity() {
+class StoreActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySocialBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_social)
+        setContentView(R.layout.activity_store)
 
         binding = ActivitySocialBinding.inflate(layoutInflater)
 

@@ -13,14 +13,30 @@
         android:paddingRight="16dp"
         >
 
-        <!-- Place higher -->
-        <Button
+        <!-- TODO: design better -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/social_bnt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_person_black_24dp"
             android:layout_alignParentEnd="true"
-            />
+            app:icon="@drawable/ic_person_black_24dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        >
+
+        <!-- TODO: design better -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/store_bnt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            app:icon="@drawable/ic_store_black_24dp" />
 
     </RelativeLayout>
 

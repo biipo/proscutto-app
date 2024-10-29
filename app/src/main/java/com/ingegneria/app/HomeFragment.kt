@@ -33,7 +33,10 @@ class HomeFragment : Fragment() {
 
         binding.socialBnt.setOnClickListener {
                 startActivity(Intent(context, SocialActivity::class.java))
-            }
+        }
+        binding.storeBnt.setOnClickListener {
+            startActivity(Intent(context, StoreActivity::class.java))
+        }
     }
 
     override fun onDestroyView() {
