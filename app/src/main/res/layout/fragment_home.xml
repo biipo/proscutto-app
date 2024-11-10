@@ -109,7 +109,7 @@
             android:layout_alignBottom="@+id/level_rectangle"
             android:layout_alignTop="@id/level_rectangle"
             android:layout_alignEnd="@+id/life_rectangle"
-            android:visibility="invisible"
+            android:background="@android:color/transparent"
         />
 
     </RelativeLayout>

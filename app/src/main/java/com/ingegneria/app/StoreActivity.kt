@@ -25,12 +25,4 @@ class StoreActivity : AppCompatActivity() {
             finish()
         }
     }
-
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        if(item.itemId == R.id.store_back_button) {
-//            finish()
-//            return true
-//        }
-//        return super.onOptionsItemSelected(item)
-//    }
 }
