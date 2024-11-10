@@ -35,13 +35,13 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val level: TextView = binding.levelText
+        val level: TextView = binding.characterStats.levelText
         level.text = "Lvl bubu"
 
-        val exp: TextView = binding.expText
+        val exp: TextView = binding.characterStats.expText
         exp.text = "gugu"
 
-        val life: TextView = binding.lifeText
+        val life: TextView = binding.characterStats.lifeText
         life.text = "gaga"
 
         binding.socialButton.setOnClickListener {
@@ -50,7 +50,7 @@ class HomeFragment : Fragment() {
         binding.storeButton.setOnClickListener {
             startActivity(Intent(context, StoreActivity::class.java))
         }
-        binding.statsAreaButton.setOnClickListener {
+        binding.characterStats.statsAreaButton.setOnClickListener {
             startActivity(Intent(context, StatsActivity::class.java))
         }
     }
