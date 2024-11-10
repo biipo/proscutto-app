@@ -6,6 +6,7 @@
     <string name="title_settings">Settings</string>
     <string name="title_activity_social">Social</string>
     <string name="title_activity_store">Store</string>
+    <string name="title_activity_stats">Stats</string>
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>

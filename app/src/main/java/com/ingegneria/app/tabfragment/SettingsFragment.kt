@@ -1,7 +1,8 @@
-package com.ingegneria.app
+package com.ingegneria.app.tabfragment
 
 import android.os.Bundle
 import androidx.preference.PreferenceFragmentCompat
+import com.ingegneria.app.R
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
