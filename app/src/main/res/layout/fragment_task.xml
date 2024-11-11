@@ -6,4 +6,25 @@
     android:layout_height="match_parent"
     tools:context=".tabfragment.TaskFragment">
 
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="24dp"
+        app:layout_constraintBottom_toBottomOf=""
+        app:layout_constraintEnd_toEndOf=""
+        app:layout_constraintStart_toStartOf=""
+        app:layout_constraintTop_toTopOf=""
+        >
+
+        <include
+            layout="@layout/character_stats"
+            android:id="@+id/character_stats"
+            android:layout_width="410dp"
+            android:layout_height="@dimen/level_square_margin"
+            />
+
+    </RelativeLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

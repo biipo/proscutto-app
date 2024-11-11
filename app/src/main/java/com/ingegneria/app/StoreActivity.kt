@@ -1,9 +1,6 @@
 package com.ingegneria.app
 
 import android.os.Bundle
-import android.view.MenuItem
-import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.ingegneria.app.databinding.ActivitySocialBinding

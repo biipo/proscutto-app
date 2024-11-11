@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".tabfragment.HomeFragment">
@@ -31,9 +32,26 @@
             android:src="@drawable/ic_store_black_24dp" />
     </RelativeLayout>
 
-    <include layout="@layout/character_stats"
-        android:id="@+id/character_stats"
-        />
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="100dp"
+        app:layout_constraintBottom_toBottomOf=""
+        app:layout_constraintEnd_toEndOf=""
+        app:layout_constraintStart_toStartOf=""
+        app:layout_constraintTop_toTopOf=""
+        >
+
+        <include
+            layout="@layout/character_stats"
+            android:id="@+id/character_stats"
+            android:layout_width="410dp"
+            android:layout_height="@dimen/level_square_margin"
+            />
+
+    </RelativeLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

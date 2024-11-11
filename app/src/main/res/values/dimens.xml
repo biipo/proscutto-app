@@ -5,4 +5,5 @@
     <dimen name="rectangle_exp_life_height">30dp</dimen>
     <dimen name="top_padding">10dp</dimen>
     <dimen name="title_text_size">32dp</dimen>
+    <dimen name="level_square_margin">80dp</dimen>
 </resources>
