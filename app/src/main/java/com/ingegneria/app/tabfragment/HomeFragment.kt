@@ -8,6 +8,10 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.google.firebase.Firebase
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.database
+import com.google.firebase.database.values
 import com.ingegneria.app.SocialActivity
 import com.ingegneria.app.StatsActivity
 import com.ingegneria.app.StoreActivity
@@ -39,7 +43,7 @@ class HomeFragment : Fragment() {
         level.text = "Lvl bubu"
 
         val exp: TextView = binding.characterStats.expText
-        exp.text = "gugu"
+        exp.text = "gugu" // TODO: non viene mostrato
 
         val life: TextView = binding.characterStats.lifeText
         life.text = "gaga"
