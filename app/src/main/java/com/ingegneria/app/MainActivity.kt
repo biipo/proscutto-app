@@ -14,6 +14,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // check if user logged, if not start AuthActivity (again)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

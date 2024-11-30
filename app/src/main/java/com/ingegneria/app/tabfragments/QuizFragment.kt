@@ -1,15 +1,15 @@
-package com.ingegneria.app.tabfragment
+package com.ingegneria.app.tabfragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.ingegneria.app.databinding.FragmentTaskBinding
+import com.ingegneria.app.databinding.FragmentQuizBinding
 
-class TaskFragment : Fragment() {
+class QuizFragment : Fragment() {
 
-    private var _binding: FragmentTaskBinding? = null
+    private var _binding: FragmentQuizBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -21,7 +21,7 @@ class TaskFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        _binding = FragmentTaskBinding.inflate(inflater, container, false)
+        _binding = FragmentQuizBinding.inflate(inflater, container, false)
 
         return binding.root
     }

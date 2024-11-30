@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "593176382677",
+    "firebase_url": "https://app-proscutto-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "app-proscutto",
     "storage_bucket": "app-proscutto.firebasestorage.app"
   },

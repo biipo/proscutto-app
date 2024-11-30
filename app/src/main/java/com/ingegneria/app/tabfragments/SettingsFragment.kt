@@ -1,4 +1,4 @@
-package com.ingegneria.app.tabfragment
+package com.ingegneria.app.tabfragments
 
 import android.os.Bundle
 import androidx.preference.PreferenceFragmentCompat
