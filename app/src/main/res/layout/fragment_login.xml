@@ -4,53 +4,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="430dp"
+    android:layout_height="match_parent"
     tools:context=".authfragments.LoginFragment">
 
     <!-- TODO: better look -->
-    <EditText
-        android:id="@+id/login_username_textbox"
-        android:layout_width="@dimen/textbox_width"
-        android:layout_height="@dimen/textbox_height"
-        android:inputType="text"
-        android:layout_marginTop="30dp"
-        android:layout_centerHorizontal="true"
-        android:hint="Username"
-        android:gravity="center_horizontal"
-        />
 
-    <EditText
-        android:id="@+id/login_password_textbox"
-        android:layout_width="@dimen/textbox_width"
-        android:layout_height="@dimen/textbox_height"
-        android:inputType="textPassword"
-        android:layout_marginTop="20dp"
-        android:layout_below="@+id/login_username_textbox"
-        android:layout_alignStart="@+id/login_username_textbox"
-        android:hint="Password"
-        android:gravity="center_horizontal"
-        />
-
-    <Button
-        android:id="@+id/login_button"
-        android:layout_width="@dimen/textbox_width"
-        android:layout_height="50dp"
-        android:layout_marginTop="30dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/login_password_textbox"
-        android:text="LOGIN"
-        android:textSize="20sp"
-        />
-
-    <TextView
-        android:id="@+id/noaccount_signup_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/login_button"
-        android:layout_marginTop="20dp"
-        android:layout_centerHorizontal="true"
-        android:text="You don't have an account? Sign up!"
-        android:textAlignment="center"
+    <include
+        android:id="@+id/auth_components"
+        layout="@layout/username_password_textboxes"
         />
 
 </RelativeLayout>

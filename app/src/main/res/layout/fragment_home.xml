@@ -43,8 +43,8 @@
         <include
             layout="@layout/character_stats"
             android:id="@+id/character_stats"
-            android:layout_width="410dp"
-            android:layout_height="@dimen/level_square_margin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             />
 
     </RelativeLayout>
