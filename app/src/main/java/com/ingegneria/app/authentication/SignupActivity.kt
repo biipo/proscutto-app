@@ -1,6 +1,8 @@
 package com.ingegneria.app.authentication
 
 import android.os.Bundle
+import android.text.TextUtils
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
@@ -31,32 +33,47 @@ class SignupActivity : AppCompatActivity() {
         val authButton = binding.authComponents.authButton
         authButton.text = "SIGNUP"
         authButton.setOnClickListener { view ->
-            val sUsername: String? = username as? String
-            val sPassword: String? = password as? String
-            val sConfirmPassword: String? = confirmPassword as? String
-            if(sUsername != null && sUsername.isBlank()) {
-                Snackbar.make(view, "Missing username", Snackbar.LENGTH_SHORT).show()
+            val sUsername = username.toString()
+            val sPassword = password.toString()
+            val sConfirmPassword = confirmPassword.toString()
+            if (!inputCheck(sUsername, sPassword, sConfirmPassword, view)) {
                 return@setOnClickListener
             }
-            if(sPassword != null && sPassword.isBlank()){
-                Snackbar.make(view, "Missing password", Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if(sConfirmPassword != null && sConfirmPassword.isBlank()){
-                Snackbar.make(view, "Missing confirmation password", Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if(sPassword != sConfirmPassword) {
-                Snackbar.make(view, "Password and confirmation password do not match", Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            finish()
+            auth.createUserWithEmailAndPassword(sUsername, sPassword)
+                .addOnCompleteListener(this) { task ->
+                    if(task.isSuccessful) {
+                        finish()
+                    } else {
+                        Snackbar.make(view, "Signup error", Snackbar.LENGTH_SHORT).show()
+                        return@addOnCompleteListener
+                    }
+                }
         }
 
         val otherAuthText = binding.authComponents.otherAuthText
         otherAuthText.text = "Already have an account? Login!"
         otherAuthText.setOnClickListener {
-            finish() // because the only way to access the registration page is by passing through the login page
+            finish() // we got back to login, to be sure the account has been created in the db
         }
+    }
+
+    private fun inputCheck(sUsername: String?, sPassword: String?, sConfirmPassword: String?, view: View): Boolean {
+        if(TextUtils.isEmpty(sUsername)) {
+            Snackbar.make(view, "Missing username", Snackbar.LENGTH_SHORT).show()
+            return false
+        }
+        if(TextUtils.isEmpty(sPassword)) {
+            Snackbar.make(view, "Missing password", Snackbar.LENGTH_SHORT).show()
+            return false
+        }
+        if(TextUtils.isEmpty(sConfirmPassword)) {
+            Snackbar.make(view, "Missing confirmation password", Snackbar.LENGTH_SHORT).show()
+            return false
+        }
+        if(sPassword != sConfirmPassword) {
+            Snackbar.make(view, "Password and confirmation password do not match", Snackbar.LENGTH_SHORT).show()
+            return false
+        }
+        return true
     }
 }

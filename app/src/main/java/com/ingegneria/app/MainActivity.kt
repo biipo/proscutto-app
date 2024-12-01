@@ -1,12 +1,10 @@
 package com.ingegneria.app
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.ingegneria.app.authentication.LoginActivity
 import com.ingegneria.app.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -20,10 +18,6 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        if(true) {
-            startActivity(Intent(applicationContext, LoginActivity::class.java))
-        }
 
         // Useful for understanding navigation: https://www.youtube.com/watch?v=Y0Cs2MQxyIs
         val navView: BottomNavigationView = binding.navView

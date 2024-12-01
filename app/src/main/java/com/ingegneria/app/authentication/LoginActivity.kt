@@ -2,19 +2,16 @@ package com.ingegneria.app.authentication
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.ingegneria.app.MainActivity
 import com.ingegneria.app.databinding.ActivityLoginBinding
 
-/* How authentication is handled:
-*  MainActivity (check if logged) --no--> AuthActivity(Login) --if no account --> SignupFragment
-*                                                ^                                       |
-*                                                ^------------back to--------------------|
-* We send the user back to login after registration, so we're sure the account has been added in the db
-* */
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
@@ -43,23 +40,21 @@ class LoginActivity : AppCompatActivity() {
         val authButton = binding.authComponents.authButton
         authButton.text = "LOGIN"
         authButton.setOnClickListener { view ->
-            val sUsername: String? = username as? String
-            val sPassword: String? = password as? String
-            if(sUsername != null && sUsername.isBlank()) {
-                Snackbar.make(view, "Missing username", Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
-            } else if (sUsername == null) {
+            val sUsername = username.toString()
+            val sPassword = password.toString()
+            if (!inputCheck(sUsername, sPassword, view)) {
                 return@setOnClickListener
             }
-
-            if(sPassword != null && sPassword.isBlank()) {
-                Snackbar.make(view, "Missing password", Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
-            } else if (sPassword == null) {
-                return@setOnClickListener
-            }
-            // tmp solution, just check that the button works
-            finish()
+            auth.signInWithEmailAndPassword(sUsername, sPassword)
+                .addOnCompleteListener(this) { task ->
+                    if(task.isSuccessful) {
+                        startActivity(Intent(applicationContext, MainActivity::class.java))
+                        finish() // removes this activity from the backStack
+                    } else {
+                        Snackbar.make(view, "Login error", Snackbar.LENGTH_SHORT).show()
+                        return@addOnCompleteListener
+                    }
+                }
         }
 
         // LINK -> SIGNUP
@@ -67,6 +62,30 @@ class LoginActivity : AppCompatActivity() {
         otherAuthText.text = "Don't have an account? Signup!"
         otherAuthText.setOnClickListener {
             startActivity(Intent(applicationContext, SignupActivity::class.java))
+            // the finish is not called because the user will return to the login
+            // after registration, so we need to keep this activity in the backStack
+        }
+    }
+
+    private fun inputCheck(sUsername: String?, sPassword: String?, view: View): Boolean {
+        if(TextUtils.isEmpty(sUsername)) {
+            Snackbar.make(view, "Missing username", Snackbar.LENGTH_SHORT).show()
+            return false
+        }
+
+        if(TextUtils.isEmpty(sPassword)) {
+            Snackbar.make(view, "Missing password", Snackbar.LENGTH_SHORT).show()
+            return false
+        }
+        return true
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        val currUser = auth.currentUser
+        if(currUser != null) {
+            startActivity(Intent(applicationContext, MainActivity::class.java))
         }
     }
 }
