@@ -6,12 +6,10 @@
     android:paddingTop="@dimen/top_padding"
     >
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/auth_layout"
+    <include
+        android:id="@+id/auth_components"
+        layout="@layout/auth_components"
         />
 
-    <!-- TODO:Add image -->
 
 </RelativeLayout>
