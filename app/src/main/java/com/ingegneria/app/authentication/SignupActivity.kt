@@ -45,17 +45,16 @@ class SignupActivity : AppCompatActivity() {
             }
             auth.createUserWithEmailAndPassword(sEmail, sPassword)
                 .addOnCompleteListener(this) { task ->
-                    if(task.isCanceled) {
+                    if(task.isSuccessful) {
+                        task.result.user?.updateProfile(
+                            userProfileChangeRequest { displayName = sUsername }
+                            )
+                        finish()
+                    } else {
                         Snackbar.make(view, "Signup error", Snackbar.LENGTH_SHORT).show()
                         return@addOnCompleteListener
                     }
                 }
-            val user = auth.currentUser
-            val profieUsername = userProfileChangeRequest {
-                displayName = sUsername
-            }
-            user!!.updateProfile(profieUsername) // add the username
-            finish()
         }
 
         val otherAuthText = binding.authComponents.otherAuthText
