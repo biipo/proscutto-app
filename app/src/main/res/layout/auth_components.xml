@@ -17,13 +17,13 @@
         />
 
     <EditText
-        android:id="@+id/username_textbox"
+        android:id="@+id/email_textbox"
         android:layout_width="@dimen/textbox_width"
         android:layout_height="@dimen/textbox_height"
-        android:inputType="text"
+        android:inputType="textEmailAddress"
         android:layout_marginTop="350dp"
         android:layout_centerHorizontal="true"
-        android:hint="Username"
+        android:hint="Email"
         android:gravity="center_horizontal"
         />
 
@@ -33,8 +33,8 @@
         android:layout_height="@dimen/textbox_height"
         android:inputType="textPassword"
         android:layout_marginTop="20dp"
-        android:layout_below="@+id/username_textbox"
-        android:layout_alignStart="@+id/username_textbox"
+        android:layout_below="@+id/email_textbox"
+        android:layout_alignStart="@+id/email_textbox"
         android:hint="Password"
         android:gravity="center_horizontal"
         />

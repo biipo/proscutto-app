@@ -30,22 +30,22 @@ class LoginActivity : AppCompatActivity() {
         // TITLE
         binding.authComponents.pageTitle.text = "Login"
 
-        // USERNAME field
-        val username = binding.authComponents.usernameTextbox.text
+        // EMAIL field
+        val email = binding.authComponents.emailTextbox.text
 
         // PASSWORD field
         val password = binding.authComponents.passwordTextbox.text
 
-        // LOGIN BUTTOn
+        // LOGIN BUTTON
         val authButton = binding.authComponents.authButton
         authButton.text = "LOGIN"
         authButton.setOnClickListener { view ->
-            val sUsername = username.toString()
+            val sEmail = email.toString()
             val sPassword = password.toString()
-            if (!inputCheck(sUsername, sPassword, view)) {
+            if (!inputCheck(sEmail, sPassword, view)) {
                 return@setOnClickListener
             }
-            auth.signInWithEmailAndPassword(sUsername, sPassword)
+            auth.signInWithEmailAndPassword(sEmail, sPassword)
                 .addOnCompleteListener(this) { task ->
                     if(task.isSuccessful) {
                         startActivity(Intent(applicationContext, MainActivity::class.java))
@@ -67,9 +67,9 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun inputCheck(sUsername: String?, sPassword: String?, view: View): Boolean {
-        if(TextUtils.isEmpty(sUsername)) {
-            Snackbar.make(view, "Missing username", Snackbar.LENGTH_SHORT).show()
+    private fun inputCheck(sEmail: String?, sPassword: String?, view: View): Boolean {
+        if(TextUtils.isEmpty(sEmail)) {
+            Snackbar.make(view, "Missing email", Snackbar.LENGTH_SHORT).show()
             return false
         }
 

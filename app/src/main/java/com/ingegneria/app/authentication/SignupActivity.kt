@@ -8,6 +8,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.auth.userProfileChangeRequest
 import com.ingegneria.app.databinding.ActivitySignupBinding
 
 class SignupActivity : AppCompatActivity() {
@@ -25,7 +26,9 @@ class SignupActivity : AppCompatActivity() {
 
         binding.authComponents.pageTitle.text = "Signup"
 
-        val username = binding.authComponents.usernameTextbox.text
+        val username = binding.usernameTextbox.text
+
+        val email = binding.authComponents.emailTextbox.text
 
         val password = binding.authComponents.passwordTextbox.text
         val confirmPassword = binding.signupConfirmPasswordTextbox.text
@@ -34,20 +37,25 @@ class SignupActivity : AppCompatActivity() {
         authButton.text = "SIGNUP"
         authButton.setOnClickListener { view ->
             val sUsername = username.toString()
+            val sEmail = email.toString()
             val sPassword = password.toString()
             val sConfirmPassword = confirmPassword.toString()
-            if (!inputCheck(sUsername, sPassword, sConfirmPassword, view)) {
+            if (!inputCheck(sUsername, sEmail, sPassword, sConfirmPassword, view)) {
                 return@setOnClickListener
             }
-            auth.createUserWithEmailAndPassword(sUsername, sPassword)
+            auth.createUserWithEmailAndPassword(sEmail, sPassword)
                 .addOnCompleteListener(this) { task ->
-                    if(task.isSuccessful) {
-                        finish()
-                    } else {
+                    if(task.isCanceled) {
                         Snackbar.make(view, "Signup error", Snackbar.LENGTH_SHORT).show()
                         return@addOnCompleteListener
                     }
                 }
+            val user = auth.currentUser
+            val profieUsername = userProfileChangeRequest {
+                displayName = sUsername
+            }
+            user!!.updateProfile(profieUsername) // add the username
+            finish()
         }
 
         val otherAuthText = binding.authComponents.otherAuthText
@@ -57,9 +65,13 @@ class SignupActivity : AppCompatActivity() {
         }
     }
 
-    private fun inputCheck(sUsername: String?, sPassword: String?, sConfirmPassword: String?, view: View): Boolean {
+    private fun inputCheck(sUsername: String?, sEmail: String?, sPassword: String?, sConfirmPassword: String?, view: View): Boolean {
         if(TextUtils.isEmpty(sUsername)) {
             Snackbar.make(view, "Missing username", Snackbar.LENGTH_SHORT).show()
+            return false
+        }
+        if(TextUtils.isEmpty(sEmail)) {
+            Snackbar.make(view, "Missing email", Snackbar.LENGTH_SHORT).show()
             return false
         }
         if(TextUtils.isEmpty(sPassword)) {

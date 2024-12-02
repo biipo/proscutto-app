@@ -15,6 +15,17 @@
         />
 
     <EditText
+        android:id="@+id/username_textbox"
+        android:layout_width="@dimen/textbox_width"
+        android:layout_height="@dimen/textbox_height"
+        android:inputType="text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="290dp"
+        android:hint="Username"
+        android:gravity="center_horizontal"
+        />
+
+    <EditText
         android:id="@+id/signup_confirm_password_textbox"
         android:layout_width="@dimen/textbox_width"
         android:layout_height="@dimen/textbox_height"
