@@ -1,10 +1,14 @@
 package com.ingegneria.app.tabfragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.ingegneria.app.authentication.LoginActivity
 import com.ingegneria.app.databinding.FragmentSettingsBinding
 
 class SettingsFragment : Fragment() {
@@ -21,6 +25,15 @@ class SettingsFragment : Fragment() {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.logoutButton.setOnClickListener {
+            Firebase.auth.signOut()
+            startActivity(Intent(context, LoginActivity::class.java))
+        }
     }
 
     override fun onDestroy() {

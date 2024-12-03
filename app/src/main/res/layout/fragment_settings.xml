@@ -6,4 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".tabfragments.SettingsFragment">
 
+    <Button
+        android:id="@+id/logout_button"
+        android:layout_width="390dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:backgroundTint="@color/design_default_color_error"
+        android:text="LOGOUT"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="100dp"
+        />
+
 </RelativeLayout>
