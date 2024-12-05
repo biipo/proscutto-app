@@ -4,19 +4,109 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 import com.ingegneria.app.MainActivity
 import com.ingegneria.app.databinding.ActivityLoginBinding
 
-class LoginActivity : AppCompatActivity() {
+import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import com.ingegneria.app.ui.theme.AppTheme
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.remember
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.Button
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
-    private lateinit var binding: ActivityLoginBinding
-    private lateinit var auth: FirebaseAuth
+class LoginActivity : ComponentActivity() {
 
+    //private lateinit var binding: ActivityLoginBinding
+    //private lateinit var auth: FirebaseAuth
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContent {
+            AppTheme {
+                LoginScreen()
+            }
+        }
+    }
+
+    @Composable
+    fun LoginScreen() {
+        val userEmail = remember {
+            mutableStateOf("")
+        }
+        val userPass = remember {
+            mutableStateOf("")
+        }
+        Surface {
+            Column(modifier = Modifier.fillMaxHeight().padding(40.dp)) {
+                Text(
+                    text = "Login", fontSize = 25.sp,
+                    modifier = Modifier.fillMaxWidth().padding(0.dp, 50.dp, 0.dp, 0.dp)
+                )
+
+                // email input field
+                OutlinedTextField(
+                    value = userEmail.value,
+                    onValueChange = { userEmail.value = it },
+                    leadingIcon = {
+                        Icon(Icons.Default.Person, contentDescription = "person")
+                    },
+                    label = {
+                        Text(text = "Email")
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
+                )
+                // password input field
+                OutlinedTextField(
+                    value = userPass.value,
+                    onValueChange = { userPass.value = it },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Lock,
+                            contentDescription = "",
+                            //tint= MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    label = { Text(text = "Password") },
+                    placeholder = { Text(text = "Password") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
+                )
+                // login button
+                Button(
+                    onClick = { },
+                    modifier = Modifier.fillMaxWidth().padding(0.dp, 25.dp, 0.dp, 0.dp)
+                ) {
+                    Text(
+                        text = "Login"
+                    )
+                }
+            }
+        }
+    }
+
+    /*
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -65,7 +155,7 @@ class LoginActivity : AppCompatActivity() {
             // the finish is not called because the user will return to the login
             // after registration, so we need to keep this activity in the backStack
         }
-    }
+    }*/
 
     private fun inputCheck(sEmail: String?, sPassword: String?, view: View): Boolean {
         if(TextUtils.isEmpty(sEmail)) {
@@ -79,7 +169,7 @@ class LoginActivity : AppCompatActivity() {
         }
         return true
     }
-
+/*
     override fun onStart() {
         super.onStart()
 
@@ -87,5 +177,11 @@ class LoginActivity : AppCompatActivity() {
         if(currUser != null) {
             startActivity(Intent(applicationContext, MainActivity::class.java))
         }
+    }
+*/
+    @Preview(showBackground = true)
+    @Composable
+    fun PreviewLogin(){
+        LoginScreen()
     }
 }
