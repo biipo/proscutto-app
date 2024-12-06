@@ -21,5 +21,14 @@ fun Navigation(navController: NavHostController, startScreen:String) {
         composable(Screens.Signup.name) {
             Signup(navController = navController)
         }
+        composable(Screens.Tasks.name) {
+            Signup(navController = navController)
+        }
+        composable(Screens.Quiz.name) {
+            Signup(navController = navController)
+        }
+        composable(Screens.Settings.name) {
+            Signup(navController = navController)
+        }
     }
 }

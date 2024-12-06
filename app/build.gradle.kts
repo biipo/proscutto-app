@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     // Compose e Material 3
     val composeBom = platform("androidx.compose:compose-bom:2024.10.01")
+    implementation(libs.androidx.material.icons.extended)
     implementation(composeBom)
     androidTestImplementation(composeBom)
     implementation(libs.androidx.material3)
