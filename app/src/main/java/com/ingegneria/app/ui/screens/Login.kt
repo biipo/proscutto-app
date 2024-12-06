@@ -1,11 +1,9 @@
 package com.ingegneria.app.ui.screens
 
-import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
+import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
-
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.OutlinedTextField
@@ -13,30 +11,43 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import com.ingegneria.app.ui.theme.AppTheme
-import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.remember
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Mail
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.ingegneria.app.navigation.Screens
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun Login(navController: NavController) {
-    val userEmail = remember {
+    val email = remember {
         mutableStateOf("")
     }
-    val userPass = remember {
+    val password = remember {
         mutableStateOf("")
+    }
+    val passwordVisible = remember {
+        mutableStateOf(false)
     }
     Surface {
         Column(
@@ -54,10 +65,10 @@ fun Login(navController: NavController) {
 
             // email input field
             OutlinedTextField(
-                value = userEmail.value,
-                onValueChange = { userEmail.value = it },
+                value = email.value,
+                onValueChange = { email.value = it },
                 leadingIcon = {
-                    Icon(Icons.Default.Person, contentDescription = "person")
+                    Icon(Icons.Default.Mail, contentDescription = "person")
                 },
                 label = {
                     Text(text = "Email")
@@ -67,8 +78,8 @@ fun Login(navController: NavController) {
             )
             // password input field
             OutlinedTextField(
-                value = userPass.value,
-                onValueChange = { userPass.value = it },
+                value = password.value,
+                onValueChange = { password.value = it },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Lock,
@@ -76,20 +87,67 @@ fun Login(navController: NavController) {
                         //tint= MaterialTheme.colorScheme.primary
                     )
                 },
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                        Icon(
+                            imageVector = if (passwordVisible.value) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = "Password visibility",
+                            tint = if (passwordVisible.value) MaterialTheme.colorScheme.tertiary else Color.Gray
+                        )
+                    }
+                },
                 label = { Text(text = "Password") },
                 placeholder = { Text(text = "Password") },
                 singleLine = true,
+                visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
             )
             // login button
+            val context = LocalContext.current
             Button(
-                onClick = { },
+                onClick = {
+                    if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
+                        FirebaseAuth.getInstance()
+                            .signInWithEmailAndPassword(email.value, password.value)
+                            .addOnSuccessListener() {
+                                navController.navigate(Screens.Home.name)
+                            }
+                            .addOnFailureListener() {
+                                Toast.makeText(
+                                    context,
+                                    it.message,
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                            }
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "One or more fields are empty",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 25.dp, 0.dp, 0.dp)
             ) {
                 Text(
                     text = "Login"
                 )
             }
+            // sign up prompt
+            Spacer(modifier = Modifier.padding(10.dp))
+            Row {
+                Text(
+                    text = "Don't have an account? ",
+                )
+                Text(
+                    text = "Sign up",
+                    modifier = Modifier.clickable(onClick = {
+                        navController.navigate(Screens.Signup.name)
+                    }),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            Spacer(modifier = Modifier.padding(20.dp))
         }
     }
 }
@@ -161,5 +219,5 @@ private fun inputCheck(sEmail: String?, sPassword: String?, view: View): Boolean
 @Preview(showBackground = true)
 @Composable
 fun PreviewLogin(navController: NavController = rememberNavController()){
-    Login(navController = navController)
+    AppTheme {Login(navController = navController)}
 }
