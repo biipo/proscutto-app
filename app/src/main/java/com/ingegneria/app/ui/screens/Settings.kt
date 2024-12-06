@@ -1,17 +1,7 @@
-package com.ingegneria.app.tabfragments
+package com.ingegneria.app.ui.screens
 
-import android.content.Intent
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import com.ingegneria.app.authentication.LoginActivity
-import com.ingegneria.app.databinding.FragmentSettingsBinding
-
-class SettingsFragment : Fragment() {
+/*
+class Settings : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null
 
@@ -32,7 +22,7 @@ class SettingsFragment : Fragment() {
 
         binding.logoutButton.setOnClickListener {
             Firebase.auth.signOut()
-            startActivity(Intent(context, LoginActivity::class.java))
+            startActivity(Intent(context, Login::class.java))
         }
     }
 
@@ -41,4 +31,4 @@ class SettingsFragment : Fragment() {
         _binding = null
     }
 
-}
+}*/

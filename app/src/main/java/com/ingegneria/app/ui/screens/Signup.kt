@@ -1,17 +1,64 @@
-package com.ingegneria.app.authentication
+package com.ingegneria.app.ui.screens
 
-import android.os.Bundle
-import android.text.TextUtils
-import android.view.View
-import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
-import com.google.firebase.auth.userProfileChangeRequest
-import com.ingegneria.app.databinding.ActivitySignupBinding
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
-class SignupActivity : AppCompatActivity() {
+@Composable
+fun Signup(navController: NavHostController){
+    val email = remember {
+        mutableStateOf("")
+    }
+    val password = remember {
+        mutableStateOf("")
+    }
+    val confirmPassword = remember {
+        mutableStateOf("")
+    }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .padding(40.dp)
+    ) {
+        Text(
+            text = "Sign Up",
+            style = TextStyle(fontWeight = FontWeight.Bold),
+            fontSize = 25.sp,
+            modifier = Modifier.fillMaxWidth().padding(0.dp, 50.dp, 0.dp, 0.dp)
+        )
+    }
+}
+
+@Preview
+@Composable
+fun PreviewSignup(navController: NavHostController = rememberNavController()){
+    Signup(navController = navController)
+}
+
+/*
+class SignupFragment : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignupBinding
     private lateinit var auth: FirebaseAuth
@@ -87,4 +134,4 @@ class SignupActivity : AppCompatActivity() {
         }
         return true
     }
-}
+}*/

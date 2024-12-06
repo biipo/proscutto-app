@@ -1,13 +1,7 @@
-package com.ingegneria.app.tabfragments
+package com.ingegneria.app.ui.screens
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import com.ingegneria.app.databinding.FragmentTaskBinding
-
-class TaskFragment : Fragment() {
+/*
+class Tasks : Fragment() {
 
     private var _binding: FragmentTaskBinding? = null
 
@@ -30,4 +24,4 @@ class TaskFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-}
+}*/

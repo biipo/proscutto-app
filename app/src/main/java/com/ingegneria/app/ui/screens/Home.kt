@@ -1,5 +1,27 @@
-package com.ingegneria.app.tabfragments
+package com.ingegneria.app.ui.screens
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+
+@Composable
+fun Home(navController: NavController) {
+
+}
+
+@Preview
+@Composable
+fun PreviewHome(navController: NavController = rememberNavController()){
+    Home(navController = navController)
+}
+
+/*
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -59,4 +81,4 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-}
+}*/
