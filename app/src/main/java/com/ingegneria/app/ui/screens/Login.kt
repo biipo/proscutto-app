@@ -120,7 +120,9 @@ fun Login(navController: NavController) {
                         FirebaseAuth.getInstance()
                             .signInWithEmailAndPassword(email.value, password.value)
                             .addOnSuccessListener() {
-                                navController.navigate(Screens.Home.name)
+                                navController.navigate(Screens.Home.name) {
+                                    popUpTo(0)
+                                }
                             }
                             .addOnFailureListener() {
                                 loading = false
@@ -156,7 +158,7 @@ fun Login(navController: NavController) {
                     modifier = Modifier.clickable(onClick = {
                         navController.navigate(Screens.Signup.name)
                     }),
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
             Spacer(modifier = Modifier.padding(20.dp))

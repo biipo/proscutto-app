@@ -30,7 +30,7 @@ fun LoadingDialog() {
                 ),
         ) {
             CircularProgressIndicator(
-                modifier = Modifier.width(64.dp).align(Alignment.Center),
+                modifier = Modifier.size(64.dp).align(Alignment.Center),
                 color = MaterialTheme.colorScheme.secondary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant,
             )
