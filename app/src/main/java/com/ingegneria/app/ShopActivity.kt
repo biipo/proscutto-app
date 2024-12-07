@@ -5,7 +5,7 @@ import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.ingegneria.app.databinding.ActivitySocialBinding
 
-class StoreActivity : AppCompatActivity() {
+class ShopActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySocialBinding
 

@@ -1,10 +1,13 @@
 package com.ingegneria.app.navigation
 
 enum class Screens {
-    Home,
     Login,
     Signup,
+    Home,
     Tasks,
     Quiz,
-    Settings
+    Settings,
+    Social,
+    Shop,
+    Stats
 }
