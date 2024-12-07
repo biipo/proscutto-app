@@ -1,40 +1,183 @@
 package com.ingegneria.app.ui.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import android.util.Log
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.database.*
+import kotlinx.coroutines.delay
+
+data class Question(
+    val question: String = "",
+    val options: List<String> = emptyList(),
+    val correctAnswer: String = ""
+)
 
 @Composable
 fun Quiz(navController: NavController) {
+    val database = FirebaseDatabase.getInstance().reference.child("quiz")
+    var questions by remember { mutableStateOf<List<Question>>(emptyList()) }
+    var currentQuestionIndex by remember { mutableIntStateOf(0) }
+    var selectedAnswer by remember { mutableStateOf<String?>(null) }
+    var isQuestionsLoaded by remember { mutableStateOf(false) }
+    var answeredQuestionsCount by remember { mutableIntStateOf(0) }
+    val dailyQuestionLimit = 5
+
+    LaunchedEffect(Unit) {
+        database.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val loadedQuestions = snapshot.children.mapNotNull { quizSnapshot ->
+                    quizSnapshot.getValue(Question::class.java)
+                }
+
+                questions = loadedQuestions.shuffled()
+                isQuestionsLoaded = true
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Quiz", "Errore: ${error.message}")
+            }
+        })
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column {
-            Text(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 100.dp),
-                text = "Quiz page",
-                fontSize = 30.sp
-            )
+        when {
+            answeredQuestionsCount >= dailyQuestionLimit -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Le domande giornaliere sono terminate. A domani!",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            isQuestionsLoaded && questions.isNotEmpty() -> {
+                val currentQuestion = questions[currentQuestionIndex]
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+                    Text(
+                        text = currentQuestion.question,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(bottom = 32.dp)
+                    )
+
+                    currentQuestion.options.forEach { option ->
+                        AnswerButton(
+                            answer = option,
+                            isSelected = option == selectedAnswer,
+                            onClick = { selectedAnswer = option }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = {
+                            answeredQuestionsCount++
+                            selectedAnswer = null
+                            currentQuestionIndex = (currentQuestionIndex + 1) % questions.size
+                        },
+                        enabled = selectedAnswer != null,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "Submit")
+                    }
+                }
+            }
+
+            !isQuestionsLoaded -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            else -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Errore: Nessuna domanda disponibile.",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
         }
     }
 }
 
-@Preview
 @Composable
-fun PreviewQuiz(navController: NavController = rememberNavController()){
+fun AnswerButton(answer: String, isSelected: Boolean, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+        )
+    ) {
+        Text(text = answer)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewQuiz(navController: NavController = rememberNavController()) {
     Quiz(navController = navController)
 }
+
+
+
+
+
+
+/*
+class Quiz : Fragment() {
+
+    private var _binding: FragmentQuizBinding? = null
+
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding!!
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+
+        _binding = FragmentQuizBinding.inflate(inflater, container, false)
+
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}*/
