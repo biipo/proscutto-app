@@ -48,7 +48,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     // Compose e Material 3
     val composeBom = platform("androidx.compose:compose-bom:2024.10.01")
-    implementation(libs.androidx.material.icons.extended)
     implementation(composeBom)
     androidTestImplementation(composeBom)
     implementation(libs.androidx.material3)
@@ -73,8 +72,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.database.ktx)
     implementation(libs.firebase.auth.ktx)
-    implementation(libs.firebase.firestore.ktx)
     implementation(libs.google.firebase.database)
+    implementation(libs.firebase.firestore.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
