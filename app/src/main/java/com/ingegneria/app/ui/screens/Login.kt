@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.ingegneria.app.ui.common.LoadingDialog
+import com.ingegneria.app.ui.common.MascotImage
 
 @Composable
 fun Login(navController: NavController) {
@@ -67,6 +68,7 @@ fun Login(navController: NavController) {
                 .fillMaxHeight()
                 .padding(40.dp)
         ) {
+            MascotImage()
             Text(
                 text = "Login", fontSize = 25.sp,
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 50.dp, 0.dp, 0.dp)

@@ -2,6 +2,6 @@
 
 Gruppo: Proscutto
 
-![](aseprite/tartegas.png)
+![](app/src/main/res/drawable/tartegas.png)
 
 ## TODO

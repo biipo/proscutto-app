@@ -50,6 +50,7 @@ import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.firestore
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.LoadingDialog
+import com.ingegneria.app.ui.common.MascotImage
 import com.ingegneria.app.ui.theme.AppTheme
 
 @Composable
@@ -82,6 +83,7 @@ fun Signup(navController: NavHostController){
                 .fillMaxHeight()
                 .padding(40.dp)
         ) {
+            MascotImage()
             Text(
                 text = "Sign Up",
                 fontSize = 25.sp,
