@@ -1,6 +1,8 @@
 package com.ingegneria.app.ui.screens
 
+import android.content.ContentValues.TAG
 import android.text.TextUtils
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,8 +23,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,8 +42,11 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp.initializeApp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.firestore
 import com.ingegneria.app.navigation.Screens
+import com.ingegneria.app.ui.common.LoadingDialog
 import com.ingegneria.app.ui.theme.AppTheme
 
 @Composable
@@ -62,6 +69,7 @@ fun Signup(navController: NavHostController){
     val confirmPasswordVisible = remember {
         mutableStateOf(false)
     }
+    var loading by remember { mutableStateOf(false) }
     Surface {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -116,16 +124,19 @@ fun Signup(navController: NavHostController){
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
                         Icon(
-                            imageVector = if (passwordVisible.value) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            imageVector = if (passwordVisible.value) Icons.Default.Visibility
+                                            else Icons.Default.VisibilityOff,
                             contentDescription = "Password visibility",
-                            tint = if (passwordVisible.value) MaterialTheme.colorScheme.tertiary else Color.Gray
+                            tint = if (passwordVisible.value) MaterialTheme.colorScheme.tertiary
+                                    else Color.Gray
                         )
                     }
                 },
                 label = { Text(text = "Password") },
                 placeholder = { Text(text = "Password") },
                 singleLine = true,
-                visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible.value) VisualTransformation.None
+                                        else PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
             )
             // confirm password input field
@@ -142,16 +153,19 @@ fun Signup(navController: NavHostController){
                 trailingIcon = {
                     IconButton(onClick = { confirmPasswordVisible.value = !confirmPasswordVisible.value }) {
                         Icon(
-                            imageVector = if (confirmPasswordVisible.value) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            imageVector = if (confirmPasswordVisible.value) Icons.Default.Visibility
+                                            else Icons.Default.VisibilityOff,
                             contentDescription = "Password visibility",
-                            tint = if (confirmPasswordVisible.value) MaterialTheme.colorScheme.tertiary else Color.Gray
+                            tint = if (confirmPasswordVisible.value) MaterialTheme.colorScheme.tertiary
+                                    else Color.Gray
                         )
                     }
                 },
                 label = { Text(text = "Confirm Password") },
                 placeholder = { Text(text = "Confirm password") },
                 singleLine = true,
-                visualTransformation = if (confirmPasswordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (confirmPasswordVisible.value) VisualTransformation.None
+                                        else PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
             )
             // sign up button
@@ -159,8 +173,10 @@ fun Signup(navController: NavHostController){
 
             Button(
                 onClick = {
+                    loading = true
                     if (username.value.isEmpty() || email.value.isEmpty()
                         || password.value.isEmpty() || confirmPassword.value.isEmpty()) {
+                        loading = false
                         Toast.makeText(
                             context,
                             "One or more fields are empty",
@@ -168,6 +184,7 @@ fun Signup(navController: NavHostController){
                         ).show()
                     } else {
                         if (username.value.length > 12) {
+                            loading = false
                             Toast.makeText(
                                 context,
                                 "Username must be under 12 characters",
@@ -179,6 +196,23 @@ fun Signup(navController: NavHostController){
                                     email.value,
                                     password.value
                                 ).addOnSuccessListener {
+                                    val user = FirebaseAuth.getInstance().currentUser
+                                    val profileUpdates = userProfileChangeRequest {
+                                        displayName = username.value
+                                    }
+                                    user!!.updateProfile(profileUpdates)
+                                        .addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                loading = false
+                                                Toast.makeText(
+                                                    context,
+                                                    "Welcome, " + user.displayName,
+                                                    Toast.LENGTH_SHORT,
+                                                ).show()
+                                                navController.navigate(Screens.Home.name)
+                                            }
+                                        }
+                                    /*
                                     val userId = FirebaseAuth.getInstance().currentUser?.uid
                                     val user = hashMapOf(
                                         "username" to username.value
@@ -194,8 +228,9 @@ fun Signup(navController: NavHostController){
                                                 Toast.LENGTH_SHORT,
                                             ).show()
                                         }
-                                    //navController.navigate(Screens.Home.name)
+                                     */
                                 }.addOnFailureListener {
+                                    loading = false
                                     Toast.makeText(
                                         context,
                                         it.message,
@@ -203,6 +238,7 @@ fun Signup(navController: NavHostController){
                                     ).show()
                                 }
                             } else {
+                                loading = false
                                 Toast.makeText(
                                     context,
                                     "Password and confirmation password mismatch",
@@ -218,34 +254,12 @@ fun Signup(navController: NavHostController){
                     text = "Sign Up"
                 )
             }
+            if (loading) {
+                LoadingDialog()
+            }
         }
     }
 }
-/*
-private fun inputCheck(sUsername: String?, sEmail: String?, sPassword: String?, sConfirmPassword: String?): Boolean {
-    if(TextUtils.isEmpty(sUsername)) {
-        Snackbar.make(view, "Missing username", Snackbar.LENGTH_SHORT).show()
-        return false
-    }
-    if(TextUtils.isEmpty(sEmail)) {
-        Snackbar.make(view, "Missing email", Snackbar.LENGTH_SHORT).show()
-        return false
-    }
-    if(TextUtils.isEmpty(sPassword)) {
-        Snackbar.make(view, "Missing password", Snackbar.LENGTH_SHORT).show()
-        return false
-    }
-    if(TextUtils.isEmpty(sConfirmPassword)) {
-        Snackbar.make(view, "Missing confirmation password", Snackbar.LENGTH_SHORT).show()
-        return false
-    }
-    if(sPassword != sConfirmPassword) {
-        Snackbar.make(view, "Password and confirmation password do not match", Snackbar.LENGTH_SHORT).show()
-        return false
-    }
-    return true
-}
-*/
 
 @Preview
 @Composable
