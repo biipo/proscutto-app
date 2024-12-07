@@ -11,7 +11,7 @@ import com.ingegneria.app.R
 @Composable
 fun MascotImage(modifier: Modifier = Modifier) {
     val image = painterResource(R.drawable.tartegas320)
-    Box {
+    Box (modifier) {
         Image(
             painter = image,
             contentDescription = null
