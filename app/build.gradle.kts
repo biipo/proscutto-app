@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.ingegneria.app"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.ingegneria.app"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.androidx.ui.test.android)
     // Compose e Material 3
     val composeBom = platform("androidx.compose:compose-bom:2024.10.01")
+    implementation(libs.androidx.material.icons.extended)
     implementation(composeBom)
     androidTestImplementation(composeBom)
     implementation(libs.androidx.material3)
@@ -73,8 +74,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.database.ktx)
     implementation(libs.firebase.auth.ktx)
-    implementation(libs.firebase.firestore.ktx)
     implementation(libs.google.firebase.database)
+    implementation(libs.firebase.firestore.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

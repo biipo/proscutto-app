@@ -19,6 +19,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
@@ -27,9 +35,16 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -46,6 +61,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.ingegneria.app.ui.common.LoadingDialog
 import com.ingegneria.app.ui.common.MascotImage
+import com.ingegneria.app.ui.theme.AppTheme
 
 @Composable
 fun Login(navController: NavController) {
@@ -170,57 +186,6 @@ fun Login(navController: NavController) {
         }
     }
 }
-
-    /*
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // TODO: implement authentication
-        auth = Firebase.auth
-
-        binding = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        // Because we've used the "include" in the xml we have to use nested findViewById
-        // TITLE
-        binding.authComponents.pageTitle.text = "Login"
-
-        // EMAIL field
-        val email = binding.authComponents.emailTextbox.text
-
-        // PASSWORD field
-        val password = binding.authComponents.passwordTextbox.text
-
-        // LOGIN BUTTON
-        val authButton = binding.authComponents.authButton
-        authButton.text = "LOGIN"
-        authButton.setOnClickListener { view ->
-            val sEmail = email.toString()
-            val sPassword = password.toString()
-            if (!inputCheck(sEmail, sPassword, view)) {
-                return@setOnClickListener
-            }
-            auth.signInWithEmailAndPassword(sEmail, sPassword)
-                .addOnCompleteListener(this) { task ->
-                    if(task.isSuccessful) {
-                        startActivity(Intent(applicationContext, MainActivity::class.java))
-                        finish() // removes this activity from the backStack
-                    } else {
-                        Snackbar.make(view, "Login error", Snackbar.LENGTH_SHORT).show()
-                        return@addOnCompleteListener
-                    }
-                }
-        }
-
-        // LINK -> SIGNUP
-        val otherAuthText = binding.authComponents.otherAuthText
-        otherAuthText.text = "Don't have an account? Signup!"
-        otherAuthText.setOnClickListener {
-            startActivity(Intent(applicationContext, SignupActivity::class.java))
-            // the finish is not called because the user will return to the login
-            // after registration, so we need to keep this activity in the backStack
-        }
-    }*/
 
 private fun inputCheck(sEmail: String?, sPassword: String?, view: View): Boolean {
     if(TextUtils.isEmpty(sEmail)) {
