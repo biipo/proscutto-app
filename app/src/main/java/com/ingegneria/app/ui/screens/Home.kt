@@ -114,7 +114,7 @@ fun CharacterStats() {
         }
         Row(
             modifier = Modifier
-                .padding(top = 20.dp, start = 15.dp, end = 15.dp)
+                .padding(top = 30.dp, start = 15.dp, end = 15.dp)
         ) {
             Box(
                 modifier = Modifier
