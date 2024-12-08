@@ -89,6 +89,23 @@ fun TopAppBar () {
 
 @Composable
 fun CharacterStats() {
+    /*
+    var db = Firebase.database.reference
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+    val context = LocalContext.current
+
+    db.child("characters").child(userId!!).get().addOnSuccessListener {
+        //Log.i("firebase", "Got value ${it.value}")
+        Toast.makeText(
+            context,
+            it.child("maxHp").toString(),
+            Toast.LENGTH_LONG,
+        ).show()
+    }.addOnFailureListener{
+        //Log.e("firebase", "Error getting data", it)
+    }
+    */
+
     val lvlExample = 12
     val currentHpExample = 100
     val currentXpExample = 140
