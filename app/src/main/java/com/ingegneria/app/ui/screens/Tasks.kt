@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.database.DataSnapshot
@@ -56,6 +58,8 @@ fun Tasks(navController: NavController) {
     var dailyTaskList by remember { mutableStateOf<List<String>>(emptyList()) }
     var weeklyTaskList by remember { mutableStateOf<List<String>>(emptyList()) }
     var monthlyTaskList by remember { mutableStateOf<List<String>>(emptyList()) }
+
+    var openTaskDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         database.child("daily").addValueEventListener(object : ValueEventListener {
@@ -128,8 +132,8 @@ fun Tasks(navController: NavController) {
                     }
                     Card(
                         modifier = Modifier
-                            .clickable {  }
                             .padding(10.dp)
+                            .clickable(onClick = { openTaskDialog = !openTaskDialog})
                             .fillMaxWidth()
                             .size(200.dp, 80.dp),
                         shape = MaterialTheme.shapes.medium,
@@ -153,10 +157,37 @@ fun Tasks(navController: NavController) {
                     }
                 }
             }
+            when {
+                openTaskDialog -> {
+                    taskChoiceDialog(onDismissRequest = {openTaskDialog = false})
+                }
+            }
         }
 
     }
 }
+
+@Composable
+fun taskChoiceDialog(onDismissRequest: () -> Unit) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card (
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(500.dp)
+                .padding(10.dp),
+            shape = RoundedCornerShape(10.dp)
+        ){
+            Text(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .wrapContentSize(Alignment.Center),
+                textAlign = TextAlign.Center,
+                text = "Prova"
+            )
+        }
+    }
+}
+
 @Composable
 fun CharacterStatsTask() {
     val lvlExample = 12
