@@ -1,7 +1,6 @@
 package com.ingegneria.app.ui.screens
 
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +16,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -48,26 +49,49 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
 data class Task(
+    val title: String = "",
     val desc: String = ""
 )
 
-
 @Composable
 fun Tasks(navController: NavController) {
+
+    // TODO: retreive tasks when app is opened
     val database = FirebaseDatabase.getInstance().reference.child("task")
-    var dailyTaskList by remember { mutableStateOf<List<String>>(emptyList()) }
-    var weeklyTaskList by remember { mutableStateOf<List<String>>(emptyList()) }
-    var monthlyTaskList by remember { mutableStateOf<List<String>>(emptyList()) }
+    // The task list is a Map with key (daily, weekly or monthly) and value (list of Task object associated in firebase)
+    /*
+        taskList = {
+            "daily" : [
+                Task(title = "...", desc = "...")
+                ...
+            ],
+            "weekly" : [
+                Task(title = "...", desc = "...")
+                ...
+            ],
+            "monthly" : [
+                Task(title = "...", desc = "...")
+                ...
+            ],
+        }
+     */
+    var dailyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
+    var weeklyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
+    var monthlyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
 
     var openTaskDialog by remember { mutableStateOf(false) }
-
+    var selectedTask by remember { mutableStateOf(Task()) }
+    /* TODO: create a list of selected tasks for each category,
+        then for each user save the id of the task selected for each type,
+        then in the user space we mark the completed tasks,
+        if the user want to change a task we load a tmp list of the other (based on a set and then casted into a list??)
+     */
     LaunchedEffect(Unit) {
         database.child("daily").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val taskList = snapshot.children.mapNotNull {
-                    it.getValue(String::class.java)
+                dailyTasks = snapshot.children.mapNotNull {
+                    it.getValue(Task::class.java)
                 }
-                dailyTaskList = taskList
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -76,10 +100,9 @@ fun Tasks(navController: NavController) {
         })
         database.child("weekly").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val taskList = snapshot.children.mapNotNull {
-                    it.getValue(String::class.java)
+                weeklyTasks = snapshot.children.mapNotNull {
+                    it.getValue(Task::class.java)
                 }
-                weeklyTaskList = taskList
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -88,10 +111,9 @@ fun Tasks(navController: NavController) {
         })
         database.child("monthly").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val taskList = snapshot.children.mapNotNull {
-                    it.getValue(String::class.java)
+                monthlyTasks = snapshot.children.mapNotNull {
+                    it.getValue(Task::class.java)
                 }
-                monthlyTaskList = taskList
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -100,6 +122,12 @@ fun Tasks(navController: NavController) {
         })
     }
 
+
+    /*
+       TODO: set page default in which the user choose the task, then create also
+            page in which the user can change it (by opening the dialog)
+       TODO: save user selected and user finished tasks
+     */
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -110,7 +138,7 @@ fun Tasks(navController: NavController) {
                     CharacterStatsTask()
                     HorizontalDivider(
                         modifier = Modifier
-                            .padding(start = 7.dp, bottom = 10.dp, end = 7.dp),
+                            .padding(start = 8.dp, end = 8.dp),
                         thickness = 2.dp,
                         color = Color.Red
                     )
@@ -119,47 +147,72 @@ fun Tasks(navController: NavController) {
         ){ padding ->
 
             LazyColumn (
-                modifier = Modifier.padding(top = 130.dp)
+                modifier = Modifier.padding(top = 150.dp)
             ){
-                itemsIndexed(dailyTaskList + weeklyTaskList + monthlyTaskList) { index, item ->
-                    if(index == 5 || index == 10) {
-                        HorizontalDivider(
-                            modifier = Modifier
-                                .padding(start = 10.dp, top = 15.dp, bottom = 8.dp, end = 10.dp),
-                            thickness = 2.dp,
-                            color = Color.Black
-                        )
-                    }
-                    Card(
+                item {
+                    Text(
+                        text = "Daily",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(start = 5.dp, bottom = 2.dp),
+                    )
+                    HorizontalDivider(
                         modifier = Modifier
-                            .padding(10.dp)
-                            .clickable(onClick = { openTaskDialog = !openTaskDialog})
-                            .fillMaxWidth()
-                            .size(200.dp, 80.dp),
-                        shape = MaterialTheme.shapes.medium,
-                        border = BorderStroke(1.dp, Color.Black),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        )
-                     ){
-                        Row (
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(5.dp),
-                                text = item,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
+                            .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
+                        thickness = 2.dp,
+                        color = Color.Black
+                    )
+                }
+                itemsIndexed(dailyTasks) { index, item ->
+                    taskBox(openDialogAction = {
+                        openTaskDialog = !openTaskDialog
+                        selectedTask = item
+                    }, item.title)
+                }
+                item {
+                    Text(
+                        text = "Weekly",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(start = 5.dp, bottom = 2.dp, top = 5.dp),
+                        textAlign = TextAlign.Center
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
+                        thickness = 2.dp,
+                        color = Color.Black
+                    )
+                }
+                itemsIndexed(weeklyTasks) { index, item ->
+                    taskBox(openDialogAction = {
+                        openTaskDialog = !openTaskDialog
+                        selectedTask = item
+                    }, item.title)
+                }
+                item {
+                    Text(
+                        text = "Monthly",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(start = 5.dp, bottom = 2.dp, top = 5.dp),
+                        textAlign = TextAlign.Center
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
+                        thickness = 2.dp,
+                        color = Color.Black
+                    )
+                }
+                itemsIndexed(monthlyTasks) { index, item ->
+                    taskBox(openDialogAction = {
+                        openTaskDialog = !openTaskDialog
+                        selectedTask = item
+                    }, item.title)
                 }
             }
+
             when {
                 openTaskDialog -> {
-                    taskChoiceDialog(onDismissRequest = {openTaskDialog = false})
+                    taskOptionDialog(onDismissRequest = {openTaskDialog = false}, selectedTask)
                 }
             }
         }
@@ -168,22 +221,139 @@ fun Tasks(navController: NavController) {
 }
 
 @Composable
-fun taskChoiceDialog(onDismissRequest: () -> Unit) {
+fun taskBox(openDialogAction: () -> Unit, item: String) {
+    Card(
+        modifier = Modifier
+            .padding(10.dp)
+            .clickable(onClick = openDialogAction)
+            .fillMaxWidth()
+            .size(200.dp, 80.dp),
+        shape = MaterialTheme.shapes.medium,
+//        border = BorderStroke(1.dp, Color.Black),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    ){
+        Row (
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                modifier = Modifier.padding(5.dp),
+                text = item,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+fun taskSelectionDialog(onDismissRequest: () -> Unit) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card (
             modifier = Modifier
-                .fillMaxWidth()
-                .height(500.dp)
-                .padding(10.dp),
+                .wrapContentSize(),
             shape = RoundedCornerShape(10.dp)
         ){
-            Text(
+            Column(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(10.dp)
-                    .wrapContentSize(Alignment.Center),
-                textAlign = TextAlign.Center,
-                text = "Prova"
-            )
+                    .height(500.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                // TODO: display task list (of the selected category)
+            }
+        }
+    }
+}
+
+@Composable
+fun taskOptionDialog(onDismissRequest: () -> Unit, selectedTask: Task) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card (
+            modifier = Modifier
+                .wrapContentSize(),
+            shape = RoundedCornerShape(10.dp)
+        ){
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .height(500.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Text(
+                    text = selectedTask.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier
+                        .padding(bottom = 5.dp, top = 40.dp)
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 30.dp, end = 30.dp, bottom = 10.dp),
+                    thickness = 1.dp,
+                    color = Color.Black
+                )
+                Text(
+                    text = selectedTask.desc,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(bottom = 40.dp, start = 10.dp, end = 10.dp),
+                    textAlign = TextAlign.Center
+                )
+                Button(
+                    modifier = Modifier
+                        .padding(end = 20.dp, start = 20.dp)
+                        .size(350.dp, 50.dp),
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Text(
+                        text = "Completed",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+
+                Button(
+                    modifier = Modifier
+                        .padding(end = 20.dp, start = 20.dp, top = 20.dp)
+                        .size(350.dp, 50.dp),
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Text(
+                        text = "Completed with a friend",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+
+                Button(
+                    modifier = Modifier
+                        .padding(end = 20.dp, start = 20.dp, top = 20.dp, bottom = 50.dp)
+                        .size(350.dp, 50.dp),
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Text(
+                        text = "Change task",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+            }
         }
     }
 }
