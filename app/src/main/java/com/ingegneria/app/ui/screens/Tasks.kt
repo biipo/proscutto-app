@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -160,10 +159,10 @@ fun Tasks(navController: NavController) {
             }
             // tmp
 //            showTaskList(
-//                dailyTasks,
-//                weeklyTasks,
-//                monthlyTasks,
-//                { openDialog = !openDialog},
+//                dailyTasks = dailyTasks,
+//                weeklyTasks = weeklyTasks,
+//                monthlyTasks = monthlyTasks,
+//                { openSingleTaskDialog = !openSingleTaskDialog },
 //                {item -> selectedTask = item}
 //            )
         }
@@ -191,6 +190,37 @@ fun Tasks(navController: NavController) {
 }
 
 @Composable
+fun showSingleGoupList(
+    taskType: String,
+    tasks: List<Task>,
+    itemClickedAction: () -> Unit,
+    selectItemSaver: (Task) -> Unit
+) {
+    if(tasks.isNotEmpty()) {
+        Text(
+            text = taskType,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(start = 5.dp, bottom = 2.dp),
+        )
+        HorizontalDivider(
+            modifier = Modifier
+                .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
+            thickness = 2.dp,
+            color = Color.Black
+        )
+    }
+    tasks.forEach { item ->
+        taskBox(
+            openDialogAction = {
+                itemClickedAction()
+                selectItemSaver(item)
+            },
+            item
+        )
+    }
+}
+
+@Composable
 fun showTaskList(
     dailyTasks: List<Task>,
     weeklyTasks: List<Task>,
@@ -204,85 +234,16 @@ fun showTaskList(
 
     LazyColumn {
         item {
-            if(dailyTasks.isNotEmpty()) {
-                Text(
-                    text = "Daily",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(start = 5.dp, bottom = 2.dp),
-                )
-                HorizontalDivider(
-                    modifier = Modifier
-                        .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
-                    thickness = 2.dp,
-                    color = Color.Black
-                )
-            }
-        }
-        itemsIndexed(dailyTasks) { index, item ->
-            taskBox(
-                openDialogAction = {
-                    itemClickedAction()
-                    selectItemSaver(item)
-                },
-                item.title
-            )
-        }
-        item {
-            if(weeklyTasks.isNotEmpty()) {
-                Text(
-                    text = "Weekly",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(start = 5.dp, bottom = 2.dp, top = 5.dp),
-                    textAlign = TextAlign.Center
-                )
-                HorizontalDivider(
-                    modifier = Modifier
-                        .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
-                    thickness = 2.dp,
-                    color = Color.Black
-                )
-            }
-        }
-        itemsIndexed(weeklyTasks) { index, item ->
-            taskBox(
-                openDialogAction = {
-                    itemClickedAction()
-                    selectItemSaver(item)
-                },
-                item.title
-            )
-        }
-        item {
-            if(monthlyTasks.isNotEmpty()) {
-                Text(
-                    text = "Monthly",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(start = 5.dp, bottom = 2.dp, top = 5.dp),
-                    textAlign = TextAlign.Center
-                )
-                HorizontalDivider(
-                    modifier = Modifier
-                        .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
-                    thickness = 2.dp,
-                    color = Color.Black
-                )
-            }
-        }
-        itemsIndexed(monthlyTasks) { index, item ->
-            taskBox(
-                openDialogAction = {
-                    itemClickedAction()
-                    selectItemSaver(item)
-                },
-                item.title
-            )
+            showSingleGoupList("Daily", dailyTasks, itemClickedAction, selectItemSaver)
+            showSingleGoupList("Weekly", weeklyTasks, itemClickedAction, selectItemSaver)
+            showSingleGoupList("Monthly", monthlyTasks, itemClickedAction, selectItemSaver)
         }
     }
 
 }
 
 @Composable
-fun taskBox(openDialogAction: () -> Unit, item: String) {
+fun taskBox(openDialogAction: () -> Unit, item: Task) {
     Card(
         modifier = Modifier
             .padding(10.dp)
@@ -291,8 +252,8 @@ fun taskBox(openDialogAction: () -> Unit, item: String) {
             .size(200.dp, 80.dp),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = MaterialTheme.colorScheme.onSecondary
+            containerColor = if(true) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+            contentColor = if(true) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
         )
     ){
         Row (
@@ -303,7 +264,7 @@ fun taskBox(openDialogAction: () -> Unit, item: String) {
         ) {
             Text(
                 modifier = Modifier.padding(5.dp),
-                text = item,
+                text = item.title,
                 textAlign = TextAlign.Center
             )
         }
