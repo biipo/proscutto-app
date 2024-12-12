@@ -23,7 +23,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,34 +57,24 @@ fun Tasks(navController: NavController) {
 
     // TODO: retreive tasks when app is opened
     val database = FirebaseDatabase.getInstance().reference.child("task")
-    // The task list is a Map with key (daily, weekly or monthly) and value (list of Task object associated in firebase)
-    /*
-        taskList = {
-            "daily" : [
-                Task(title = "...", desc = "...")
-                ...
-            ],
-            "weekly" : [
-                Task(title = "...", desc = "...")
-                ...
-            ],
-            "monthly" : [
-                Task(title = "...", desc = "...")
-                ...
-            ],
-        }
-     */
     var dailyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
     var weeklyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
     var monthlyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
 
-    var openTaskDialog by remember { mutableStateOf(false) }
+    var userDailyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
+    var userWeeklyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
+    var userMonthlyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
+
+    // Used for opening the dialog of a specific task
+    var openSingleTaskDialog by remember { mutableStateOf(false) }
+
+    // User for opening the task list dialog
+    var openTaskChoiceDialog by remember { mutableStateOf(false) }
+
+    // Used for passing the selected task
     var selectedTask by remember { mutableStateOf(Task()) }
-    /* TODO: create a list of selected tasks for each category,
-        then for each user save the id of the task selected for each type,
-        then in the user space we mark the completed tasks,
-        if the user want to change a task we load a tmp list of the other (based on a set and then casted into a list??)
-     */
+
+    // Retrieve the full task list from firebase db
     LaunchedEffect(Unit) {
         database.child("daily").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -122,102 +111,174 @@ fun Tasks(navController: NavController) {
         })
     }
 
-
-    /*
-       TODO: set page default in which the user choose the task, then create also
-            page in which the user can change it (by opening the dialog)
-       TODO: save user selected and user finished tasks
-     */
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Scaffold (
-            topBar = {
-                Column {
-                    CharacterStatsTask()
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .padding(start = 8.dp, end = 8.dp),
-                        thickness = 2.dp,
-                        color = Color.Red
+        Column (
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            CharacterStatsTask()
+            HorizontalDivider(
+                modifier = Modifier
+                    .padding(start = 8.dp, end = 8.dp, bottom = 10.dp),
+                thickness = 2.dp,
+                color = Color.Red
+            )
+            // if the user has previously selected the tasks we display them
+            if(userDailyTasks.isNotEmpty() && userWeeklyTasks.isNotEmpty() && userMonthlyTasks.isNotEmpty()) {
+                showTaskList(
+                    dailyTasks = userDailyTasks,
+                    weeklyTasks = userWeeklyTasks,
+                    monthlyTasks = userMonthlyTasks,
+                    itemClickedAction = {
+                        openSingleTaskDialog = !openSingleTaskDialog
+                    },
+                    selectItemSaver = {
+                        item -> selectedTask = item
+                    }
+                )
+            } else {
+                // no task is shown and is displayed the button for tasks selection
+                Text(
+                    text = "Any task has been selected",
+                    modifier = Modifier.padding(bottom = 10.dp),
+                    textAlign = TextAlign.Center
+                )
+                Button(
+                    modifier = Modifier,
+                    onClick = {
+                        openTaskChoiceDialog = !openTaskChoiceDialog
+                    }
+                ) {
+                    Text(
+                        text = "Choose tasks"
                     )
                 }
             }
-        ){ padding ->
-
-            LazyColumn (
-                modifier = Modifier.padding(top = 150.dp)
-            ){
-                item {
-                    Text(
-                        text = "Daily",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(start = 5.dp, bottom = 2.dp),
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
-                        thickness = 2.dp,
-                        color = Color.Black
-                    )
-                }
-                itemsIndexed(dailyTasks) { index, item ->
-                    taskBox(openDialogAction = {
-                        openTaskDialog = !openTaskDialog
-                        selectedTask = item
-                    }, item.title)
-                }
-                item {
-                    Text(
-                        text = "Weekly",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(start = 5.dp, bottom = 2.dp, top = 5.dp),
-                        textAlign = TextAlign.Center
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
-                        thickness = 2.dp,
-                        color = Color.Black
-                    )
-                }
-                itemsIndexed(weeklyTasks) { index, item ->
-                    taskBox(openDialogAction = {
-                        openTaskDialog = !openTaskDialog
-                        selectedTask = item
-                    }, item.title)
-                }
-                item {
-                    Text(
-                        text = "Monthly",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(start = 5.dp, bottom = 2.dp, top = 5.dp),
-                        textAlign = TextAlign.Center
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
-                        thickness = 2.dp,
-                        color = Color.Black
-                    )
-                }
-                itemsIndexed(monthlyTasks) { index, item ->
-                    taskBox(openDialogAction = {
-                        openTaskDialog = !openTaskDialog
-                        selectedTask = item
-                    }, item.title)
-                }
+            // tmp
+//            showTaskList(
+//                dailyTasks,
+//                weeklyTasks,
+//                monthlyTasks,
+//                { openDialog = !openDialog},
+//                {item -> selectedTask = item}
+//            )
+        }
+        when {
+            openSingleTaskDialog -> {
+                // when the user tap on a task, openDialog is triggered and changed to true so this code open the corresponding dialog
+                taskOptionDialog(
+                    onDismissRequest = { openSingleTaskDialog = false },
+                    selectedTask = selectedTask
+                )
             }
 
-            when {
-                openTaskDialog -> {
-                    taskOptionDialog(onDismissRequest = {openTaskDialog = false}, selectedTask)
-                }
+            openTaskChoiceDialog -> {
+                // when the user tap on the button relative for task choice
+                taskSelectionDialog(
+                    onDismissRequest =  { openTaskChoiceDialog = false },
+                    dailyTasks = dailyTasks,
+                    weeklyTasks = weeklyTasks,
+                    monthlyTasks = monthlyTasks
+                )
+
             }
         }
-
     }
+}
+
+@Composable
+fun showTaskList(
+    dailyTasks: List<Task>,
+    weeklyTasks: List<Task>,
+    monthlyTasks: List<Task>,
+    itemClickedAction: () -> Unit,
+    selectItemSaver: (Task) -> Unit
+) {
+    // In this composable are passed functions instead of the actual parameters because of the "state hoisting"; in kotlin we CAN'T pass a parameter
+    // as reference and CHANGE IT inside a function so we're obligated to pass a lambda function that do that (so we can change
+    // variable content from a different scope)
+
+    LazyColumn {
+        item {
+            if(dailyTasks.isNotEmpty()) {
+                Text(
+                    text = "Daily",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = 5.dp, bottom = 2.dp),
+                )
+                HorizontalDivider(
+                    modifier = Modifier
+                        .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
+                    thickness = 2.dp,
+                    color = Color.Black
+                )
+            }
+        }
+        itemsIndexed(dailyTasks) { index, item ->
+            taskBox(
+                openDialogAction = {
+                    itemClickedAction()
+                    selectItemSaver(item)
+                },
+                item.title
+            )
+        }
+        item {
+            if(weeklyTasks.isNotEmpty()) {
+                Text(
+                    text = "Weekly",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = 5.dp, bottom = 2.dp, top = 5.dp),
+                    textAlign = TextAlign.Center
+                )
+                HorizontalDivider(
+                    modifier = Modifier
+                        .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
+                    thickness = 2.dp,
+                    color = Color.Black
+                )
+            }
+        }
+        itemsIndexed(weeklyTasks) { index, item ->
+            taskBox(
+                openDialogAction = {
+                    itemClickedAction()
+                    selectItemSaver(item)
+                },
+                item.title
+            )
+        }
+        item {
+            if(monthlyTasks.isNotEmpty()) {
+                Text(
+                    text = "Monthly",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = 5.dp, bottom = 2.dp, top = 5.dp),
+                    textAlign = TextAlign.Center
+                )
+                HorizontalDivider(
+                    modifier = Modifier
+                        .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
+                    thickness = 2.dp,
+                    color = Color.Black
+                )
+            }
+        }
+        itemsIndexed(monthlyTasks) { index, item ->
+            taskBox(
+                openDialogAction = {
+                    itemClickedAction()
+                    selectItemSaver(item)
+                },
+                item.title
+            )
+        }
+    }
+
 }
 
 @Composable
@@ -229,10 +290,9 @@ fun taskBox(openDialogAction: () -> Unit, item: String) {
             .fillMaxWidth()
             .size(200.dp, 80.dp),
         shape = MaterialTheme.shapes.medium,
-//        border = BorderStroke(1.dp, Color.Black),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = MaterialTheme.colorScheme.secondary,
+            contentColor = MaterialTheme.colorScheme.onSecondary
         )
     ){
         Row (
@@ -251,7 +311,13 @@ fun taskBox(openDialogAction: () -> Unit, item: String) {
 }
 
 @Composable
-fun taskSelectionDialog(onDismissRequest: () -> Unit) {
+fun taskSelectionDialog(
+    onDismissRequest: () -> Unit,
+    dailyTasks: List<Task>,
+    weeklyTasks: List<Task>,
+    monthlyTasks: List<Task>
+) {
+    /* TODO: Variables that keep track of the selection */
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card (
             modifier = Modifier
@@ -266,10 +332,56 @@ fun taskSelectionDialog(onDismissRequest: () -> Unit) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-                // TODO: display task list (of the selected category)
+                showTaskList(
+                    dailyTasks = dailyTasks,
+                    weeklyTasks = weeklyTasks,
+                    monthlyTasks = monthlyTasks,
+                    itemClickedAction = {
+                        // TODO: when item clicked change color
+                    },
+                    selectItemSaver = {
+                        // TODO: save what item is clicked
+                    }
+                )
+            }
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                horizontalArrangement = Arrangement.Center
+            ){
+                Button(
+                    modifier = Modifier
+                        .padding(start = 5.dp)
+                        .size(width = 140.dp, height = 40.dp),
+                    onClick = onDismissRequest,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSecondary
+                    )
+                ) {
+                    Text(
+                        text = "Cancel"
+                    )
+                }
+                Button(
+                    modifier = Modifier
+                        .padding(start = 5.dp)
+                        .size(width = 140.dp, height = 40.dp),
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Text(
+                        text = "Confirm"
+                    )
+                }
             }
         }
     }
+    /* TODO: ACTION - Add a WHEN statement that apply the user choice in firebase (??) */
 }
 
 @Composable
@@ -310,7 +422,7 @@ fun taskOptionDialog(onDismissRequest: () -> Unit, selectedTask: Task) {
                     modifier = Modifier
                         .padding(end = 20.dp, start = 20.dp)
                         .size(350.dp, 50.dp),
-                    onClick = {},
+                    onClick = {}, // TODO
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -326,7 +438,7 @@ fun taskOptionDialog(onDismissRequest: () -> Unit, selectedTask: Task) {
                     modifier = Modifier
                         .padding(end = 20.dp, start = 20.dp, top = 20.dp)
                         .size(350.dp, 50.dp),
-                    onClick = {},
+                    onClick = {}, // TODO
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -342,7 +454,7 @@ fun taskOptionDialog(onDismissRequest: () -> Unit, selectedTask: Task) {
                     modifier = Modifier
                         .padding(end = 20.dp, start = 20.dp, top = 20.dp, bottom = 50.dp)
                         .size(350.dp, 50.dp),
-                    onClick = {},
+                    onClick = {}, // TODO
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
