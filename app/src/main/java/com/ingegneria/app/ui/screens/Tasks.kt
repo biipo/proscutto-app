@@ -2,6 +2,7 @@ package com.ingegneria.app.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,10 +49,20 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
+@Stable
 data class Task(
     val title: String = "",
-    val desc: String = ""
-)
+    val desc: String = "",
+    var isCompleted: MutableState<Boolean> = mutableStateOf(false),
+    var isSelected: MutableState<Boolean> = mutableStateOf(false)
+) {
+    fun toggleSelection() {
+        isSelected.value = !isSelected.value
+    }
+    fun toggleCompletion() {
+        isCompleted.value = !isCompleted.value
+    }
+}
 
 @Composable
 fun Tasks(navController: NavController) {
@@ -136,7 +149,7 @@ fun Tasks(navController: NavController) {
                         openSingleTaskDialog = !openSingleTaskDialog
                     },
                     selectItemSaver = {
-                        item -> selectedTask = item
+                        item, group -> selectedTask = item
                     }
                 )
             } else {
@@ -181,7 +194,9 @@ fun Tasks(navController: NavController) {
                     onDismissRequest =  { openTaskChoiceDialog = false },
                     dailyTasks = dailyTasks,
                     weeklyTasks = weeklyTasks,
-                    monthlyTasks = monthlyTasks
+                    monthlyTasks = monthlyTasks,
+                    userSelectedUpdater = { item, group ->
+                    }
                 )
 
             }
@@ -194,7 +209,7 @@ fun showSingleGoupList(
     taskType: String,
     tasks: List<Task>,
     itemClickedAction: () -> Unit,
-    selectItemSaver: (Task) -> Unit
+    selectItemSaver: (Task, String) -> Unit
 ) {
     if(tasks.isNotEmpty()) {
         Text(
@@ -213,7 +228,7 @@ fun showSingleGoupList(
         taskBox(
             openDialogAction = {
                 itemClickedAction()
-                selectItemSaver(item)
+                selectItemSaver(item, taskType)
             },
             item
         )
@@ -226,7 +241,7 @@ fun showTaskList(
     weeklyTasks: List<Task>,
     monthlyTasks: List<Task>,
     itemClickedAction: () -> Unit,
-    selectItemSaver: (Task) -> Unit
+    selectItemSaver: (Task, String) -> Unit,
 ) {
     // In this composable are passed functions instead of the actual parameters because of the "state hoisting"; in kotlin we CAN'T pass a parameter
     // as reference and CHANGE IT inside a function so we're obligated to pass a lambda function that do that (so we can change
@@ -248,12 +263,13 @@ fun taskBox(openDialogAction: () -> Unit, item: Task) {
         modifier = Modifier
             .padding(10.dp)
             .clickable(onClick = openDialogAction)
+            .border(1.dp, Color.Black, RoundedCornerShape(5.dp))
             .fillMaxWidth()
             .size(200.dp, 80.dp),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
-            containerColor = if(true) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
-            contentColor = if(true) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
+            containerColor = if(item.isSelected.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = if(item.isSelected.value) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
         )
     ){
         Row (
@@ -276,9 +292,16 @@ fun taskSelectionDialog(
     onDismissRequest: () -> Unit,
     dailyTasks: List<Task>,
     weeklyTasks: List<Task>,
-    monthlyTasks: List<Task>
+    monthlyTasks: List<Task>,
+    userSelectedUpdater: (List<Task>, String) -> Unit
 ) {
-    /* TODO: Variables that keep track of the selection */
+    /* TODO: tmp solution */
+    var dailyList: MutableList<Task> = ArrayList()
+    var weeklyList: MutableList<Task> = ArrayList()
+    var monthlyList: MutableList<Task> = ArrayList()
+
+    var finishSelection by remember { mutableStateOf(false) }
+
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card (
             modifier = Modifier
@@ -300,8 +323,15 @@ fun taskSelectionDialog(
                     itemClickedAction = {
                         // TODO: when item clicked change color
                     },
-                    selectItemSaver = {
-                        // TODO: save what item is clicked
+                    selectItemSaver = { item, group ->
+                        if(group == "Daily") {
+                            dailyList.add(item)
+                        } else if (group == "Weekly") {
+                            weeklyList.add(item)
+                        } else if(group == "Monthly") {
+                            monthlyList.add(item)
+                        }
+                        item.toggleSelection()
                     }
                 )
             }
@@ -329,7 +359,7 @@ fun taskSelectionDialog(
                     modifier = Modifier
                         .padding(start = 5.dp)
                         .size(width = 140.dp, height = 40.dp),
-                    onClick = {},
+                    onClick = { finishSelection = true },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -343,6 +373,13 @@ fun taskSelectionDialog(
         }
     }
     /* TODO: ACTION - Add a WHEN statement that apply the user choice in firebase (??) */
+    when {
+        finishSelection -> {
+            userSelectedUpdater(dailyList, "Daily")
+            userSelectedUpdater(weeklyList, "Weekly")
+            userSelectedUpdater(monthlyList, "Monthly")
+        }
+    }
 }
 
 @Composable
