@@ -148,15 +148,6 @@ fun Tasks(navController: NavController) {
                     dailyTasks = taskVM.dailyTasks,
                     weeklyTasks = taskVM.weeklyTasks,
                     monthlyTasks = taskVM.monthlyTasks,
-                    userSelectedUpdater = { items, group ->
-                        if(group == "Daily") {
-                            taskVM.dailyTasks = items
-                        } else if(group == "Weekly") {
-                            taskVM.weeklyTasks = items
-                        } else if(group == "Monthly") {
-                            taskVM.monthlyTasks = items
-                        }
-                    },
                     taskVM = taskVM
                 )
 
@@ -254,13 +245,8 @@ fun taskSelectionDialog(
     dailyTasks: List<Task>,
     weeklyTasks: List<Task>,
     monthlyTasks: List<Task>,
-    userSelectedUpdater: (List<Task>, String) -> Unit,
     taskVM: TaskViewModel
 ) {
-    /* TODO: tmp solution */
-    var dailyList: MutableList<Task> = ArrayList()
-    var weeklyList: MutableList<Task> = ArrayList()
-    var monthlyList: MutableList<Task> = ArrayList()
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card (
@@ -285,11 +271,11 @@ fun taskSelectionDialog(
                     },
                     selectItemSaver = { item, group ->
                         if(group == "Daily") {
-                            dailyList.add(item)
+                            taskVM.userDailyTasks.add(item)
                         } else if (group == "Weekly") {
-                            weeklyList.add(item)
+                            taskVM.userWeeklyTasks.add(item)
                         } else if(group == "Monthly") {
-                            monthlyList.add(item)
+                            taskVM.userMonthlyTasks.add(item)
                         }
                         item.toggleSelection()
                     }
@@ -320,11 +306,8 @@ fun taskSelectionDialog(
                         .padding(start = 5.dp)
                         .size(width = 140.dp, height = 40.dp),
                     onClick = {
-                        userSelectedUpdater(dailyList, "Daily")
-                        userSelectedUpdater(weeklyList, "Weekly")
-                        userSelectedUpdater(monthlyList, "Monthly")
-                        onDismissRequest()
                         taskVM.toggleShowTasks()
+                        onDismissRequest()
                       },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
