@@ -37,9 +37,9 @@ class TaskViewModel : ViewModel() {
     var weeklyTasks by mutableStateOf<List<Task>>(emptyList())
     var monthlyTasks by mutableStateOf<List<Task>>(emptyList())
 
-    var userDailyTasks: MutableList<Task> = mutableListOf()
-    var userWeeklyTasks: MutableList<Task> = mutableListOf()
-    var userMonthlyTasks: MutableList<Task> = mutableListOf()
+    var userDailyTasks: MutableSet<Task> = mutableSetOf()
+    var userWeeklyTasks: MutableSet<Task> = mutableSetOf()
+    var userMonthlyTasks: MutableSet<Task> = mutableSetOf()
 
     var showTasks: Boolean = false
 
@@ -79,18 +79,8 @@ class TaskViewModel : ViewModel() {
         })
     }
 
-    fun userSelectedTasksAreEmpty() : Boolean {
-        return (userDailyTasks.isEmpty() || userWeeklyTasks.isEmpty() || userMonthlyTasks.isEmpty())
-    }
-
     fun toggleShowTasks() {
         showTasks = !showTasks
-    }
-
-    fun tmp() {
-        userDailyTasks = dailyTasks.toMutableList()
-        userWeeklyTasks = weeklyTasks.toMutableList()
-        userMonthlyTasks = monthlyTasks.toMutableList()
     }
 }
 /*

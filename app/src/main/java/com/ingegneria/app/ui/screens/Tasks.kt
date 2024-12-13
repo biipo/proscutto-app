@@ -42,27 +42,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 
-//@Stable
-//data class Task(
-//    val title: String = "",
-//    val desc: String = "",
-//    var isCompleted: MutableState<Boolean> = mutableStateOf(false),
-//    var isSelected: MutableState<Boolean> = mutableStateOf(false)
-//) {
-//    fun toggleSelection() {
-//        isSelected.value = !isSelected.value
-//    }
-//    fun toggleCompletion() {
-//        isCompleted.value = !isCompleted.value
-//    }
-//}
-
 @Composable
 fun Tasks(navController: NavController) {
 
-    // TODO: retreive tasks when app is opened
+    /*  TODO: retrieve tasks when app is opened (not when the user open the tasks' tab)
+    *   TODO: when a tab is changed the viewModel is cleared, it has to be declared in the Activity (MainActivity) */
     val taskVM = viewModel<TaskViewModel>()
-    taskVM.retrieveFirebaseData()
 
     // Used for opening the dialog of a specific task
     var openSingleTaskDialog by remember { mutableStateOf(false) }
@@ -94,15 +79,10 @@ fun Tasks(navController: NavController) {
             )
             when { // When the user has selected the task in the task selection dialog the page should update and show the selected tasks
                 taskVM.showTasks -> {
-                    Text(
-                        text = "User tot selected tasks: ${taskVM.userDailyTasks.size + 
-                                                            taskVM.userWeeklyTasks.size + 
-                                                            taskVM.userMonthlyTasks.size}"
-                    )
                     showTaskList(
-                        dailyTasks = taskVM.userDailyTasks,
-                        weeklyTasks = taskVM.userWeeklyTasks,
-                        monthlyTasks = taskVM.userMonthlyTasks,
+                        dailyTasks = taskVM.userDailyTasks.toList(),
+                        weeklyTasks = taskVM.userWeeklyTasks.toList(),
+                        monthlyTasks = taskVM.userMonthlyTasks.toList(),
                         itemClickedAction = {
                             openSingleTaskDialog = !openSingleTaskDialog
                         },
@@ -220,8 +200,20 @@ fun taskBox(openDialogAction: () -> Unit, item: Task) {
             .size(200.dp, 80.dp),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
-            containerColor = if(item.isSelected.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = if(item.isSelected.value) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
+            containerColor = if(item.isSelected.value && !item.isCompleted.value) {
+                MaterialTheme.colorScheme.primary
+            } else if(item.isCompleted.value) {
+                MaterialTheme.colorScheme.background
+            }else {
+                MaterialTheme.colorScheme.secondaryContainer
+            },
+            contentColor = if(item.isSelected.value && !item.isCompleted.value) {
+                MaterialTheme.colorScheme.onPrimary
+            } else if(item.isCompleted.value) {
+                MaterialTheme.colorScheme.onBackground
+            }else {
+                MaterialTheme.colorScheme.onSecondaryContainer
+            }
         )
     ){
         Row (
@@ -266,18 +258,27 @@ fun taskSelectionDialog(
                     dailyTasks = dailyTasks,
                     weeklyTasks = weeklyTasks,
                     monthlyTasks = monthlyTasks,
-                    itemClickedAction = {
-                        // TODO: when item clicked change color
-                    },
+                    itemClickedAction = {},
+                    /* If the item is clicked, it's immediately added in the corresponding list (actually a set, that avoid duplicates)
+                       but if it's clicked again and toggled to unselected we have to remove it
+                       TODO: keep the selection inside this dialog (now the task object has a attribute that
+                        exists also outside this selection), the problem it creates appears in the taskBox composable when
+                        we select the color */
                     selectItemSaver = { item, group ->
-                        if(group == "Daily") {
-                            taskVM.userDailyTasks.add(item)
-                        } else if (group == "Weekly") {
-                            taskVM.userWeeklyTasks.add(item)
-                        } else if(group == "Monthly") {
-                            taskVM.userMonthlyTasks.add(item)
-                        }
                         item.toggleSelection()
+                        if(item.isSelected.value && group == "Daily") {
+                            taskVM.userDailyTasks.add(item)
+                        } else if (item.isSelected.value && group == "Weekly") {
+                            taskVM.userWeeklyTasks.add(item)
+                        } else if(item.isSelected.value && group == "Monthly") {
+                            taskVM.userMonthlyTasks.add(item)
+                        } else if(!item.isSelected.value && group == "Daily") {
+                            taskVM.userDailyTasks.remove(item)
+                        } else if(!item.isSelected.value && group == "Weekly") {
+                            taskVM.userWeeklyTasks.remove(item)
+                        } else if(!item.isSelected.value && group == "Monthly") {
+                            taskVM.userMonthlyTasks.remove(item)
+                        }
                     }
                 )
             }
@@ -306,6 +307,8 @@ fun taskSelectionDialog(
                         .padding(start = 5.dp)
                         .size(width = 140.dp, height = 40.dp),
                     onClick = {
+                        /* TODO: maybe it's better to scan the list and keep only the tasks with isSelected == true?
+                            rather than add and remove them immediately when clicked */
                         taskVM.toggleShowTasks()
                         onDismissRequest()
                       },
@@ -361,7 +364,10 @@ fun taskOptionDialog(onDismissRequest: () -> Unit, selectedTask: Task) {
                     modifier = Modifier
                         .padding(end = 20.dp, start = 20.dp)
                         .size(350.dp, 50.dp),
-                    onClick = {}, // TODO
+                    onClick = {
+                        selectedTask.toggleCompletion()
+                        onDismissRequest()
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -377,7 +383,7 @@ fun taskOptionDialog(onDismissRequest: () -> Unit, selectedTask: Task) {
                     modifier = Modifier
                         .padding(end = 20.dp, start = 20.dp, top = 20.dp)
                         .size(350.dp, 50.dp),
-                    onClick = {}, // TODO
+                    onClick = {}, // TODO: complete but with a friend
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -393,7 +399,7 @@ fun taskOptionDialog(onDismissRequest: () -> Unit, selectedTask: Task) {
                     modifier = Modifier
                         .padding(end = 20.dp, start = 20.dp, top = 20.dp, bottom = 50.dp)
                         .size(350.dp, 50.dp),
-                    onClick = {}, // TODO
+                    onClick = {}, // TODO: should open the dialog with the list of NON-selected task available
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
