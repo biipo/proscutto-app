@@ -13,6 +13,12 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.database.*
 import com.google.firebase.database.PropertyName
 
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+
+
+
+
 
 data class Question(
     @get:PropertyName("question") @set:PropertyName("question")
@@ -27,12 +33,15 @@ data class Question(
 
 @Composable
 fun Quiz(navController: NavController) {
+    val context = LocalContext.current
     val database = FirebaseDatabase.getInstance().reference.child("quiz")
     var questions by remember { mutableStateOf<List<Question>>(emptyList()) }
     var currentQuestionIndex by remember { mutableIntStateOf(0) }
     var selectedAnswer by remember { mutableStateOf<String?>(null) }
     var isQuestionsLoaded by remember { mutableStateOf(false) }
-    var answeredQuestionsCount by remember { mutableIntStateOf(0) }
+    var answeredQuestionsCount by remember {
+        mutableIntStateOf(loadAnsweredQuestionsCount(context))
+    }
     var feedbackMessage by remember { mutableStateOf<String?>(null) }
     val dailyQuestionLimit = 5
 
@@ -109,6 +118,8 @@ fun Quiz(navController: NavController) {
                             }
 
                             answeredQuestionsCount++
+                            saveAnsweredQuestionsCount(context, answeredQuestionsCount) // Salva il conteggio
+
                             selectedAnswer = null
                             currentQuestionIndex = (currentQuestionIndex + 1) % questions.size
                         },
@@ -156,6 +167,9 @@ fun Quiz(navController: NavController) {
     }
 }
 
+
+
+
 @Composable
 fun AnswerButton(answer: String, isSelected: Boolean, onClick: () -> Unit) {
     Button(
@@ -176,6 +190,21 @@ fun AnswerButton(answer: String, isSelected: Boolean, onClick: () -> Unit) {
 fun PreviewQuiz(navController: NavController = rememberNavController()) {
     Quiz(navController = navController)
 }
+
+fun saveAnsweredQuestionsCount(context: Context, count: Int) {
+    val sharedPreferences = context.getSharedPreferences("quiz_prefs", Context.MODE_PRIVATE)
+    with(sharedPreferences.edit()) {
+        putInt("answered_questions_count", count)
+        apply()
+    }
+}
+
+fun loadAnsweredQuestionsCount(context: Context): Int {
+    val sharedPreferences = context.getSharedPreferences("quiz_prefs", Context.MODE_PRIVATE)
+    return sharedPreferences.getInt("answered_questions_count", 0)
+}
+
+
 
 
 
