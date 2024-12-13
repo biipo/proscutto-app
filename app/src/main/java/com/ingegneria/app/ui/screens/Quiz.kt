@@ -12,7 +12,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.database.*
 import com.google.firebase.database.PropertyName
-
 import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 
@@ -118,7 +117,7 @@ fun Quiz(navController: NavController) {
                             }
 
                             answeredQuestionsCount++
-                            saveAnsweredQuestionsCount(context, answeredQuestionsCount) // Salva il conteggio
+                            saveAnsweredQuestionsCount(context, answeredQuestionsCount)
 
                             selectedAnswer = null
                             currentQuestionIndex = (currentQuestionIndex + 1) % questions.size
