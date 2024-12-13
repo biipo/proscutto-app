@@ -1,6 +1,5 @@
 package com.ingegneria.app.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,9 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,40 +38,31 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 
-@Stable
-data class Task(
-    val title: String = "",
-    val desc: String = "",
-    var isCompleted: MutableState<Boolean> = mutableStateOf(false),
-    var isSelected: MutableState<Boolean> = mutableStateOf(false)
-) {
-    fun toggleSelection() {
-        isSelected.value = !isSelected.value
-    }
-    fun toggleCompletion() {
-        isCompleted.value = !isCompleted.value
-    }
-}
+//@Stable
+//data class Task(
+//    val title: String = "",
+//    val desc: String = "",
+//    var isCompleted: MutableState<Boolean> = mutableStateOf(false),
+//    var isSelected: MutableState<Boolean> = mutableStateOf(false)
+//) {
+//    fun toggleSelection() {
+//        isSelected.value = !isSelected.value
+//    }
+//    fun toggleCompletion() {
+//        isCompleted.value = !isCompleted.value
+//    }
+//}
 
 @Composable
 fun Tasks(navController: NavController) {
 
     // TODO: retreive tasks when app is opened
-    val database = FirebaseDatabase.getInstance().reference.child("task")
-    var dailyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
-    var weeklyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
-    var monthlyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
-
-    var userDailyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
-    var userWeeklyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
-    var userMonthlyTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
+    val taskVM = viewModel<TaskViewModel>()
+    taskVM.retrieveFirebaseData()
 
     // Used for opening the dialog of a specific task
     var openSingleTaskDialog by remember { mutableStateOf(false) }
@@ -87,41 +74,7 @@ fun Tasks(navController: NavController) {
     var selectedTask by remember { mutableStateOf(Task()) }
 
     // Retrieve the full task list from firebase db
-    LaunchedEffect(Unit) {
-        database.child("daily").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                dailyTasks = snapshot.children.mapNotNull {
-                    it.getValue(Task::class.java)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Task", "Errorino :( - ${error.message}")
-            }
-        })
-        database.child("weekly").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                weeklyTasks = snapshot.children.mapNotNull {
-                    it.getValue(Task::class.java)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Task", "Errorino :( - ${error.message}")
-            }
-        })
-        database.child("monthly").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                monthlyTasks = snapshot.children.mapNotNull {
-                    it.getValue(Task::class.java)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Task", "Errorino :( - ${error.message}")
-            }
-        })
-    }
+    taskVM.retrieveFirebaseData()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -139,46 +92,46 @@ fun Tasks(navController: NavController) {
                 thickness = 2.dp,
                 color = Color.Red
             )
-            // if the user has previously selected the tasks we display them
-            if(userDailyTasks.isNotEmpty() && userWeeklyTasks.isNotEmpty() && userMonthlyTasks.isNotEmpty()) {
-                showTaskList(
-                    dailyTasks = userDailyTasks,
-                    weeklyTasks = userWeeklyTasks,
-                    monthlyTasks = userMonthlyTasks,
-                    itemClickedAction = {
-                        openSingleTaskDialog = !openSingleTaskDialog
-                    },
-                    selectItemSaver = {
-                        item, group -> selectedTask = item
-                    }
-                )
-            } else {
-                // no task is shown and is displayed the button for tasks selection
-                Text(
-                    text = "Any task has been selected",
-                    modifier = Modifier.padding(bottom = 10.dp),
-                    textAlign = TextAlign.Center
-                )
-                Button(
-                    modifier = Modifier,
-                    onClick = {
-                        openTaskChoiceDialog = !openTaskChoiceDialog
-                    }
-                ) {
+            when { // When the user has selected the task in the task selection dialog the page should update and show the selected tasks
+                taskVM.showTasks -> {
                     Text(
-                        text = "Choose tasks"
+                        text = "User tot selected tasks: ${taskVM.userDailyTasks.size + 
+                                                            taskVM.userWeeklyTasks.size + 
+                                                            taskVM.userMonthlyTasks.size}"
+                    )
+                    showTaskList(
+                        dailyTasks = taskVM.userDailyTasks,
+                        weeklyTasks = taskVM.userWeeklyTasks,
+                        monthlyTasks = taskVM.userMonthlyTasks,
+                        itemClickedAction = {
+                            openSingleTaskDialog = !openSingleTaskDialog
+                        },
+                        selectItemSaver = { item, group ->
+                            selectedTask = item
+                        }
                     )
                 }
+                !taskVM.showTasks -> {
+                    Text(
+                        text = "Any task has been selected",
+                        modifier = Modifier.padding(bottom = 10.dp),
+                        textAlign = TextAlign.Center
+                    )
+                    Button(
+                        modifier = Modifier,
+                        onClick = {
+                            openTaskChoiceDialog = !openTaskChoiceDialog
+                        }
+                    ) {
+                        Text(
+                            text = "Choose tasks"
+                        )
+                    }
+                }
             }
-            // tmp
-//            showTaskList(
-//                dailyTasks = dailyTasks,
-//                weeklyTasks = weeklyTasks,
-//                monthlyTasks = monthlyTasks,
-//                { openSingleTaskDialog = !openSingleTaskDialog },
-//                {item -> selectedTask = item}
-//            )
         }
+
+
         when {
             openSingleTaskDialog -> {
                 // when the user tap on a task, openDialog is triggered and changed to true so this code open the corresponding dialog
@@ -192,11 +145,19 @@ fun Tasks(navController: NavController) {
                 // when the user tap on the button relative for task choice
                 taskSelectionDialog(
                     onDismissRequest =  { openTaskChoiceDialog = false },
-                    dailyTasks = dailyTasks,
-                    weeklyTasks = weeklyTasks,
-                    monthlyTasks = monthlyTasks,
-                    userSelectedUpdater = { item, group ->
-                    }
+                    dailyTasks = taskVM.dailyTasks,
+                    weeklyTasks = taskVM.weeklyTasks,
+                    monthlyTasks = taskVM.monthlyTasks,
+                    userSelectedUpdater = { items, group ->
+                        if(group == "Daily") {
+                            taskVM.dailyTasks = items
+                        } else if(group == "Weekly") {
+                            taskVM.weeklyTasks = items
+                        } else if(group == "Monthly") {
+                            taskVM.monthlyTasks = items
+                        }
+                    },
+                    taskVM = taskVM
                 )
 
             }
@@ -293,14 +254,13 @@ fun taskSelectionDialog(
     dailyTasks: List<Task>,
     weeklyTasks: List<Task>,
     monthlyTasks: List<Task>,
-    userSelectedUpdater: (List<Task>, String) -> Unit
+    userSelectedUpdater: (List<Task>, String) -> Unit,
+    taskVM: TaskViewModel
 ) {
     /* TODO: tmp solution */
     var dailyList: MutableList<Task> = ArrayList()
     var weeklyList: MutableList<Task> = ArrayList()
     var monthlyList: MutableList<Task> = ArrayList()
-
-    var finishSelection by remember { mutableStateOf(false) }
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card (
@@ -359,7 +319,13 @@ fun taskSelectionDialog(
                     modifier = Modifier
                         .padding(start = 5.dp)
                         .size(width = 140.dp, height = 40.dp),
-                    onClick = { finishSelection = true },
+                    onClick = {
+                        userSelectedUpdater(dailyList, "Daily")
+                        userSelectedUpdater(weeklyList, "Weekly")
+                        userSelectedUpdater(monthlyList, "Monthly")
+                        onDismissRequest()
+                        taskVM.toggleShowTasks()
+                      },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -370,14 +336,6 @@ fun taskSelectionDialog(
                     )
                 }
             }
-        }
-    }
-    /* TODO: ACTION - Add a WHEN statement that apply the user choice in firebase (??) */
-    when {
-        finishSelection -> {
-            userSelectedUpdater(dailyList, "Daily")
-            userSelectedUpdater(weeklyList, "Weekly")
-            userSelectedUpdater(monthlyList, "Monthly")
         }
     }
 }
@@ -504,19 +462,24 @@ fun CharacterStatsTask() {
                 )
                 LinearProgressIndicator(
                     progress = { (currentHpExample / maxHp.toFloat()) },
-                    modifier = Modifier.fillMaxWidth().height(15.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(15.dp),
                     color = MaterialTheme.colorScheme.primary,
                     trackColor = MaterialTheme.colorScheme.background
                 )
                 Text(
                     text = "$currentXpExample/$maxXp",
                     fontSize = 15.sp,
-                    modifier = Modifier.align(Alignment.End)
+                    modifier = Modifier
+                        .align(Alignment.End)
                         .padding(0.dp, 15.dp, 0.dp, 0.dp)
                 )
                 LinearProgressIndicator(
                     progress = { (currentXpExample / maxXp.toFloat()) },
-                    modifier = Modifier.fillMaxWidth().height(15.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(15.dp),
                     color = MaterialTheme.colorScheme.tertiary,
                     trackColor = MaterialTheme.colorScheme.background
                 )
