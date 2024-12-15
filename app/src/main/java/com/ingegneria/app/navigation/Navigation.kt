@@ -1,6 +1,7 @@
 package com.ingegneria.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,10 +10,14 @@ import com.ingegneria.app.ui.screens.Login
 import com.ingegneria.app.ui.screens.Quiz
 import com.ingegneria.app.ui.screens.Settings
 import com.ingegneria.app.ui.screens.Signup
+import com.ingegneria.app.ui.screens.TaskViewModel
 import com.ingegneria.app.ui.screens.Tasks
 
 @Composable
 fun Navigation(navController: NavHostController, startScreen:String) {
+
+    val taskVM = viewModel<TaskViewModel>()
+    taskVM.retrieveFirebaseData()
 
     NavHost(navController = navController, startDestination = startScreen) {
         composable(Screens.Login.name) {
@@ -26,7 +31,7 @@ fun Navigation(navController: NavHostController, startScreen:String) {
             Home(navController = navController)
         }
         composable(Screens.Tasks.name) {
-            Tasks(navController = navController)
+            Tasks(navController = navController, taskVM = taskVM)
         }
         composable(Screens.Quiz.name) {
             Quiz(navController = navController)
