@@ -20,10 +20,14 @@ sono state implementate le funzionalità di base.
     - **impostazioni**: implementato task *logout*\
             *Prossimo passo*: aggiungere altre impostazioni e reindirizzare l'utente alla 
             schermata di *login* quando viene fatto il *logout*
-    - **task**: sincronizzazione delle task con database firebase
-    - **quiz**: Invece di memorizzare i risultati dei quiz in locale, si propone di implementare un sistema che colleghi tali risultati direttamente all'account dell'utente. Questo approccio non solo garantirebbe una maggiore sicurezza e integrità dei dati, ma permetterebbe anche di monitorare e visualizzare i progressi del personaggio dell'utente in modo più dettagliato e interattivo.
-
-    Attraverso l'integrazione con Firebase, ogni volta che un utente completa un quiz, i risultati verrebbero automaticamente inviati e archiviati nel database cloud, creando così un registro persistente e accessibile da qualsiasi dispositivo. Questo sistema consentirebbe di tracciare l'evoluzione delle competenze e delle performance dell'utente nel tempo, offrendo la possibilità di visualizzare statistiche e grafici che rappresentano i progressi compiuti. Inoltre, l'associazione dei risultati all'account personale dell'utente favorirebbe un'esperienza di apprendimento più personalizzata, in cui i feedback e le ricompense potrebbero essere adattati in base alle performance individuali, rendendo il percorso di apprendimento più coinvolgente e motivante.
+    - **task**: implementata la UI di base che salva in locale la scelta delle task dell'utente e il loro completamento\
+            *Prossimo passo*: sincronizzazione delle task scelte dagli utenti con il database
+            di firebase, implementazione della funzionalità relativa agli amici, implementazione
+            delle statistiche relative alle task
+    - **quiz**: implementata la ui di base con un esempio di svolgimento dei quiz giornalieri 1.0 .\
+            *Prossimo passo*: sincronizzazione dei quiz con il database di firebase, salvando i
+            risultati dei quiz non più in locale ma legandoli all account e facendo in modo che si
+            riscontrino dei progressi sul proprio personaggio
 - **pagina negozio**: *ancora da implementare*
 - **pagina social**: *ancora da implementare*
 - **pagine di autenticazione**: terminata implementazione *login* e *signup*\
