@@ -38,16 +38,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun Tasks(navController: NavController) {
+fun Tasks(navController: NavController, taskVM: TaskViewModel) {
 
     /*  TODO: retrieve tasks when app is opened (not when the user open the tasks' tab)
     *   TODO: when a tab is changed the viewModel is cleared, it has to be declared in the Activity (MainActivity) */
-    val taskVM = viewModel<TaskViewModel>()
 
     // Used for opening the dialog of a specific task
     var openSingleTaskDialog by remember { mutableStateOf(false) }
@@ -59,7 +57,6 @@ fun Tasks(navController: NavController) {
     var selectedTask by remember { mutableStateOf(Task()) }
 
     // Retrieve the full task list from firebase db
-    taskVM.retrieveFirebaseData()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -481,5 +478,4 @@ fun CharacterStatsTask() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewTasks(navController: NavController = rememberNavController()){
-    Tasks(navController = navController)
 }

@@ -80,7 +80,9 @@ class TaskViewModel : ViewModel() {
     }
 
     fun toggleShowTasks() {
-        showTasks = !showTasks
+        if(userDailyTasks.isNotEmpty() && userWeeklyTasks.isNotEmpty() && userMonthlyTasks.isNotEmpty()) {
+            showTasks = !showTasks
+        }
     }
 }
 /*
