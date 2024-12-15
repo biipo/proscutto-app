@@ -21,8 +21,10 @@ sono state implementate le funzionalità di base.
             **Prossimo passo**: sincronizzazione delle task scelte dagli utenti con il database
             di firebase, implementazione della funzionalità relativa agli amici, implementazione
             delle statistiche relative alle task
-    - quiz: ...\
-            **Prossimo passo**: ...
+    - quiz: implementata la ui di base con un esempio di svolgimento dei quiz giornalieri 1.0 .\
+            **Prossimo passo**: sincronizzazione dei quiz con il database di firebase, salvando i
+            risultati dei quiz non più in locale ma legandoli all account e facendo in modo che si
+            riscontrino dei progressi sul proprio personaggio
     - impostazioni: ...\
             **Prossimo passo**: ...
 - pagina negozio: *ancora da implementare*
