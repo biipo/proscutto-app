@@ -35,20 +35,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.MascotImageBig
 import com.ingegneria.app.ui.theme.AppTheme
 
 @Composable
 fun Home(navController: NavController) {
     Surface(modifier = Modifier.fillMaxSize()) {
-        TopAppBar()
+        TopAppBar(navController)
         CharacterStats()
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar () {
+fun TopAppBar (navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -59,7 +60,7 @@ fun TopAppBar () {
                 title = {},
                 navigationIcon = {
                     IconButton(
-                        onClick = {}
+                        onClick = {navController.navigate(Screens.Shop.name)}
                     ) {
                         Icon(
                             imageVector = Icons.Default.ShoppingCart,
@@ -69,7 +70,7 @@ fun TopAppBar () {
                 },
                 actions = {
                     IconButton(
-                        onClick = {}
+                        onClick = {navController.navigate(Screens.Social.name)}
                     ) {
                         Icon(
                             imageVector = Icons.Default.People,
