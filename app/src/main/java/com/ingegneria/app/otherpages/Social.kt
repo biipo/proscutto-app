@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,16 +30,16 @@ fun Social(navController: NavController) {
     Scaffold (
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            Button(
+            TextButton(
                 modifier = Modifier
                     .padding(start = 7.dp, top = 10.dp)
-                    .size(50.dp, 50.dp),
+                    .wrapContentSize(),
                 onClick = {navController.navigate(Screens.Home.name)}
             ) {
                 Icon(
                     imageVector = Icons.Filled.Close,
                     contentDescription = "Close",
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier
                 )
             }
         }
