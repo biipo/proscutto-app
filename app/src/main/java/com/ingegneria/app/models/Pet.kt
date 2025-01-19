@@ -1,8 +1,10 @@
 package com.ingegneria.app.models
 
-class Pet(
+import com.google.firebase.database.Exclude
+
+data class Pet(
     // Stats
-    var name: String,
+    var name: String = "",
     var level: Int = 0,
     var mult: Double = .0,
     var xp: Int = 0,
@@ -10,6 +12,17 @@ class Pet(
     // ID of the customization on the pet
     var hat: Int? = null
 ) {
+    @Exclude
+    fun toMap() : Map<String, Any?> {
+        return mapOf(
+            "name" to name,
+            "level" to level,
+            "mult" to mult,
+            "xp" to xp,
+            "hp" to hp,
+            "hat" to hat,
+        )
+    }
 
     fun maxXp(): Int {
         return level * 15
