@@ -52,7 +52,7 @@ class TaskViewModel : ViewModel() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("Task", "Errorino :( - ${error.message}")
+                Log.e("Task", "Errore :( - ${error.message}")
             }
         })
         database.child("weekly").addValueEventListener(object : ValueEventListener {
@@ -63,7 +63,7 @@ class TaskViewModel : ViewModel() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("Task", "Errorino :( - ${error.message}")
+                Log.e("Task", "Errore :( - ${error.message}")
             }
         })
         database.child("monthly").addValueEventListener(object : ValueEventListener {
@@ -74,7 +74,7 @@ class TaskViewModel : ViewModel() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("Task", "Errorino :( - ${error.message}")
+                Log.e("Task", "Errore :( - ${error.message}")
             }
         })
     }
@@ -85,51 +85,3 @@ class TaskViewModel : ViewModel() {
         }
     }
 }
-/*
-
-//            val scope = rememberCoroutineScope()
-//            val snackbarHostState = remember { SnackbarHostState() }
-//            scope.launch {
-//                snackbarHostState.showSnackbar("the condition is : ${showingCondition}")
-//            }
-//            SnackbarHost(
-//                modifier = Modifier.padding(top = 20.dp),
-//                hostState = snackbarHostState
-//            )
-
-    LaunchedEffect(Unit) {
-        database.child("daily").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                dailyTasks = snapshot.children.mapNotNull {
-                    it.getValue(Task::class.java)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Task", "Errorino :( - ${error.message}")
-            }
-        })
-        database.child("weekly").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                weeklyTasks = snapshot.children.mapNotNull {
-                    it.getValue(Task::class.java)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Task", "Errorino :( - ${error.message}")
-            }
-        })
-        database.child("monthly").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                monthlyTasks = snapshot.children.mapNotNull {
-                    it.getValue(Task::class.java)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Task", "Errorino :( - ${error.message}")
-            }
-        })
-    }
- */
