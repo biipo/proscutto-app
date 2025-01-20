@@ -13,7 +13,8 @@ fun getDrawable(context: Context, key : String) : Int? {
     val drawableMap: Map<String, Int> = mapOf (
         "hat_witch" to R.drawable.hat_witch,
         "hat_santa" to R.drawable.hat_santa,
-    )
+        "hat_santa_beard" to R.drawable.hat_santa_beard,
+        )
     return drawableMap[key]
 }
 
