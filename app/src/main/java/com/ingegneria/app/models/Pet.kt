@@ -10,7 +10,7 @@ data class Pet(
     var xp: Int = 0,
     var hp: Int = 0,
     // ID of the customization on the pet
-    var hat: Int? = null
+    var hat: String? = null
 ) {
     @Exclude
     fun toMap() : Map<String, Any?> {
