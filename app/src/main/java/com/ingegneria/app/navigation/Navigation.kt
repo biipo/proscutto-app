@@ -7,17 +7,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.ingegneria.app.ui.otherpages.Shop
 import com.ingegneria.app.ui.otherpages.ShopViewModel
-import com.ingegneria.app.otherpages.Social
 import com.ingegneria.app.ui.tabs.Home
 import com.ingegneria.app.ui.otherpages.Login
 import com.ingegneria.app.ui.tabs.Quiz
 import com.ingegneria.app.ui.tabs.Settings
 import com.ingegneria.app.ui.otherpages.Signup
+import com.ingegneria.app.ui.otherpages.Social
 import com.ingegneria.app.ui.tabs.TaskViewModel
 import com.ingegneria.app.ui.tabs.Tasks
 
 @Composable
-fun Navigation(navController: NavHostController, startScreen:String) {
+fun Navigation(navController: NavHostController, startScreen:String, taskVM: TaskViewModel) {
 
     val taskVM = viewModel<TaskViewModel>()
     val shopVM = viewModel<ShopViewModel>()

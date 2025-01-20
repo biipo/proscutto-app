@@ -43,7 +43,7 @@ import com.ingegneria.app.ui.theme.AppTheme
 fun Home(navController: NavController) {
     Surface(modifier = Modifier.fillMaxSize()) {
         TopAppBar(navController)
-        CharacterStats()
+        Character()
     }
 }
 
@@ -89,31 +89,8 @@ fun TopAppBar (navController: NavController) {
 }
 
 @Composable
-fun CharacterStats() {
-    /*
-    var db = Firebase.database.reference
-    val userId = FirebaseAuth.getInstance().currentUser?.uid
-    val context = LocalContext.current
-
-    db.child("characters").child(userId!!).get().addOnSuccessListener {
-        //Log.i("firebase", "Got value ${it.value}")
-        Toast.makeText(
-            context,
-            it.child("maxHp").toString(),
-            Toast.LENGTH_LONG,
-        ).show()
-    }.addOnFailureListener{
-        //Log.e("firebase", "Error getting data", it)
-    }
-    */
-
-    val lvlExample = 12
-    val currentHpExample = 100
-    val currentXpExample = 140
-    val maxHp = 300
-    val maxXp = 200
+fun Character() {
     val characterName = "Artemisia"
-
     Column (
         modifier = Modifier
             .fillMaxWidth()
@@ -130,51 +107,7 @@ fun CharacterStats() {
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        Row(
-            modifier = Modifier
-                .padding(top = 30.dp, start = 15.dp, end = 15.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "$lvlExample",
-                    fontSize = 50.sp
-                )
-            }
-            Column(
-                modifier = Modifier
-                    .padding(start = 10.dp)
-            ) {
-                Text(
-                    text = "$currentHpExample/$maxHp",
-                    fontSize = 15.sp,
-                    modifier = Modifier.align(Alignment.End)
-                )
-                LinearProgressIndicator(
-                    progress = { (currentHpExample / maxHp.toFloat()) },
-                    modifier = Modifier.fillMaxWidth().height(15.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.background
-                )
-                Text(
-                    text = "$currentXpExample/$maxXp",
-                    fontSize = 15.sp,
-                    modifier = Modifier.align(Alignment.End)
-                        .padding(0.dp, 15.dp, 0.dp, 0.dp)
-                )
-                LinearProgressIndicator(
-                    progress = { (currentXpExample / maxXp.toFloat()) },
-                    modifier = Modifier.fillMaxWidth().height(15.dp),
-                    color = MaterialTheme.colorScheme.tertiary,
-                    trackColor = MaterialTheme.colorScheme.background
-                )
-            }
-        }
+        CharacterStats()
         Column (
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -185,6 +118,61 @@ fun CharacterStats() {
     }
 }
 
+@Composable
+fun CharacterStats() {
+
+    val lvlExample = 12
+    val currentHpExample = 100
+    val currentXpExample = 140
+    val maxHp = 300
+    val maxXp = 200
+
+    Row(
+        modifier = Modifier
+            .padding(top = 30.dp, start = 15.dp, end = 15.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .clip(RoundedCornerShape(15.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "$lvlExample",
+                fontSize = 50.sp
+            )
+        }
+        Column(
+            modifier = Modifier
+                .padding(start = 10.dp)
+        ) {
+            Text(
+                text = "$currentHpExample/$maxHp",
+                fontSize = 15.sp,
+                modifier = Modifier.align(Alignment.End)
+            )
+            LinearProgressIndicator(
+                progress = { (currentHpExample / maxHp.toFloat()) },
+                modifier = Modifier.fillMaxWidth().height(15.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.background
+            )
+            Text(
+                text = "$currentXpExample/$maxXp",
+                fontSize = 15.sp,
+                modifier = Modifier.align(Alignment.End)
+                    .padding(0.dp, 15.dp, 0.dp, 0.dp)
+            )
+            LinearProgressIndicator(
+                progress = { (currentXpExample / maxXp.toFloat()) },
+                modifier = Modifier.fillMaxWidth().height(15.dp),
+                color = MaterialTheme.colorScheme.tertiary,
+                trackColor = MaterialTheme.colorScheme.background
+            )
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable

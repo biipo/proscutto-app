@@ -1,10 +1,8 @@
 package com.ingegneria.app.ui.tabs
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +18,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,12 +28,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -67,12 +62,12 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel) {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ){
-            CharacterStatsTask()
+            CharacterStats()
             HorizontalDivider(
                 modifier = Modifier
-                    .padding(start = 8.dp, end = 8.dp, bottom = 10.dp),
-                thickness = 2.dp,
-                color = Color.Red
+                    .padding(10.dp),
+                thickness = 1.dp,
+                color = Color.Gray
             )
             when { // When the user has selected the task in the task selection dialog the page should update and show the selected tasks
                 taskVM.showTasks -> {
@@ -411,69 +406,6 @@ fun taskOptionDialog(onDismissRequest: () -> Unit, selectedTask: Task) {
         }
     }
 }
-
-@Composable
-fun CharacterStatsTask() {
-    val lvlExample = 12
-    val currentHpExample = 100
-    val currentXpExample = 140
-    val maxHp = 300
-    val maxXp = 200
-
-    Column {
-        Row(
-            modifier = Modifier
-                .padding(15.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "$lvlExample",
-                    fontSize = 50.sp
-                )
-            }
-            Column(
-                modifier = Modifier
-                    .padding(start = 10.dp)
-            ) {
-                Text(
-                    text = "$currentHpExample/$maxHp",
-                    fontSize = 15.sp,
-                    modifier = Modifier.align(Alignment.End)
-                )
-                LinearProgressIndicator(
-                    progress = { (currentHpExample / maxHp.toFloat()) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(15.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.background
-                )
-                Text(
-                    text = "$currentXpExample/$maxXp",
-                    fontSize = 15.sp,
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(0.dp, 15.dp, 0.dp, 0.dp)
-                )
-                LinearProgressIndicator(
-                    progress = { (currentXpExample / maxXp.toFloat()) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(15.dp),
-                    color = MaterialTheme.colorScheme.tertiary,
-                    trackColor = MaterialTheme.colorScheme.background
-                )
-            }
-        }
-    }
-}
-
 
 @Preview(showBackground = true)
 @Composable

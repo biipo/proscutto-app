@@ -33,6 +33,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -40,6 +41,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.ingegneria.app.navigation.Navigation
 import com.ingegneria.app.navigation.Screens
+import com.ingegneria.app.ui.screens.TaskViewModel
 import com.ingegneria.app.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -66,8 +68,16 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
         } else {
             Screens.Home.name
         }
+
+//     Push the userId so we can add more info about the user
+//    var uid = firebaseUser?.uid
+//    Firebase.database.reference.child("users/$uid").child("selectedTasks").setValue(listOf(0))
+
     val bottomBarState = rememberSaveable { mutableStateOf(true) }
     val topBarState = rememberSaveable { mutableStateOf(true) }
+
+    val taskVM = viewModel<TaskViewModel>()
+    taskVM.retrieveFirebaseData()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
@@ -86,7 +96,7 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
         Column (
             modifier = Modifier.padding(padding)
         ) {
-            Navigation(navController = navController, startScreen = startScreen)
+            Navigation(navController = navController, startScreen = startScreen, taskVM = taskVM)
         }
     }
 }
