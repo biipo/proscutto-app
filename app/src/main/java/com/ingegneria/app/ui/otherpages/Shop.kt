@@ -42,7 +42,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.ingegneria.app.navigation.Screens
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Shop(navController: NavController, shopVM: ShopViewModel) {
     Scaffold (
