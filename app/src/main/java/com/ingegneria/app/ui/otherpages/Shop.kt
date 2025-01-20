@@ -1,4 +1,4 @@
-package com.ingegneria.app.otherpages
+package com.ingegneria.app.ui.otherpages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

@@ -1,4 +1,4 @@
-package com.ingegneria.app.ui.screens
+package com.ingegneria.app.ui.tabs
 
 import android.util.Log
 import androidx.compose.runtime.MutableState

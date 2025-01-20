@@ -1,4 +1,4 @@
-package com.ingegneria.app.ui.screens
+package com.ingegneria.app.ui.tabs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

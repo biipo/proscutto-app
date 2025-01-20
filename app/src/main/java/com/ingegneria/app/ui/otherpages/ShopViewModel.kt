@@ -1,4 +1,4 @@
-package com.ingegneria.app.otherpages
+package com.ingegneria.app.ui.otherpages
 
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -13,8 +13,6 @@ import com.google.firebase.database.ValueEventListener
 
 class ShopViewModel : ViewModel() {
 
-    // TODO: maybe set some fields private??
-
     val database = FirebaseDatabase.getInstance().reference.child("shop")
     var shopItems by mutableStateOf<List<String>>(emptyList())
 
@@ -28,7 +26,7 @@ class ShopViewModel : ViewModel() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("Task", "Errore :( - ${error.message}")
+                Log.e("Shop", "Errore :( - ${error.message}")
             }
         })
     }
