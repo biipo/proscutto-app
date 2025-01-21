@@ -1,6 +1,7 @@
 package com.ingegneria.app.ui.tabs
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,7 +44,7 @@ import com.ingegneria.app.ui.theme.AppTheme
 fun Home(navController: NavController) {
     Surface(modifier = Modifier.fillMaxSize()) {
         TopAppBar(navController)
-        Character()
+        Character(navController)
     }
 }
 
@@ -89,7 +90,7 @@ fun TopAppBar (navController: NavController) {
 }
 
 @Composable
-fun Character() {
+fun Character(navController: NavController) {
     val characterName = "Artemisia"
     Column (
         modifier = Modifier
@@ -107,7 +108,7 @@ fun Character() {
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        CharacterStats()
+        CharacterStats(navController)
         Column (
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -119,7 +120,7 @@ fun Character() {
 }
 
 @Composable
-fun CharacterStats() {
+fun CharacterStats(navController: NavController) {
 
     val lvlExample = 12
     val currentHpExample = 100
@@ -130,6 +131,7 @@ fun CharacterStats() {
     Row(
         modifier = Modifier
             .padding(top = 30.dp, start = 15.dp, end = 15.dp)
+            .clickable { navController.navigate(Screens.Stats.name) }
     ) {
         Box(
             modifier = Modifier

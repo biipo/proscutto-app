@@ -62,7 +62,7 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel) {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ){
-            CharacterStats()
+            CharacterStats(navController)
             HorizontalDivider(
                 modifier = Modifier
                     .padding(10.dp),

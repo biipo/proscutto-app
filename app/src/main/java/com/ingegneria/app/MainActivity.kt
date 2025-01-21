@@ -37,11 +37,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.ingegneria.app.navigation.Navigation
 import com.ingegneria.app.navigation.Screens
-import com.ingegneria.app.ui.screens.TaskViewModel
+import com.ingegneria.app.ui.otherpages.ShopViewModel
+import com.ingegneria.app.ui.tabs.TaskViewModel
 import com.ingegneria.app.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -59,6 +62,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
     val firebaseUser = Firebase.auth.currentUser
@@ -69,15 +73,21 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
             Screens.Home.name
         }
 
-//     Push the userId so we can add more info about the user
-//    var uid = firebaseUser?.uid
-//    Firebase.database.reference.child("users/$uid").child("selectedTasks").setValue(listOf(0))
-
     val bottomBarState = rememberSaveable { mutableStateOf(true) }
     val topBarState = rememberSaveable { mutableStateOf(true) }
 
+    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+//    if(!cameraPermissionState.status.isGranted && !cameraPermissionState.status.shouldShowRationale) {
+        // Should ask for camera permission only if user hasn't expressed a preference
+//        SideEffect {
+//            cameraPermissionState.run { launchPermissionRequest() }
+//        }
+//    }
+
     val taskVM = viewModel<TaskViewModel>()
+    val shopVM = viewModel<ShopViewModel>()
     taskVM.retrieveFirebaseData()
+    shopVM.retrieveFirebaseData()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
@@ -96,7 +106,14 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
         Column (
             modifier = Modifier.padding(padding)
         ) {
-            Navigation(navController = navController, startScreen = startScreen, taskVM = taskVM)
+            Navigation(
+                navController = navController,
+                startScreen = startScreen,
+                taskVM = taskVM,
+                shopVM = shopVM,
+                user = firebaseUser,
+                cameraPermissionState = cameraPermissionState
+            )
         }
     }
 }

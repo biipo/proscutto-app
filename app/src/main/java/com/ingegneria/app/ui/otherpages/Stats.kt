@@ -30,7 +30,7 @@ fun Stats(navController: NavController) {
                 modifier = Modifier
                     .padding(start = 7.dp, top = 10.dp)
                     .wrapContentSize(),
-                onClick = {navController.navigate(Screens.Home.name)}
+                onClick = {navController.navigate(Screens.Home.name)} //TODO: make it go back to the prev page, not always to home
             ) {
                 Icon(
                     imageVector = Icons.Filled.Close,
