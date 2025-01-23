@@ -1,12 +1,13 @@
 package com.ingegneria.app.ui.otherpages
 
-import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -14,12 +15,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -44,16 +49,13 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.QrBitMapPainter
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun Social(navController: NavController, qrValue: String?) {
+fun Social(navController: NavController, socialVM: SocialViewModel?, qrValue: String?) {
 
     var openQrCodeDialog by remember { mutableStateOf(false) }
     // Avoid passing too much arguments, TODO: centralize the current user into a ViewModel
@@ -129,7 +131,46 @@ fun Social(navController: NavController, qrValue: String?) {
         bottomBar = {
         }
     ){ padding ->
-
+        Column (
+            modifier = Modifier.padding(top = 50.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            if (socialVM != null) {
+                socialVM.userFriends.forEach { friend ->
+                    Card(
+                        modifier = Modifier
+                            .padding(start = 10.dp, end = 10.dp, top = 10.dp)
+                            .border(1.dp, Color.Black, RoundedCornerShape(5.dp))
+                            .fillMaxWidth()
+                            .height(40.dp),
+                        shape = MaterialTheme.shapes.medium,
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onSecondary
+                        )
+                    ){
+                        Row (
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Person,
+                                contentDescription = friend // friend-id + friend-username
+                            )
+                            Text(
+                                modifier = Modifier.padding(5.dp),
+                                text = friend, // should be the friend-username
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+            } else {
+                Text(text = "You have no friends :)")
+            }
+        }
     }
 
     when {
@@ -145,7 +186,8 @@ fun Social(navController: NavController, qrValue: String?) {
             AcceptFriendDialog(
                 onDismissRequest = {openAddFriendDialog = false },
                 friendName = friendName,
-                friendId = friendId
+                friendId = friendId,
+                socialVM = socialVM
             )
         }
     }
@@ -184,10 +226,10 @@ fun ShowQrCodeDialog(user: FirebaseUser, onDismissRequest: () -> Unit) {
 }
 
 @Composable
-fun AcceptFriendDialog(onDismissRequest: () -> Unit, friendName: String, friendId: String) {
+fun AcceptFriendDialog(onDismissRequest: () -> Unit, friendName: String, friendId: String, socialVM: SocialViewModel?) {
     val database = FirebaseDatabase.getInstance().reference.child("friends")
-    val currUser = Firebase.auth.currentUser
-    var currUserFriends: MutableSet<String> = mutableSetOf()
+//    val currUser = Firebase.auth.currentUser
+//    var currUserFriends: MutableList<String> = mutableListOf()
     Dialog(onDismissRequest = onDismissRequest) {
         Card (
             modifier = Modifier
@@ -201,50 +243,40 @@ fun AcceptFriendDialog(onDismissRequest: () -> Unit, friendName: String, friendI
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "Do you want to add $friendName to your friends",
-                    modifier = Modifier.padding(top = 20.dp)
-                )
-                Row (modifier = Modifier.padding(top = 20.dp)){
-                    Button(
-                        onClick = onDismissRequest,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Red,
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text(text = "Cancel")
+                if (socialVM != null) {
+                    Text(
+                        text = "Do you want to add $friendName to your friends",
+                        modifier = Modifier.padding(top = 20.dp)
+                    )
+                    Row (modifier = Modifier.padding(top = 20.dp)){
+                        Button(
+                            onClick = onDismissRequest,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Red,
+                                contentColor = Color.White
+                            )
+                        ) {
+                            Text(text = "Cancel")
+                        }
+                        Button(
+                            onClick = {
+                                /* Add the user-id into currUser's friends list */
+                                socialVM.addFriend(friendId = friendId)
+                                onDismissRequest.invoke()
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Green,
+                                contentColor = Color.White
+                            )
+                        ) {
+                            Text(text = "Add")
+                        }
                     }
-                    Button(
-                        onClick = {
-                            /* Add the user-id into currUser's friends list */
-                            if (currUser != null) {
-                                database.child(currUser.uid).addValueEventListener(object : ValueEventListener {
-                                    override fun onDataChange(snapshot: DataSnapshot) {
-                                        currUserFriends = snapshot.children.mapNotNull {
-                                            it.getValue(String::class.java)
-                                        }.toMutableSet()
-                                    }
-
-                                    override fun onCancelled(error: DatabaseError) {
-                                        Log.e("Adding friend", "Errore :( - ${error.message}")
-                                    }
-                                })
-                            }
-                            /* TODO: check if the friendId is already in the currUser's friends list */
-                            currUserFriends.add(friendId)
-                            if (currUser != null) {
-                                database.child(currUser.uid).setValue(currUserFriends.toList())
-                            }
-                            onDismissRequest.invoke()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Green,
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text(text = "Add")
-                    }
+                } else {
+                    Text(
+                        text = "We've had a problem retrieving the needed information",
+                        modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)
+                    )
                 }
             }
         }

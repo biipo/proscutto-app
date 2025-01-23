@@ -91,7 +91,7 @@ fun TopAppBar (navController: NavController) {
 
 @Composable
 fun Character(navController: NavController) {
-    val characterName = "Artemisia"
+    val characterName = "Luigi"
     Column (
         modifier = Modifier
             .fillMaxWidth()

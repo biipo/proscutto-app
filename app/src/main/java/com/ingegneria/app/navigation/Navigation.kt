@@ -13,6 +13,7 @@ import com.ingegneria.app.ui.otherpages.Shop
 import com.ingegneria.app.ui.otherpages.ShopViewModel
 import com.ingegneria.app.ui.otherpages.Signup
 import com.ingegneria.app.ui.otherpages.Social
+import com.ingegneria.app.ui.otherpages.SocialViewModel
 import com.ingegneria.app.ui.otherpages.Stats
 import com.ingegneria.app.ui.tabs.Home
 import com.ingegneria.app.ui.tabs.Quiz
@@ -27,6 +28,7 @@ fun Navigation(
     startScreen:String,
     taskVM: TaskViewModel,
     shopVM: ShopViewModel,
+    socialVM: SocialViewModel
 ) {
 
     NavHost(navController = navController, startDestination = startScreen) {
@@ -60,7 +62,7 @@ fun Navigation(
                     defaultValue = ""
                 })
         ) {
-            Social(navController = navController, qrValue = it.arguments?.getString("qrValue"))
+            Social(navController = navController, socialVM = socialVM, qrValue = it.arguments?.getString("qrValue"))
         }
         composable(Screens.Stats.name) {
             Stats(navController = navController)

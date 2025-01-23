@@ -43,6 +43,7 @@ import com.google.firebase.auth.auth
 import com.ingegneria.app.navigation.Navigation
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.otherpages.ShopViewModel
+import com.ingegneria.app.ui.otherpages.SocialViewModel
 import com.ingegneria.app.ui.tabs.TaskViewModel
 import com.ingegneria.app.ui.theme.AppTheme
 
@@ -77,8 +78,12 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
 
     val taskVM = viewModel<TaskViewModel>()
     val shopVM = viewModel<ShopViewModel>()
+    val socialVM = viewModel<SocialViewModel>()
     taskVM.retrieveFirebaseData()
     shopVM.retrieveFirebaseData()
+    if (firebaseUser != null) {
+        socialVM.retrieveFirebaseData(firebaseUser.uid)
+    }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
@@ -101,7 +106,8 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
                 navController = navController,
                 startScreen = startScreen,
                 taskVM = taskVM,
-                shopVM = shopVM
+                shopVM = shopVM,
+                socialVM = socialVM
             )
         }
     }
