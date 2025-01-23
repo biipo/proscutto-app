@@ -6,6 +6,7 @@ barcodeScanning = "17.3.0"
 cameraCamera2 = "1.4.1"
 core = "3.5.3"
 firebaseBom = "33.6.0"
+guava = "33.4.0-android"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -30,6 +31,7 @@ navigationCompose = "2.8.4"
 
 uiTextGoogleFontsVersion = "1.2.0-beta02"
 uiTestAndroid = "1.7.5"
+zxingAndroidEmbedded = "4.3.0"
 
 
 [libraries]
@@ -49,6 +51,7 @@ barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref =
 core = { module = "com.google.zxing:core", version.ref = "core" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -71,6 +74,7 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-ui-test-android = { group = "androidx.compose.ui", name = "ui-test-android", version.ref = "uiTestAndroid" }
 
 google-firebase-database = { module = "com.google.firebase:firebase-database" }
+zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroidEmbedded" }
 
 
 [plugins]

@@ -2,11 +2,12 @@ package com.ingegneria.app.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
-import com.google.firebase.auth.FirebaseUser
+import com.ingegneria.app.ui.common.QrReader
 import com.ingegneria.app.ui.otherpages.Login
 import com.ingegneria.app.ui.otherpages.Shop
 import com.ingegneria.app.ui.otherpages.ShopViewModel
@@ -26,8 +27,6 @@ fun Navigation(
     startScreen:String,
     taskVM: TaskViewModel,
     shopVM: ShopViewModel,
-    user: FirebaseUser?,
-    cameraPermissionState: PermissionState
 ) {
 
     NavHost(navController = navController, startDestination = startScreen) {
@@ -53,11 +52,21 @@ fun Navigation(
         composable(Screens.Shop.name) {
             Shop(navController = navController, shopVM = shopVM)
         }
-        composable(Screens.Social.name) {
-            Social(navController = navController, user = user, cameraPermissionState = cameraPermissionState)
+        composable( // This is used to navigate with arguments (it's optional)
+            "${Screens.Social.name}?qrValue={qrValue}",
+            arguments = listOf(
+                navArgument("qrValue") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                })
+        ) {
+            Social(navController = navController, qrValue = it.arguments?.getString("qrValue"))
         }
         composable(Screens.Stats.name) {
             Stats(navController = navController)
+        }
+        composable(Screens.Camera.name) {
+            QrReader(navController = navController)
         }
     }
 }

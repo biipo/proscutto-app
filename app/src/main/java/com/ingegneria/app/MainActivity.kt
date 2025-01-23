@@ -38,7 +38,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberPermissionState
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.ingegneria.app.navigation.Navigation
@@ -51,7 +50,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
             AppTheme {
                 Surface {
@@ -76,13 +74,6 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
     val bottomBarState = rememberSaveable { mutableStateOf(true) }
     val topBarState = rememberSaveable { mutableStateOf(true) }
 
-    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
-//    if(!cameraPermissionState.status.isGranted && !cameraPermissionState.status.shouldShowRationale) {
-        // Should ask for camera permission only if user hasn't expressed a preference
-//        SideEffect {
-//            cameraPermissionState.run { launchPermissionRequest() }
-//        }
-//    }
 
     val taskVM = viewModel<TaskViewModel>()
     val shopVM = viewModel<ShopViewModel>()
@@ -110,9 +101,7 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
                 navController = navController,
                 startScreen = startScreen,
                 taskVM = taskVM,
-                shopVM = shopVM,
-                user = firebaseUser,
-                cameraPermissionState = cameraPermissionState
+                shopVM = shopVM
             )
         }
     }
