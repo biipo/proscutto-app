@@ -71,7 +71,7 @@ data class Pet(
     }
 
     fun resetMult() {
-        mult = .0
+        mult = 1.0
     }
 
     fun increaseMult(amount: Double) {
