@@ -1,8 +1,5 @@
 package com.ingegneria.app.ui.screens
 
-import android.content.ContentValues.TAG
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,14 +44,12 @@ import com.google.firebase.database.DatabaseError
 import com.ingegneria.app.models.Pet
 import com.ingegneria.app.ui.common.MascotImageBig
 import com.ingegneria.app.ui.theme.AppTheme
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.getValue
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.ingegneria.app.models.PetFirebaseSync
 
 @Composable
 fun Home(navController: NavController) {
@@ -126,8 +121,12 @@ fun CharacterStats() {
         override fun onCancelled(p0: DatabaseError) {
         }
     })
+    var petFb by remember { mutableStateOf<PetFirebaseSync?>(null) }
+    if (db != null && pet != null) {
+        petFb = PetFirebaseSync(db, pet!!)
+    }
 
-    if (pet != null) {
+    if (pet != null && petFb != null) {
         Column (
             modifier = Modifier
                 .fillMaxWidth()
@@ -195,6 +194,9 @@ fun CharacterStats() {
                 modifier = Modifier.fillMaxHeight().fillMaxWidth()
             ) {
                 MascotImageBig(pet!!.hat!!)
+                Button(onClick = { petFb?.gainXp(50) }) {
+                    Text("Gain 50xp")
+                }
             }
         }
     }

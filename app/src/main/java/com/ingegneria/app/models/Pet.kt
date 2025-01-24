@@ -1,16 +1,31 @@
 package com.ingegneria.app.models
 
+import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.Exclude
+
+fun updateDb(dbRef: DatabaseReference, pet: Pet) {
+    dbRef.setValue(pet)
+        .addOnSuccessListener {
+            // Update successful
+            Log.d("Firebase", "Character updated successfully")
+        }
+        .addOnFailureListener { error ->
+            // Update failed
+            Log.e("Firebase", "Error updating character: ${error.message}")
+        }
+}
 
 data class Pet(
     // Stats
     var name: String = "",
     var level: Int = 0,
-    var mult: Double = .0,
+    var mult: Double = 1.0,
     var xp: Int = 0,
     var hp: Int = 0,
     // ID of the customization on the pet
-    var hat: String? = null
+    var hat: String? = null,
 ) {
     @Exclude
     fun toMap() : Map<String, Any?> {
@@ -49,7 +64,9 @@ data class Pet(
         // If xp > max
         while (xp >= maxXp()) {
             xp -= maxXp()
+            var hpRatio = hp / maxHp()
             level++;
+            hp = maxHp() * hpRatio
         }
     }
 
@@ -63,9 +80,5 @@ data class Pet(
 
     fun decreaseMult(amount: Double) {
         mult -= amount
-    }
-
-    fun updateDb() {
-        // Firebase stuff?
     }
 }
