@@ -49,7 +49,6 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
-import com.google.firebase.database.FirebaseDatabase
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.QrBitMapPainter
 
@@ -227,9 +226,6 @@ fun ShowQrCodeDialog(user: FirebaseUser, onDismissRequest: () -> Unit) {
 
 @Composable
 fun AcceptFriendDialog(onDismissRequest: () -> Unit, friendName: String, friendId: String, socialVM: SocialViewModel?) {
-    val database = FirebaseDatabase.getInstance().reference.child("friends")
-//    val currUser = Firebase.auth.currentUser
-//    var currUserFriends: MutableList<String> = mutableListOf()
     Dialog(onDismissRequest = onDismissRequest) {
         Card (
             modifier = Modifier
@@ -245,10 +241,10 @@ fun AcceptFriendDialog(onDismissRequest: () -> Unit, friendName: String, friendI
             ) {
                 if (socialVM != null) {
                     Text(
-                        text = "Do you want to add $friendName to your friends",
+                        text = "Do you want to add $friendName to your friends?",
                         modifier = Modifier.padding(top = 20.dp)
                     )
-                    Row (modifier = Modifier.padding(top = 20.dp)){
+                    Row (modifier = Modifier.padding(vertical = 20.dp)){
                         Button(
                             onClick = onDismissRequest,
                             colors = ButtonDefaults.buttonColors(

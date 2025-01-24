@@ -71,7 +71,7 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel) {
             )
             when { // When the user has selected the task in the task selection dialog the page should update and show the selected tasks
                 taskVM.showTasks -> {
-                    showTaskList(
+                    ShowTaskList(
                         dailyTasks = taskVM.userDailyTasks.toList(),
                         weeklyTasks = taskVM.userWeeklyTasks.toList(),
                         monthlyTasks = taskVM.userMonthlyTasks.toList(),
@@ -107,7 +107,7 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel) {
         when {
             openSingleTaskDialog -> {
                 // when the user tap on a task, openDialog is triggered and changed to true so this code open the corresponding dialog
-                taskOptionDialog(
+                TaskOptionDialog(
                     onDismissRequest = { openSingleTaskDialog = false },
                     selectedTask = selectedTask
                 )
@@ -115,7 +115,7 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel) {
 
             openTaskChoiceDialog -> {
                 // when the user tap on the button relative for task choice
-                taskSelectionDialog(
+                TaskSelectionDialog(
                     onDismissRequest =  { openTaskChoiceDialog = false },
                     dailyTasks = taskVM.dailyTasks,
                     weeklyTasks = taskVM.weeklyTasks,
@@ -129,7 +129,7 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel) {
 }
 
 @Composable
-fun showSingleGoupList(
+fun ShowSingleGroupList(
     taskType: String,
     tasks: List<Task>,
     itemClickedAction: () -> Unit,
@@ -149,7 +149,7 @@ fun showSingleGoupList(
         )
     }
     tasks.forEach { item ->
-        taskBox(
+        TaskBox(
             openDialogAction = {
                 itemClickedAction()
                 selectItemSaver(item, taskType)
@@ -160,7 +160,7 @@ fun showSingleGoupList(
 }
 
 @Composable
-fun showTaskList(
+fun ShowTaskList(
     dailyTasks: List<Task>,
     weeklyTasks: List<Task>,
     monthlyTasks: List<Task>,
@@ -173,16 +173,16 @@ fun showTaskList(
 
     LazyColumn {
         item {
-            showSingleGoupList("Daily", dailyTasks, itemClickedAction, selectItemSaver)
-            showSingleGoupList("Weekly", weeklyTasks, itemClickedAction, selectItemSaver)
-            showSingleGoupList("Monthly", monthlyTasks, itemClickedAction, selectItemSaver)
+            ShowSingleGroupList("Daily", dailyTasks, itemClickedAction, selectItemSaver)
+            ShowSingleGroupList("Weekly", weeklyTasks, itemClickedAction, selectItemSaver)
+            ShowSingleGroupList("Monthly", monthlyTasks, itemClickedAction, selectItemSaver)
         }
     }
 
 }
 
 @Composable
-fun taskBox(openDialogAction: () -> Unit, item: Task) {
+fun TaskBox(openDialogAction: () -> Unit, item: Task) {
     Card(
         modifier = Modifier
             .padding(10.dp)
@@ -224,7 +224,7 @@ fun taskBox(openDialogAction: () -> Unit, item: Task) {
 }
 
 @Composable
-fun taskSelectionDialog(
+fun TaskSelectionDialog(
     onDismissRequest: () -> Unit,
     dailyTasks: List<Task>,
     weeklyTasks: List<Task>,
@@ -246,7 +246,7 @@ fun taskSelectionDialog(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-                showTaskList(
+                ShowTaskList(
                     dailyTasks = dailyTasks,
                     weeklyTasks = weeklyTasks,
                     monthlyTasks = monthlyTasks,
@@ -319,7 +319,7 @@ fun taskSelectionDialog(
 }
 
 @Composable
-fun taskOptionDialog(onDismissRequest: () -> Unit, selectedTask: Task) {
+fun TaskOptionDialog(onDismissRequest: () -> Unit, selectedTask: Task) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card (
             modifier = Modifier

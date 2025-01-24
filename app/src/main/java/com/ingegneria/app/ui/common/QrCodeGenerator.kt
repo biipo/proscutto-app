@@ -185,11 +185,6 @@ fun QrReader(navController: NavController) {
         LaunchedEffect (qrCodeValue) {
             if(qrCodeValue.isNotEmpty()) {
                 navController.navigate("${Screens.Social.name}?qrValue=$qrCodeValue")
-//                Toast.makeText(
-//                    context,
-//                    qrCodeValue,
-//                    Toast.LENGTH_SHORT
-//                ) .show()
             }
         }
     }

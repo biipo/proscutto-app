@@ -42,8 +42,10 @@ class TaskViewModel : ViewModel() {
     var userMonthlyTasks: MutableSet<Task> = mutableSetOf()
 
     var showTasks: Boolean = false
+    private lateinit var userId: String
 
-    fun retrieveFirebaseData() {
+    fun retrieveFirebaseData(userId: String) {
+        this.userId = userId
         database.child("daily").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 dailyTasks = snapshot.children.mapNotNull {

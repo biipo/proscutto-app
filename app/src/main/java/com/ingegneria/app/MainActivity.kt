@@ -75,13 +75,12 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
     val bottomBarState = rememberSaveable { mutableStateOf(true) }
     val topBarState = rememberSaveable { mutableStateOf(true) }
 
-
     val taskVM = viewModel<TaskViewModel>()
     val shopVM = viewModel<ShopViewModel>()
     val socialVM = viewModel<SocialViewModel>()
-    taskVM.retrieveFirebaseData()
-    shopVM.retrieveFirebaseData()
     if (firebaseUser != null) {
+        taskVM.retrieveFirebaseData(firebaseUser.uid)
+        shopVM.retrieveFirebaseData(firebaseUser.uid)
         socialVM.retrieveFirebaseData(firebaseUser.uid)
     }
 

@@ -17,9 +17,9 @@ class SocialViewModel : ViewModel() {
     private lateinit var userId: String
 
 
-    fun retrieveFirebaseData(friendsOf: String) {
-        userId = friendsOf
-        database.child(friendsOf).addValueEventListener(object : ValueEventListener {
+    fun retrieveFirebaseData(userId: String) {
+        this.userId = userId
+        database.child(userId).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 userFriends = snapshot.children.mapNotNull {
                     it.getValue(String::class.java)
@@ -32,9 +32,13 @@ class SocialViewModel : ViewModel() {
         })
     }
 
-    fun addFriend(friendId: String) {
-        /* TODO: check if the friendId is already in the currUser's friends list */
-        userFriends.add(friendId)
-        database.child(userId).setValue(userFriends)
+    fun addFriend(friendId: String) : Boolean {
+        if (userFriends.contains(friendId)) {
+            return false // The friend hasn't been added because already exists
+        } else {
+            userFriends.add(friendId)
+            database.child(userId).setValue(userFriends)
+            return true
+        }
     }
 }
