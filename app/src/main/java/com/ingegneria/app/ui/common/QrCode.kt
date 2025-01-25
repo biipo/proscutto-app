@@ -133,7 +133,7 @@ fun QrReader(navController: NavController) {
             modifier = Modifier
                 .padding(start = 7.dp)
                 .wrapContentSize(),
-            onClick = {navController.navigate(Screens.Social.name)}
+            onClick = {navController.popBackStack()}
         ) {
             Icon(
                 imageVector = Icons.Filled.ArrowBackIosNew,

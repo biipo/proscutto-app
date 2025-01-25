@@ -1,5 +1,6 @@
 package com.ingegneria.app.ui.otherpages
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -69,7 +71,7 @@ fun Shop(navController: NavController, shopVM: ShopViewModel) {
                 modifier = Modifier
                     .padding(start = 7.dp, top = 10.dp)
                     .wrapContentSize(),
-                onClick = {navController.navigate(Screens.Home.name)}
+                onClick = {navController.popBackStack()}
             ) {
                 Icon(
                     imageVector = Icons.Filled.Close,
@@ -188,6 +190,7 @@ fun TopTabs(currTabState: Int, tabs: List<String>, changeTab: (Int) -> Unit) {
 
 @Composable
 fun BuyItemDialog(onDismissRequest: () -> Unit, item: String, shopVM: ShopViewModel) {
+    val context = LocalContext.current
     Dialog(onDismissRequest = onDismissRequest) {
         Card (
             modifier = Modifier
@@ -217,7 +220,9 @@ fun BuyItemDialog(onDismissRequest: () -> Unit, item: String, shopVM: ShopViewMo
                     }
                     Button(
                         onClick = {
-                            shopVM.buyItem(item)
+                            if (!shopVM.buyItem(item)) {
+                                Toast.makeText(context, "You already own that item", Toast.LENGTH_LONG).show()
+                            }
                             onDismissRequest.invoke()
                         },
                         colors = ButtonDefaults.buttonColors(

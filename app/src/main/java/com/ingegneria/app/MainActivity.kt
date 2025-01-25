@@ -37,7 +37,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.ingegneria.app.navigation.Navigation
@@ -61,7 +60,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
     val firebaseUser = Firebase.auth.currentUser
@@ -81,7 +79,7 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
     if (firebaseUser != null) {
         taskVM.retrieveFirebaseData(firebaseUser.uid)
         shopVM.retrieveFirebaseData(firebaseUser.uid)
-        socialVM.retrieveFirebaseData(firebaseUser.uid)
+        socialVM.retrieveFirebaseData(firebaseUser.uid, firebaseUser.displayName!!)
     }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()

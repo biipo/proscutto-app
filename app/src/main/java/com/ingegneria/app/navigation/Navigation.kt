@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.ingegneria.app.ui.common.QrReader
+import com.ingegneria.app.ui.otherpages.FriendRequests
 import com.ingegneria.app.ui.otherpages.Login
 import com.ingegneria.app.ui.otherpages.Shop
 import com.ingegneria.app.ui.otherpages.ShopViewModel
@@ -69,6 +70,9 @@ fun Navigation(
         }
         composable(Screens.Camera.name) {
             QrReader(navController = navController)
+        }
+        composable(Screens.RequestsPage.name) {
+            FriendRequests(navController = navController, socialVM = socialVM)
         }
     }
 }

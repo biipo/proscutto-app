@@ -10,5 +10,6 @@ enum class Screens {
     Social,
     Shop,
     Stats,
-    Camera
+    Camera,
+    RequestsPage
 }

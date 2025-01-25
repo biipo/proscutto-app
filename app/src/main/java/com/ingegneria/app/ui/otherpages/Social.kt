@@ -1,5 +1,6 @@
 package com.ingegneria.app.ui.otherpages
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -11,9 +12,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.ChildFriendly
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.QrCode2
@@ -22,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -37,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,21 +52,16 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.auth
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.QrBitMapPainter
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun Social(navController: NavController, socialVM: SocialViewModel?, qrValue: String?) {
+fun Social(navController: NavController, socialVM: SocialViewModel, qrValue: String?) {
 
     var openQrCodeDialog by remember { mutableStateOf(false) }
-    // Avoid passing too much arguments, TODO: centralize the current user into a ViewModel
-    val currUser = Firebase.auth.currentUser
     val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
-    
+
     var friendName by remember { mutableStateOf("") }
     var friendId by remember { mutableStateOf("") }
     var openAddFriendDialog by remember { mutableStateOf(false) }
@@ -92,7 +93,7 @@ fun Social(navController: NavController, socialVM: SocialViewModel?, qrValue: St
                     modifier = Modifier
                         .padding(start = 7.dp)
                         .wrapContentSize(),
-                    onClick = {navController.navigate(Screens.Home.name)}
+                    onClick = {navController.popBackStack()}
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Close,
@@ -130,12 +131,12 @@ fun Social(navController: NavController, socialVM: SocialViewModel?, qrValue: St
         bottomBar = {
         }
     ){ padding ->
-        Column (
-            modifier = Modifier.padding(top = 50.dp),
+        LazyColumn (
+            modifier = Modifier.padding(top = 70.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ){
-            if (socialVM != null) {
-                socialVM.userFriends.forEach { friend ->
+            if (socialVM.userFriends.isNotEmpty()) {
+                items(socialVM.userFriends) { friend ->
                     Card(
                         modifier = Modifier
                             .padding(start = 10.dp, end = 10.dp, top = 10.dp)
@@ -160,26 +161,50 @@ fun Social(navController: NavController, socialVM: SocialViewModel?, qrValue: St
                             )
                             Text(
                                 modifier = Modifier.padding(5.dp),
-                                text = friend, // should be the friend-username
+                                text = Regex("[a-z0-9A-Z]*-(\\D*)")
+                                    .find(friend)?.groups?.get(1)?.value ?: "bob", // "bob" is a tmp name if the regex fails
                                 textAlign = TextAlign.Center
                             )
                         }
                     }
                 }
             } else {
-                Text(text = "You have no friends :)")
+                item {
+                    Column (
+                        modifier = Modifier.fillMaxSize()
+                            .padding(top = 20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        Text(text = "You have no friends :)")
+                    }
+                }
+            }
+        }
+        Column (
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.Bottom
+        ){
+            FloatingActionButton(
+                modifier = Modifier.wrapContentSize()
+                    .padding(horizontal = 15.dp, vertical = 15.dp),
+                onClick = { navController.navigate(Screens.RequestsPage.name) }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ChildFriendly,
+                    contentDescription = "Friend requests page"
+                )
             }
         }
     }
 
     when {
         openQrCodeDialog -> {
-            if (currUser != null) {
-                ShowQrCodeDialog(
-                    user = currUser,
-                    onDismissRequest = { openQrCodeDialog = false },
-                    )
-            }
+            ShowQrCodeDialog(
+                userId = socialVM.userId,
+                username = socialVM.userDisplayName,
+                onDismissRequest = { openQrCodeDialog = false },
+                )
         }
         openAddFriendDialog -> {
             AcceptFriendDialog(
@@ -193,7 +218,7 @@ fun Social(navController: NavController, socialVM: SocialViewModel?, qrValue: St
 }
 
 @Composable
-fun ShowQrCodeDialog(user: FirebaseUser, onDismissRequest: () -> Unit) {
+fun ShowQrCodeDialog(userId: String, username: String, onDismissRequest: () -> Unit) {
     Dialog(onDismissRequest = onDismissRequest) {
         Card (
             modifier = Modifier
@@ -208,15 +233,15 @@ fun ShowQrCodeDialog(user: FirebaseUser, onDismissRequest: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image( // QR code content: [user-id]-[username]
-                    painter = QrBitMapPainter("${user.uid}-${user.displayName}"),
-                    contentDescription = "${user.displayName}",
+                    painter = QrBitMapPainter("$userId-$username"),
+                    contentDescription = username,
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier
                         .size(300.dp)
                         .padding(top = 10.dp)
                 )
                 Text(
-                    text = "Username: ${user.displayName}",
+                    text = "Username: $username",
                     modifier = Modifier.padding(top = 10.dp, start = 5.dp, bottom = 10.dp)
                 )
             }
@@ -225,7 +250,8 @@ fun ShowQrCodeDialog(user: FirebaseUser, onDismissRequest: () -> Unit) {
 }
 
 @Composable
-fun AcceptFriendDialog(onDismissRequest: () -> Unit, friendName: String, friendId: String, socialVM: SocialViewModel?) {
+fun AcceptFriendDialog(onDismissRequest: () -> Unit, friendName: String, friendId: String, socialVM: SocialViewModel) {
+    val context = LocalContext.current
     Dialog(onDismissRequest = onDismissRequest) {
         Card (
             modifier = Modifier
@@ -239,40 +265,37 @@ fun AcceptFriendDialog(onDismissRequest: () -> Unit, friendName: String, friendI
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (socialVM != null) {
-                    Text(
-                        text = "Do you want to add $friendName to your friends?",
-                        modifier = Modifier.padding(top = 20.dp)
-                    )
-                    Row (modifier = Modifier.padding(vertical = 20.dp)){
-                        Button(
-                            onClick = onDismissRequest,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Red,
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Text(text = "Cancel")
-                        }
-                        Button(
-                            onClick = {
-                                /* Add the user-id into currUser's friends list */
-                                socialVM.addFriend(friendId = friendId)
-                                onDismissRequest.invoke()
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Green,
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Text(text = "Add")
-                        }
+                Text(
+                    text = "Do you want to add $friendName to your friends?",
+                    modifier = Modifier.padding(top = 20.dp)
+                )
+                Row (modifier = Modifier.padding(vertical = 20.dp)){
+                    Button(
+                        onClick = onDismissRequest,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red,
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier.padding(horizontal = 5.dp)
+                    ) {
+                        Text(text = "Cancel")
                     }
-                } else {
-                    Text(
-                        text = "We've had a problem retrieving the needed information",
-                        modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)
-                    )
+                    Button(
+                        onClick = {
+                            /* Add the user-id into currUser's friends list */
+                            if (!socialVM.addFriend(friendId = "$friendId-$friendName")) {
+                                Toast.makeText(context, "$friendName is already your friend", Toast.LENGTH_LONG).show()
+                            }
+                            onDismissRequest.invoke()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Green,
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier.padding(horizontal = 5.dp)
+                    ) {
+                        Text(text = "Add")
+                    }
                 }
             }
         }
