@@ -85,10 +85,19 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
     when (navBackStackEntry?.destination?.route) {
-        Screens.Login.name -> {
+        Screens.Login.name,
+        Screens.Signup.name,
+        Screens.Shop.name,
+        Screens.Social.name,
+        Screens.Stats.name,
+        Screens.RequestsPage.name,
+        Screens.Camera.name -> {
             bottomBarState.value = false
         }
-        Screens.Home.name -> {
+        Screens.Home.name,
+        Screens.Tasks.name,
+        Screens.Quiz.name,
+        Screens.Settings.name -> {
             bottomBarState.value = true
         }
     }

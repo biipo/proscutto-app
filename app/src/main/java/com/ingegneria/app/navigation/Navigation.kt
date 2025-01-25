@@ -22,7 +22,6 @@ import com.ingegneria.app.ui.tabs.Settings
 import com.ingegneria.app.ui.tabs.TaskViewModel
 import com.ingegneria.app.ui.tabs.Tasks
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun Navigation(
     navController: NavHostController,
@@ -55,7 +54,7 @@ fun Navigation(
         composable(Screens.Shop.name) {
             Shop(navController = navController, shopVM = shopVM)
         }
-        composable( // This is used to navigate with arguments (it's optional)
+        composable( // This is used to navigate with arguments (they are optional)
             "${Screens.Social.name}?qrValue={qrValue}",
             arguments = listOf(
                 navArgument("qrValue") {
