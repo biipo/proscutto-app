@@ -99,7 +99,7 @@ fun FriendRequests(navController: NavController, socialVM: SocialViewModel) {
                                         textAlign = TextAlign.Center
                                     )
                                 }
-                                Row {
+                                Row (modifier = Modifier.padding(vertical = 10.dp)){
                                     Button(
                                         onClick = {
                                             Log.e("Stringa chiave Reject", key)

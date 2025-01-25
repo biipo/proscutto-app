@@ -31,7 +31,7 @@ class SocialViewModel : ViewModel() {
         friendsDatabase.child(userId).addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val value = snapshot.value.toString()
-                if (value.isNotEmpty()) {
+                if (value.isNotEmpty() && !userFriends.contains(value)) {
                     userFriends.add(value)
                 }
             }
@@ -97,20 +97,6 @@ class SocialViewModel : ViewModel() {
         requestsDatabase.child(userId).child(key).removeValue()
     }
 
-    private fun sendFriendRequest(friend: String) : Boolean {
-        val friendId =  Regex("([a-z0-9A-Z]*)-\\D*")
-            .find(friend)?.groups?.get(1)?.value ?: "bob"
-        val friendDb = requestsDatabase.child(friendId)
-        val myRequestId = friendDb.push().key
-        if (myRequestId == null) {
-            Log.e("SendingRequest", "Errore :(")
-            return false
-        } else  {
-            friendDb.child(myRequestId).setValue("${userId}-${userDisplayName}")
-            return true
-        }
-    }
-
     private fun addFriendDefinitively(friend: String) {
         val friendId = Regex("([a-z0-9A-Z]*)-\\D*")
             .find(friend)?.groups?.get(1)?.value ?: "bob"
@@ -127,11 +113,21 @@ class SocialViewModel : ViewModel() {
     }
 
 
-    fun addFriend(friendId: String) : Boolean {
-        if (userFriends.contains(friendId)) {
+    fun sendFriendRequest(friend: String) : Boolean {
+        if (userFriends.contains(friend)) {
             return false // The friend hasn't been added because already exists
         } else {
-            return sendFriendRequest(friendId)
+            val friendId =  Regex("([a-z0-9A-Z]*)-\\D*")
+                .find(friend)?.groups?.get(1)?.value ?: "bob"
+            val friendDb = requestsDatabase.child(friendId)
+            val myRequestId = friendDb.push().key
+            if (myRequestId == null) {
+                Log.e("SendingRequest", "Errore :(")
+                return false
+            } else  {
+                friendDb.child(myRequestId).setValue("${userId}-${userDisplayName}")
+                return true
+            }
         }
     }
 }

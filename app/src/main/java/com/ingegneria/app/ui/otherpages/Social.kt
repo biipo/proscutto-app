@@ -283,7 +283,7 @@ fun AcceptFriendDialog(onDismissRequest: () -> Unit, friendName: String, friendI
                     Button(
                         onClick = {
                             /* Add the user-id into currUser's friends list */
-                            if (!socialVM.addFriend(friendId = "$friendId-$friendName")) {
+                            if (!socialVM.sendFriendRequest(friend = "$friendId-$friendName")) {
                                 Toast.makeText(context, "$friendName is already your friend", Toast.LENGTH_LONG).show()
                             }
                             onDismissRequest.invoke()
