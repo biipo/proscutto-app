@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "593176382677",
+    "firebase_url": "https://app-proscutto-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "app-proscutto",
+    "storage_bucket": "app-proscutto.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:593176382677:android:dbf42fa7cb7d56a221665c",
+        "android_client_info": {
+          "package_name": "com.ingegneria.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpU8SdeN_lpcAY3dl5ZYKtIewlCyS032w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

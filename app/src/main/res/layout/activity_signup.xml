@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <!-- TODO: better look -->
+
+    <include
+        android:id="@+id/auth_components"
+        layout="@layout/auth_components"
+        />
+
+    <EditText
+        android:id="@+id/username_textbox"
+        android:layout_width="@dimen/textbox_width"
+        android:layout_height="@dimen/textbox_height"
+        android:inputType="text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="290dp"
+        android:hint="Username"
+        android:gravity="center_horizontal"
+        />
+
+    <EditText
+        android:id="@+id/signup_confirm_password_textbox"
+        android:layout_width="@dimen/textbox_width"
+        android:layout_height="@dimen/textbox_height"
+        android:inputType="textPassword"
+        android:layout_marginTop="470dp"
+        android:layout_centerHorizontal="true"
+        android:hint="Confirmation password"
+        android:gravity="center_horizontal"
+        />
+
+
+</RelativeLayout>
