@@ -1,6 +1,7 @@
 package com.ingegneria.app.ui.common
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,10 +22,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ingegneria.app.models.Pet
+import com.ingegneria.app.navigation.Screens
 
 @Composable
-fun HomeStats(pet: Pet?) {
+fun HomeStats(navController: NavController, pet: Pet?) {
     if (pet != null) {
         Column(
             modifier = Modifier
@@ -42,7 +45,7 @@ fun HomeStats(pet: Pet?) {
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            PetStats(pet)
+            PetStats(navController, pet)
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -55,11 +58,14 @@ fun HomeStats(pet: Pet?) {
 }
 
 @Composable
-fun PetStats(pet: Pet?) {
+fun PetStats(navController: NavController, pet: Pet?) {
     if (pet != null) {
         Row(
             modifier = Modifier
                 .padding(top = 30.dp, start = 15.dp, end = 15.dp)
+                .clickable {
+                    navController.navigate(Screens.Stats.name)
+                }
         ) {
             Box(
                 modifier = Modifier

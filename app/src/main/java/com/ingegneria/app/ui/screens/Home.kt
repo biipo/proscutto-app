@@ -47,6 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ingegneria.app.models.PetFirebaseSync
+import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.HomeStats
 import com.ingegneria.app.ui.common.MascotImageBig
 import com.ingegneria.app.ui.common.PetStats
@@ -54,14 +55,14 @@ import com.ingegneria.app.ui.common.PetStats
 @Composable
 fun Home(navController: NavController, petVM: PetViewModel) {
     Surface(modifier = Modifier.fillMaxSize()) {
-        TopAppBar()
-        HomeStats(petVM.pet);
+        TopAppBar(navController)
+        HomeStats(navController, petVM.pet);
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar () {
+fun TopAppBar (navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -72,7 +73,7 @@ fun TopAppBar () {
                 title = {},
                 navigationIcon = {
                     IconButton(
-                        onClick = {}
+                        onClick = { navController.navigate(Screens.Shop.name) }
                     ) {
                         Icon(
                             imageVector = Icons.Default.ShoppingCart,
@@ -82,7 +83,7 @@ fun TopAppBar () {
                 },
                 actions = {
                     IconButton(
-                        onClick = {}
+                        onClick = { navController.navigate(Screens.Social.name) }
                     ) {
                         Icon(
                             imageVector = Icons.Default.People,

@@ -68,7 +68,7 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel, petVM: PetViewMod
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ){
-            PetStats(petVM.pet)
+            PetStats(navController, petVM.pet)
             HorizontalDivider(
                 modifier = Modifier
                     .padding(start = 8.dp, end = 8.dp, bottom = 10.dp),
