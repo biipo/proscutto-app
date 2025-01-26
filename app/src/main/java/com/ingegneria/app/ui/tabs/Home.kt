@@ -1,6 +1,7 @@
-package com.ingegneria.app.ui.screens
+package com.ingegneria.app.ui.tabs
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,34 +27,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.ingegneria.app.models.Pet
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ingegneria.app.models.PetFirebaseSync
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.HomeStats
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.MascotImageBig
-import com.ingegneria.app.ui.common.PetStats
+import com.ingegneria.app.ui.theme.AppTheme
 
 @Composable
-fun Home(navController: NavController, petVM: PetViewModel) {
+fun Home(navController: NavController) {
     Surface(modifier = Modifier.fillMaxSize()) {
         TopAppBar(navController)
         HomeStats(navController, petVM.pet);
@@ -62,7 +53,7 @@ fun Home(navController: NavController, petVM: PetViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar (navController: NavController) {
+fun TopAppBar () {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -83,7 +74,7 @@ fun TopAppBar (navController: NavController) {
                 },
                 actions = {
                     IconButton(
-                        onClick = { navController.navigate(Screens.Social.name) }
+                        onClick = {navController.navigate(Screens.Social.name)}
                     ) {
                         Icon(
                             imageVector = Icons.Default.People,
@@ -104,5 +95,5 @@ fun TopAppBar (navController: NavController) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewHome(navController: NavController = rememberNavController()){
-    //AppTheme { Home(navController) }
+    AppTheme { Home(navController) }
 }

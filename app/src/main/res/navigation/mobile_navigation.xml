@@ -8,25 +8,25 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.ingegneria.app.ui.screens.`Home.kt`"
+        android:name="com.ingegneria.app.ui.tabs.`Home.kt`"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_task"
-        android:name="com.ingegneria.app.ui.screens.Tasks"
+        android:name="com.ingegneria.app.ui.tabs.Tasks"
         android:label="@string/title_task"
         tools:layout="@layout/fragment_task" />
 
     <fragment
         android:id="@+id/navigation_quiz"
-        android:name="com.ingegneria.app.ui.screens.`Quiz.kt`"
+        android:name="com.ingegneria.app.ui.tabs.`Quiz.kt`"
         android:label="@string/title_quiz"
         tools:layout="@layout/fragment_quiz" />
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="com.ingegneria.app.ui.screens.Settings"
+        android:name="com.ingegneria.app.ui.tabs.Settings"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
 </navigation>

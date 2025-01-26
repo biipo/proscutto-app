@@ -1,4 +1,4 @@
-package com.ingegneria.app.ui.screens
+package com.ingegneria.app.ui.otherpages
 
 import android.text.TextUtils
 import android.view.View
@@ -186,5 +186,5 @@ private fun inputCheck(sEmail: String?, sPassword: String?, view: View): Boolean
 @Preview(showBackground = true)
 @Composable
 fun PreviewLogin(navController: NavController = rememberNavController()){
-    AppTheme {Login(navController = navController)}
+    AppTheme { Login(navController = navController) }
 }

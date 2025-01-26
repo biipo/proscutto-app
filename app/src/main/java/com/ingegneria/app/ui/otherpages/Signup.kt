@@ -1,8 +1,5 @@
-package com.ingegneria.app.ui.screens
+package com.ingegneria.app.ui.otherpages
 
-import android.content.ContentValues.TAG
-import android.text.TextUtils
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,9 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 import com.google.firebase.auth.userProfileChangeRequest
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.LoadingDialog

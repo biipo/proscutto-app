@@ -33,6 +33,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -40,6 +41,9 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.ingegneria.app.navigation.Navigation
 import com.ingegneria.app.navigation.Screens
+import com.ingegneria.app.ui.otherpages.ShopViewModel
+import com.ingegneria.app.ui.otherpages.SocialViewModel
+import com.ingegneria.app.ui.tabs.TaskViewModel
 import com.ingegneria.app.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -65,16 +69,35 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
         } else {
             Screens.Home.name
         }
+
     val bottomBarState = rememberSaveable { mutableStateOf(true) }
     val topBarState = rememberSaveable { mutableStateOf(true) }
+
+    val taskVM = viewModel<TaskViewModel>()
+    val shopVM = viewModel<ShopViewModel>()
+    val socialVM = viewModel<SocialViewModel>()
+    if (firebaseUser != null) {
+        taskVM.retrieveFirebaseData(firebaseUser.uid)
+        shopVM.retrieveFirebaseData(firebaseUser.uid)
+        socialVM.retrieveFirebaseData(firebaseUser.uid, firebaseUser.displayName!!)
+    }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
     when (navBackStackEntry?.destination?.route) {
-        Screens.Login.name -> {
+        Screens.Login.name,
+        Screens.Signup.name,
+        Screens.Shop.name,
+        Screens.Social.name,
+        Screens.Stats.name,
+        Screens.RequestsPage.name,
+        Screens.Camera.name -> {
             bottomBarState.value = false
         }
-        Screens.Home.name -> {
+        Screens.Home.name,
+        Screens.Tasks.name,
+        Screens.Quiz.name,
+        Screens.Settings.name -> {
             bottomBarState.value = true
         }
     }
@@ -85,7 +108,13 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
         Column (
             modifier = Modifier.padding(padding)
         ) {
-            Navigation(navController = navController, startScreen = startScreen)
+            Navigation(
+                navController = navController,
+                startScreen = startScreen,
+                taskVM = taskVM,
+                shopVM = shopVM,
+                socialVM = socialVM
+            )
         }
     }
 }
