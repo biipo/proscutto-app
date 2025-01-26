@@ -36,6 +36,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.ingegneria.app.ui.common.PetStats
+import com.ingegneria.app.ui.screens.PetViewModel
 
 @Composable
 fun Tasks(navController: NavController, taskVM: TaskViewModel, petVM: PetViewModel) {

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
@@ -14,17 +15,14 @@ import com.ingegneria.app.models.Pet
 import com.ingegneria.app.models.PetFirebaseSync
 
 class PetViewModel : ViewModel() {
+
+    val database = FirebaseDatabase.getInstance().reference.child("characters")
+
     var pet by mutableStateOf<Pet?>(null)
     var petFb by mutableStateOf<PetFirebaseSync?>(null)
 
-    fun retrieveFirebaseData() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        val db = userId?.let {
-            Firebase.database.getReference("characters")
-                .child(it)
-        }
-
-        db?.addValueEventListener(object : ValueEventListener {
+    fun retrieveFirebaseData(userId: String) {
+        database.child(userId).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(ds: DataSnapshot) {
                 val charactersMap = mutableMapOf<String, Pet>()
                 pet = ds.getValue(Pet::class.java)
@@ -36,8 +34,8 @@ class PetViewModel : ViewModel() {
             override fun onCancelled(p0: DatabaseError) {
             }
         })
-        if (db != null && pet != null) {
-            petFb = PetFirebaseSync(db, pet!!)
+        if (pet != null) {
+            petFb = PetFirebaseSync(database, pet!!)
         }
     }
 }

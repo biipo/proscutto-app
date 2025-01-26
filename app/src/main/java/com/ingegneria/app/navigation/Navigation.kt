@@ -6,7 +6,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.ingegneria.app.ui.common.QrReader
 import com.ingegneria.app.ui.otherpages.FriendRequests
 import com.ingegneria.app.ui.otherpages.Login
@@ -16,6 +15,7 @@ import com.ingegneria.app.ui.otherpages.Signup
 import com.ingegneria.app.ui.otherpages.Social
 import com.ingegneria.app.ui.otherpages.SocialViewModel
 import com.ingegneria.app.ui.otherpages.Stats
+import com.ingegneria.app.ui.screens.PetViewModel
 import com.ingegneria.app.ui.tabs.Home
 import com.ingegneria.app.ui.tabs.Quiz
 import com.ingegneria.app.ui.tabs.Settings
