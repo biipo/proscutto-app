@@ -15,7 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,33 +28,34 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.ingegneria.app.models.Pet
-import com.ingegneria.app.ui.common.MascotImageBig
-import com.ingegneria.app.ui.theme.AppTheme
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.ingegneria.app.models.PetFirebaseSync
+import com.ingegneria.app.ui.common.HomeStats
+import com.ingegneria.app.ui.common.MascotImageBig
+import com.ingegneria.app.ui.common.PetStats
 
 @Composable
-fun Home(navController: NavController) {
+fun Home(navController: NavController, petVM: PetViewModel) {
     Surface(modifier = Modifier.fillMaxSize()) {
         TopAppBar()
-        CharacterStats()
+        HomeStats(petVM.pet);
     }
 }
 
@@ -100,111 +100,8 @@ fun TopAppBar () {
 
 }
 
-@Composable
-fun CharacterStats() {
-    val userId = FirebaseAuth.getInstance().currentUser?.uid
-    val db = userId?.let {
-        Firebase.database.getReference("characters")
-        .child(it)
-    }
-    var pet by remember { mutableStateOf<Pet?>(null)}
-
-    db?.addValueEventListener(object : ValueEventListener {
-        override fun onDataChange(ds: DataSnapshot) {
-            val charactersMap = mutableMapOf<String, Pet>()
-            pet = ds.getValue(Pet::class.java)
-            if (pet != null) {
-                println("Pet: ${pet.toString()}")
-            }
-        }
-
-        override fun onCancelled(p0: DatabaseError) {
-        }
-    })
-    var petFb by remember { mutableStateOf<PetFirebaseSync?>(null) }
-    if (db != null && pet != null) {
-        petFb = PetFirebaseSync(db, pet!!)
-    }
-
-    if (pet != null && petFb != null) {
-        Column (
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-        ) {
-            Row (
-                modifier = Modifier
-                    .padding(top = 90.dp, start = 15.dp, end = 15.dp)
-            ) {
-                Text(
-                    text = pet!!.name,
-                    fontSize = 40.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .padding(top = 30.dp, start = 15.dp, end = 15.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "${pet!!.level}",
-                        fontSize = 50.sp
-                    )
-                }
-                Column(
-                    modifier = Modifier
-                        .padding(start = 10.dp)
-                ) {
-                    Text(
-                        text = "${pet!!.hp}/${pet!!.maxHp()}",
-                        fontSize = 15.sp,
-                        modifier = Modifier.align(Alignment.End)
-                    )
-                    LinearProgressIndicator(
-                        progress = { (pet!!.hp / pet!!.maxHp().toFloat()) },
-                        modifier = Modifier.fillMaxWidth().height(15.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.background
-                    )
-                    Text(
-                        text = "${pet!!.xp}/${pet!!.maxXp()}",
-                        fontSize = 15.sp,
-                        modifier = Modifier.align(Alignment.End)
-                            .padding(0.dp, 15.dp, 0.dp, 0.dp)
-                    )
-                    LinearProgressIndicator(
-                        progress = { (pet!!.xp / pet!!.maxXp().toFloat()) },
-                        modifier = Modifier.fillMaxWidth().height(15.dp),
-                        color = MaterialTheme.colorScheme.tertiary,
-                        trackColor = MaterialTheme.colorScheme.background
-                    )
-                }
-            }
-            Column (
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxHeight().fillMaxWidth()
-            ) {
-                MascotImageBig(pet!!.hat!!)
-                Button(onClick = { petFb?.gainXp(50) }) {
-                    Text("Gain 50xp")
-                }
-            }
-        }
-    }
-}
-
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewHome(navController: NavController = rememberNavController()){
-    AppTheme { Home(navController) }
+    //AppTheme { Home(navController) }
 }

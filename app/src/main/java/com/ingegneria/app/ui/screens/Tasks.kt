@@ -40,9 +40,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.ingegneria.app.ui.common.PetStats
 
 @Composable
-fun Tasks(navController: NavController, taskVM: TaskViewModel) {
+fun Tasks(navController: NavController, taskVM: TaskViewModel, petVM: PetViewModel) {
 
     /*  TODO: retrieve tasks when app is opened (not when the user open the tasks' tab)
     *   TODO: when a tab is changed the viewModel is cleared, it has to be declared in the Activity (MainActivity) */
@@ -67,7 +68,7 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel) {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ){
-            CharacterStatsTask()
+            PetStats(petVM.pet)
             HorizontalDivider(
                 modifier = Modifier
                     .padding(start = 8.dp, end = 8.dp, bottom = 10.dp),
