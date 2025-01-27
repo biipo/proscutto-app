@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -26,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -71,12 +74,14 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel, petVM: PetViewMod
                 thickness = 1.dp,
                 color = Color.Gray
             )
+            /*
             when { // When the user has selected the task in the task selection dialog the page should update and show the selected tasks
                 taskVM.showTasks -> {
                     ShowTaskList(
-                        dailyTasks = taskVM.userDailyTasks.toList(),
-                        weeklyTasks = taskVM.userWeeklyTasks.toList(),
-                        monthlyTasks = taskVM.userMonthlyTasks.toList(),
+                        dailyTasks = taskVM.dailyTasks.toList(),
+                        weeklyTasks = taskVM.selectedWeeklyTasks,
+                        monthlyTasks = taskVM.selectedMonthlyTasks,
+
                         itemClickedAction = {
                             openSingleTaskDialog = !openSingleTaskDialog
                         },
@@ -102,12 +107,48 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel, petVM: PetViewMod
                         )
                     }
                 }
+            }*/
+            val noTasksSelected = taskVM.selectedDailyTasks.isEmpty()
+                    && taskVM.selectedWeeklyTasks.isEmpty()
+                    && taskVM.selectedMonthlyTasks.isEmpty()
+
+            if (noTasksSelected) {
+                Text(
+                    text = "No tasks selected",
+                    modifier = Modifier.padding(bottom = 10.dp),
+                    textAlign = TextAlign.Center
+                )
+                Button(
+                    onClick = { openTaskChoiceDialog = true }
+                ) {
+                    Text("Choose tasks")
+                }
+            } else {
+                // Se ci sono task selezionate, le mostriamo
+                ShowTaskList(
+                    dailyTasks = taskVM.selectedDailyTasks,
+                    weeklyTasks = taskVM.selectedWeeklyTasks,
+                    monthlyTasks = taskVM.selectedMonthlyTasks,
+                    itemClickedAction = {
+                        openSingleTaskDialog = true
+                    },
+                    selectItemSaver = { item, group ->
+                        selectedTask = item
+                    }
+                )
+                // Pulsante per scegliere/cambiare task
+                Button(
+                    modifier = Modifier.padding(top = 10.dp),
+                    onClick = { openTaskChoiceDialog = true }
+                ) {
+                    Text("Change tasks")
+                }
             }
+
         }
 
 
-        when {
-            openSingleTaskDialog -> {
+        if(openSingleTaskDialog){
                 // when the user tap on a task, openDialog is triggered and changed to true so this code open the corresponding dialog
                 TaskOptionDialog(
                     onDismissRequest = { openSingleTaskDialog = false },
@@ -115,7 +156,7 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel, petVM: PetViewMod
                 )
             }
 
-            openTaskChoiceDialog -> {
+        if(openTaskChoiceDialog){
                 // when the user tap on the button relative for task choice
                 TaskSelectionDialog(
                     onDismissRequest =  { openTaskChoiceDialog = false },
@@ -127,8 +168,8 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel, petVM: PetViewMod
 
             }
         }
-    }
 }
+
 
 @Composable
 fun ShowSingleGroupList(
@@ -234,47 +275,76 @@ fun TaskSelectionDialog(
     taskVM: TaskViewModel
 ) {
 
+    val selectedDaily = remember { taskVM.selectedDailyTasks.toMutableStateList() }
+    val selectedWeekly = remember { taskVM.selectedWeeklyTasks.toMutableStateList() }
+    val selectedMonthly = remember { taskVM.selectedMonthlyTasks.toMutableStateList() }
+
+
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card (
-            modifier = Modifier
-                .wrapContentSize(),
             shape = RoundedCornerShape(10.dp)
         ){
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp)
-                    .height(500.dp),
+                    .height(500.dp)
+                    .padding(10.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-                ShowTaskList(
-                    dailyTasks = dailyTasks,
-                    weeklyTasks = weeklyTasks,
-                    monthlyTasks = monthlyTasks,
-                    itemClickedAction = {},
-                    /* If the item is clicked, it's immediately added in the corresponding list (actually a set, that avoid duplicates)
-                       but if it's clicked again and toggled to unselected we have to remove it
-                       TODO: keep the selection inside this dialog (now the task object has a attribute that
-                        exists also outside this selection), the problem it creates appears in the taskBox composable when
-                        we select the color */
-                    selectItemSaver = { item, group ->
-                        item.toggleSelection()
-                        if(item.isSelected.value && group == "Daily") {
-                            taskVM.userDailyTasks.add(item)
-                        } else if (item.isSelected.value && group == "Weekly") {
-                            taskVM.userWeeklyTasks.add(item)
-                        } else if(item.isSelected.value && group == "Monthly") {
-                            taskVM.userMonthlyTasks.add(item)
-                        } else if(!item.isSelected.value && group == "Daily") {
-                            taskVM.userDailyTasks.remove(item)
-                        } else if(!item.isSelected.value && group == "Weekly") {
-                            taskVM.userWeeklyTasks.remove(item)
-                        } else if(!item.isSelected.value && group == "Monthly") {
-                            taskVM.userMonthlyTasks.remove(item)
-                        }
+                item {
+                    Text("Select Your Tasks", style = MaterialTheme.typography.titleLarge)
+                }
+                item {
+                    Text("Daily Tasks", style = MaterialTheme.typography.titleMedium)
+                    dailyTasks.forEach { item ->
+                        SelectableTaskBox(
+                            task = item,
+                            isSelected = selectedDaily.contains(item),
+                            onClick = {
+                                if (selectedDaily.contains(item)) {
+                                    selectedDaily.remove(item)
+                                } else {
+                                    selectedDaily.add(item)
+                                }
+                            }
+                        )
                     }
-                )
+                }
+
+                item {
+                    Text("Weekly Tasks", style = MaterialTheme.typography.titleMedium)
+                    weeklyTasks.forEach { item ->
+                        SelectableTaskBox(
+                            task = item,
+                            isSelected = selectedWeekly.contains(item),
+                            onClick = {
+                                if (selectedWeekly.contains(item)) {
+                                    selectedWeekly.remove(item)
+                                } else {
+                                    selectedWeekly.add(item)
+                                }
+                            }
+                        )
+                    }
+                }
+
+                item {
+                    Text("Monthly Tasks", style = MaterialTheme.typography.titleMedium)
+                    monthlyTasks.forEach { item ->
+                        SelectableTaskBox(
+                            task = item,
+                            isSelected = selectedMonthly.contains(item),
+                            onClick = {
+                                if (selectedMonthly.contains(item)) {
+                                    selectedMonthly.remove(item)
+                                } else {
+                                    selectedMonthly.add(item)
+                                }
+                            }
+                        )
+                    }
+                }
             }
             Row (
                 modifier = Modifier
@@ -283,33 +353,24 @@ fun TaskSelectionDialog(
                 horizontalArrangement = Arrangement.Center
             ){
                 Button(
-                    modifier = Modifier
-                        .padding(start = 5.dp)
-                        .size(width = 140.dp, height = 40.dp),
                     onClick = onDismissRequest,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSecondary
-                    )
                 ) {
                     Text(
                         text = "Cancel"
                     )
                 }
                 Button(
-                    modifier = Modifier
-                        .padding(start = 5.dp)
-                        .size(width = 140.dp, height = 40.dp),
                     onClick = {
                         /* TODO: maybe it's better to scan the list and keep only the tasks with isSelected == true?
                             rather than add and remove them immediately when clicked */
-                        taskVM.toggleShowTasks()
+                        taskVM.saveSelectedTasks(
+                            newDailyTasks = selectedDaily,
+                            newWeeklyTasks = selectedWeekly,
+                            newMonthlyTasks = selectedMonthly
+                        )
                         onDismissRequest()
                       },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
+
                 ) {
                     Text(
                         text = "Confirm"
@@ -317,6 +378,33 @@ fun TaskSelectionDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SelectableTaskBox(
+    task: Task,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer
+    val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = backgroundColor,
+            contentColor = contentColor
+        )
+    ) {
+        Text(
+            text = task.title,
+            modifier = Modifier.padding(10.dp)
+        )
     }
 }
 
@@ -393,7 +481,7 @@ fun TaskOptionDialog(onDismissRequest: () -> Unit, selectedTask: Task) {
                     modifier = Modifier
                         .padding(end = 20.dp, start = 20.dp, top = 20.dp, bottom = 50.dp)
                         .size(350.dp, 50.dp),
-                    onClick = {}, // TODO: should open the dialog with the list of NON-selected task available
+                    onClick = {},
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary

@@ -121,6 +121,12 @@ fun Login(navController: NavController) {
                                                 Toast.LENGTH_SHORT
                                             ).show()
 
+                                            // A questo punto possiamo richiamare la logica del reset nel TaskViewModel
+                                            // oppure passare un contesto e farlo direttamente qui.
+                                            // L'approccio più pulito è farlo nel TaskViewModel, ma dobbiamo passargli il context
+                                            // e farlo in un metodo ad hoc.
+
+
                                             // Navigate to the Home screen
                                             navController.navigate(Screens.Home.name) {
                                                 popUpTo(0)

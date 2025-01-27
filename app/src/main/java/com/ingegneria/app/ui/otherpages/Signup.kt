@@ -26,6 +26,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.userProfileChangeRequest
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.LoadingDialog
@@ -153,9 +154,15 @@ fun Signup(navController: NavHostController) {
                                 "userId" to userId,
                                 "email" to email.value,
                                 "username" to username.value,
-                                "createdAt" to System.currentTimeMillis(),
-                                "lastLogin" to System.currentTimeMillis(),
-                                "dailyQuestionLimit" to 0
+                                "createdAt" to FieldValue.serverTimestamp(),
+                                "lastLogin" to FieldValue.serverTimestamp(),
+                                "dailyQuestionLimit" to 0,
+                                "lastDailyReset" to com.google.firebase.Timestamp.now(),
+                                "lastWeeklyReset" to com.google.firebase.Timestamp.now(),
+                                "lastMonthlyReset" to com.google.firebase.Timestamp.now(),
+                                "selectedDailyTasks" to emptyList<String>(),
+                                "selectedWeeklyTasks" to emptyList<String>(),
+                                "selectedMonthlyTasks" to emptyList<String>()
                             )
                             firestore.collection("users")
                                 .document(userId ?: "")
