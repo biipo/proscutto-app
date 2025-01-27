@@ -18,16 +18,14 @@ class SocialViewModel : ViewModel() {
 
     var userFriends = mutableStateListOf<String>() // List of friends of the current user
     var userFriendRequests = mutableStateMapOf<String, String>() // List of requests received by the current user
-    lateinit var userId: String // Current user id
+    lateinit var userId: String
         private set
-    lateinit var userDisplayName: String // Current user displayName
+    lateinit var username: String
         private set
-
 
     fun retrieveFirebaseData(userId: String, username: String) {
         this.userId = userId
-        this.userDisplayName = username
-
+        this.username = username
         friendsDatabase.child(userId).addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val value = snapshot.value.toString()
@@ -85,15 +83,9 @@ class SocialViewModel : ViewModel() {
 
     fun acceptRequest(key: String) {
         addFriendDefinitively(userFriendRequests[key]!!)
-        if (userFriendRequests.remove(key) === null) {
-            Log.e("ma dio merda", "accept")
-        }
         requestsDatabase.child(userId).child(key).removeValue()
     }
     fun rejectRequest(key: String) {
-        if (userFriendRequests.remove(key) === null) {
-            Log.e("ma dio merda", "reject")
-        }
         requestsDatabase.child(userId).child(key).removeValue()
     }
 
@@ -105,7 +97,7 @@ class SocialViewModel : ViewModel() {
         val friendDbKey = friendDb.push().key
         val myDbKey = myDb.push().key
         if (friendDbKey != null && myDbKey != null) {
-            friendDb.child(friendDbKey).setValue("${userId}-${userDisplayName}") // Adding my data in his friendsList
+            friendDb.child(friendDbKey).setValue("${userId}-${username}") // Adding my data in his friendsList
             myDb.child(myDbKey).setValue(friend) // Adding his data on my friendsList
         } else  {
             Log.e("SendingRequest", "Errore :(")
@@ -125,7 +117,7 @@ class SocialViewModel : ViewModel() {
                 Log.e("SendingRequest", "Errore :(")
                 return false
             } else  {
-                friendDb.child(myRequestId).setValue("${userId}-${userDisplayName}")
+                friendDb.child(myRequestId).setValue("${userId}-${username}")
                 return true
             }
         }

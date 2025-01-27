@@ -18,10 +18,14 @@ class ShopViewModel : ViewModel() {
     val database = FirebaseDatabase.getInstance().reference.child("shop")
     var shopItems by mutableStateOf<List<String>>(emptyList())
     var userItems = mutableStateListOf<String>()
-    private lateinit var userId: String
+    lateinit var userId: String
+        private set
+    lateinit var username: String
+        private set
 
-    fun retrieveFirebaseData(userId: String) {
+    fun retrieveFirebaseData(userId: String, username: String) {
         this.userId = userId
+        this.username = username
         database.child("shopItems").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 shopItems = snapshot.children.mapNotNull {

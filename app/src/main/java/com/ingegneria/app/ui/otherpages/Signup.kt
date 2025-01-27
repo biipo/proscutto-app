@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
@@ -50,19 +51,17 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.LoadingDialog
 import com.ingegneria.app.ui.common.MascotImage
-import com.ingegneria.app.ui.theme.AppTheme
 
 @Composable
-fun Signup(navController: NavHostController) {
-    val username = remember { mutableStateOf("") }
-    val email = remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
-    val confirmPassword = remember { mutableStateOf("") }
-    val passwordVisible = remember { mutableStateOf(false) }
-    val confirmPasswordVisible = remember { mutableStateOf(false) }
+fun Signup(navController: NavHostController, userVM: UserViewModel){
+    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
     val firestore = FirebaseFirestore.getInstance()
 
     Surface {
@@ -80,157 +79,139 @@ fun Signup(navController: NavHostController) {
                 fontSize = 25.sp,
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 50.dp, 0.dp, 0.dp)
             )
-            // Email input field
-            OutlinedTextField(
-                value = email.value,
-                onValueChange = { email.value = it },
-                leadingIcon = {
-                    Icon(Icons.Default.Mail, contentDescription = "mail")
-                },
-                label = {
-                    Text(text = "Email")
-                },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
-            )
-            // Username input field
-            OutlinedTextField(
-                value = username.value,
-                onValueChange = { username.value = it },
-                leadingIcon = {
-                    Icon(Icons.Default.Person, contentDescription = "person")
-                },
-                label = {
-                    Text(text = "Username")
-                },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
-            )
-            // Password input field
-            OutlinedTextField(
-                value = password.value,
-                onValueChange = { password.value = it },
-                leadingIcon = {
-                    Icon(Icons.Default.Lock, contentDescription = "")
-                },
-                trailingIcon = {
-                    IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
-                        Icon(
-                            imageVector = if (passwordVisible.value) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = "Password visibility",
-                            tint = if (passwordVisible.value) MaterialTheme.colorScheme.tertiary else Color.Gray
-                        )
-                    }
-                },
-                label = { Text(text = "Password") },
-                placeholder = { Text(text = "Password") },
-                singleLine = true,
-                visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
-            )
-            // Confirm password input field
-            OutlinedTextField(
-                value = confirmPassword.value,
-                onValueChange = { confirmPassword.value = it },
-                leadingIcon = {
-                    Icon(Icons.Default.Lock, contentDescription = "")
-                },
-                trailingIcon = {
-                    IconButton(onClick = { confirmPasswordVisible.value = !confirmPasswordVisible.value }) {
-                        Icon(
-                            imageVector = if (confirmPasswordVisible.value) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = "Password visibility",
-                            tint = if (confirmPasswordVisible.value) MaterialTheme.colorScheme.tertiary else Color.Gray
-                        )
-                    }
-                },
-                label = { Text(text = "Confirm Password") },
-                placeholder = { Text(text = "Confirm password") },
-                singleLine = true,
-                visualTransformation = if (confirmPasswordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
-            )
-            // Sign up button
-            Button(
-                onClick = {
-                    loading = true
-                    if (username.value.isEmpty() || email.value.isEmpty() || password.value.isEmpty() || confirmPassword.value.isEmpty()) {
-                        loading = false
-                        Toast.makeText(context, "One or more fields are empty", Toast.LENGTH_SHORT).show()
-                    } else if (username.value.length > 12) {
-                        loading = false
-                        Toast.makeText(context, "Username must be under 12 characters", Toast.LENGTH_SHORT).show()
-                    } else if (password.value != confirmPassword.value) {
-                        loading = false
-                        Toast.makeText(context, "Password and confirmation mismatch", Toast.LENGTH_SHORT).show()
-                    } else {
-                        FirebaseAuth.getInstance().createUserWithEmailAndPassword(
-                            email.value,
-                            password.value
-                        ).addOnSuccessListener { authResult ->
-                            val userId = authResult.user?.uid
-                            val user = hashMapOf(
-                                "userId" to userId,
-                                "email" to email.value,
-                                "username" to username.value,
-                                "createdAt" to FieldValue.serverTimestamp(),
-                                "lastLogin" to FieldValue.serverTimestamp(),
-                                "dailyQuestionLimit" to 0,
-                                "lastDailyReset" to com.google.firebase.Timestamp.now(),
-                                "lastWeeklyReset" to com.google.firebase.Timestamp.now(),
-                                "lastMonthlyReset" to com.google.firebase.Timestamp.now(),
-                                "selectedDailyTasks" to emptyList<String>(),
-                                "selectedWeeklyTasks" to emptyList<String>(),
-                                "selectedMonthlyTasks" to emptyList<String>()
+            LazyColumn {
+                item {
+                    // email input field
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        leadingIcon = {
+                            Icon(Icons.Default.Mail, contentDescription = "mail")
+                        },
+                        label = {
+                            Text(text = "Email")
+                        },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
+                    )
+                    // username input field
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = { username = it },
+                        leadingIcon = {
+                            Icon(Icons.Default.Person, contentDescription = "person")
+                        },
+                        label = {
+                            Text(text = "Username")
+                        },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
+                    )
+                    // password input field
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Lock,
+                                contentDescription = "",
+                                //tint= MaterialTheme.colorScheme.primary
                             )
-                            firestore.collection("users")
-                                .document(userId ?: "")
-                                .set(user)
-                                .addOnSuccessListener {
-                                    val tasksData = mapOf(
-                                        "dailyTasks" to emptyList<Any>(),
-                                        "weeklyTasks" to emptyList<Any>(),
-                                        "monthlyTasks" to emptyList<Any>()
-                                    )
-                                    firestore.collection("users")
-                                        .document(userId ?: "")
-                                        .collection("tasks")
-                                        .document("categories")
-                                        .set(tasksData)
-                                    loading = false
-                                    Toast.makeText(context, "Account created successfully!", Toast.LENGTH_SHORT).show()
-                                    navController.navigate(Screens.Home.name) { popUpTo(0) }
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector = if (passwordVisible) Icons.Default.Visibility
+                                    else Icons.Default.VisibilityOff,
+                                    contentDescription = "Password visibility",
+                                    tint = if (passwordVisible) MaterialTheme.colorScheme.tertiary
+                                    else Color.Gray
+                                )
+                            }
+                        },
+                        label = { Text(text = "Password") },
+                        placeholder = { Text(text = "Password") },
+                        singleLine = true,
+                        visualTransformation = if (passwordVisible) VisualTransformation.None
+                        else PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
+                    )
+                    // confirm password input field
+                    OutlinedTextField(
+                        value = confirmPassword,
+                        onValueChange = { confirmPassword = it },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Lock,
+                                contentDescription = "",
+                                //tint= MaterialTheme.colorScheme.primary
+                            )
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                                Icon(
+                                    imageVector = if (confirmPasswordVisible) Icons.Default.Visibility
+                                    else Icons.Default.VisibilityOff,
+                                    contentDescription = "Password visibility",
+                                    tint = if (confirmPasswordVisible) MaterialTheme.colorScheme.tertiary
+                                    else Color.Gray
+                                )
+                            }
+                        },
+                        label = { Text(text = "Confirm Password") },
+                        placeholder = { Text(text = "Confirm password") },
+                        singleLine = true,
+                        visualTransformation = if (confirmPasswordVisible) VisualTransformation.None
+                        else PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
+                    )
+                    // sign up button
+                    val context = LocalContext.current
+
+                    Button(
+                        onClick = {
+                            loading = true
+                            try {
+                                userVM.signup(
+                                    username = username,
+                                    email = email,
+                                    password = password,
+                                    confirmPassword = confirmPassword
+                                )
+                                Toast.makeText(context, "Welcome, $username", Toast.LENGTH_SHORT).show()
+                                navController.navigate(Screens.Home.name)  {
+                                    popUpTo(0)
                                 }
-                                .addOnFailureListener { e ->
-                                    loading = false
-                                    Toast.makeText(context, "Firestore error: ${e.message}", Toast.LENGTH_SHORT).show()
-                                }
-                        }.addOnFailureListener { e ->
-                            loading = false
-                            Toast.makeText(context, "Signup error: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
+                            } catch (e: IllegalArgumentException) {
+                                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                            } finally {
+                                loading = false
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth().padding(0.dp, 25.dp, 0.dp, 0.dp)
+                    ) {
+                        Text(
+                            text = "Sign Up"
+                        )
                     }
-                },
-                modifier = Modifier.fillMaxWidth().padding(0.dp, 25.dp, 0.dp, 0.dp)
-            ) {
-                Text(
-                    text = "Sign Up"
-                )
-            }
-            Spacer(modifier = Modifier.padding(10.dp))
-            Row {
-                Text(text = "Already have an account? ")
-                Text(
-                    text = "Log in",
-                    modifier = Modifier.clickable(onClick = {
-                        navController.navigate(Screens.Login.name)
-                    }),
-                    color = MaterialTheme.colorScheme.secondary
-                )
-            }
-            Spacer(modifier = Modifier.padding(20.dp))
-            if (loading) {
-                LoadingDialog()
+                    Spacer(modifier = Modifier.padding(10.dp))
+                    Row {
+                        Text(
+                            text = "Already have an account? ",
+                        )
+                        Text(
+                            text = "Log in",
+                            modifier = Modifier.clickable(onClick = {
+                                navController.navigate(Screens.Login.name)
+                            }),
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                    Spacer(modifier = Modifier.padding(20.dp))
+                    if (loading) {
+                        LoadingDialog()
+                    }
+                }
             }
         }
     }
@@ -239,5 +220,5 @@ fun Signup(navController: NavHostController) {
 @Preview
 @Composable
 fun PreviewSignup(navController: NavHostController = rememberNavController()) {
-    AppTheme { Signup(navController = navController) }
+//    AppTheme { Signup(navController = navController) }
 }

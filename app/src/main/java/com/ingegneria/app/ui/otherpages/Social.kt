@@ -202,7 +202,7 @@ fun Social(navController: NavController, socialVM: SocialViewModel, qrValue: Str
         openQrCodeDialog -> {
             ShowQrCodeDialog(
                 userId = socialVM.userId,
-                username = socialVM.userDisplayName,
+                username = socialVM.username,
                 onDismissRequest = { openQrCodeDialog = false },
                 )
         }

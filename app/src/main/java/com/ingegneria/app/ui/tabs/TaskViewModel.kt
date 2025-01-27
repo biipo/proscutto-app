@@ -36,7 +36,6 @@ data class Task(
 
 class TaskViewModel : ViewModel() {
 
-    // TODO: maybe set some fields private??
     private val firestore = FirebaseFirestore.getInstance()
     private val currentUser = FirebaseAuth.getInstance().currentUser
 
@@ -50,6 +49,10 @@ class TaskViewModel : ViewModel() {
     var selectedMonthlyTasks by mutableStateOf<List<Task>>(emptyList())
 
     var showTasks = false
+    lateinit var userId: String
+        private set
+    lateinit var username: String
+        private set
 
     init {
         currentUser?.let { user ->
@@ -61,7 +64,7 @@ class TaskViewModel : ViewModel() {
     }
 
     fun retrieveFirebaseData(userId: String) {
-        database.child("daily").addListenerForSingleValueEvent(object : ValueEventListener {
+        database.child("daily").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 dailyTasks = snapshot.children.mapNotNull {
                     it.getValue(Task::class.java)
