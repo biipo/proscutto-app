@@ -40,23 +40,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.LoadingDialog
 import com.ingegneria.app.ui.common.MascotImage
-import com.ingegneria.app.ui.theme.AppTheme
 
 @Composable
-fun Login(navController: NavController) {
-    val email = remember {
-        mutableStateOf("")
-    }
-    val password = remember {
-        mutableStateOf("")
-    }
-    val passwordVisible = remember {
-        mutableStateOf(false)
-    }
+fun Login(navController: NavController, userVM: UserViewModel) {
+    val email = remember { mutableStateOf("") }
+    val password = remember { mutableStateOf("") }
+    val passwordVisible = remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(false) }
     Surface {
         Column(
@@ -117,29 +109,15 @@ fun Login(navController: NavController) {
             Button(
                 onClick = {
                     loading = true
-                    if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
-                        FirebaseAuth.getInstance()
-                            .signInWithEmailAndPassword(email.value, password.value)
-                            .addOnSuccessListener() {
-                                navController.navigate(Screens.Home.name) {
-                                    popUpTo(0)
-                                }
-                            }
-                            .addOnFailureListener() {
-                                loading = false
-                                Toast.makeText(
-                                    context,
-                                    it.message,
-                                    Toast.LENGTH_SHORT,
-                                ).show()
-                            }
-                    } else {
+                    try {
+                        userVM.login(email.value, password.value)
+                        navController.navigate(Screens.Home.name) {
+                            popUpTo(0)
+                        }
+                    } catch (e: IllegalArgumentException) {
+                        Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                    } finally {
                         loading = false
-                        Toast.makeText(
-                            context,
-                            "One or more fields are empty",
-                            Toast.LENGTH_SHORT
-                        ).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 25.dp, 0.dp, 0.dp)
@@ -186,5 +164,5 @@ private fun inputCheck(sEmail: String?, sPassword: String?, view: View): Boolean
 @Preview(showBackground = true)
 @Composable
 fun PreviewLogin(navController: NavController = rememberNavController()){
-    AppTheme { Login(navController = navController) }
+//    AppTheme { Login(navController = navController) }
 }

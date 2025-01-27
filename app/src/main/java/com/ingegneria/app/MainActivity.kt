@@ -43,6 +43,7 @@ import com.ingegneria.app.navigation.Navigation
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.otherpages.ShopViewModel
 import com.ingegneria.app.ui.otherpages.SocialViewModel
+import com.ingegneria.app.ui.otherpages.UserViewModel
 import com.ingegneria.app.ui.tabs.TaskViewModel
 import com.ingegneria.app.ui.theme.AppTheme
 
@@ -61,25 +62,27 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
-    val firebaseUser = Firebase.auth.currentUser
+fun ProscuttoApp(
+    navController: NavHostController = rememberNavController(),
+    userVM: UserViewModel = viewModel<UserViewModel>(),
+    taskVM: TaskViewModel = viewModel<TaskViewModel>(),
+    shopVM: ShopViewModel = viewModel<ShopViewModel>(),
+    socialVM: SocialViewModel = viewModel<SocialViewModel>()
+) {
+    val user = Firebase.auth.currentUser
     val startScreen =
-        if (firebaseUser == null) {
+        if (user == null) {
             Screens.Login.name
         } else {
             Screens.Home.name
         }
 
     val bottomBarState = rememberSaveable { mutableStateOf(true) }
-    val topBarState = rememberSaveable { mutableStateOf(true) }
 
-    val taskVM = viewModel<TaskViewModel>()
-    val shopVM = viewModel<ShopViewModel>()
-    val socialVM = viewModel<SocialViewModel>()
-    if (firebaseUser != null) {
-        taskVM.retrieveFirebaseData(firebaseUser.uid)
-        shopVM.retrieveFirebaseData(firebaseUser.uid)
-        socialVM.retrieveFirebaseData(firebaseUser.uid, firebaseUser.displayName!!)
+    if (user != null) {
+        taskVM.retrieveFirebaseData(user.uid, user.displayName!!)
+        shopVM.retrieveFirebaseData(user.uid, user.displayName!!)
+        socialVM.retrieveFirebaseData(user.uid, user.displayName!!)
     }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -113,7 +116,8 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
                 startScreen = startScreen,
                 taskVM = taskVM,
                 shopVM = shopVM,
-                socialVM = socialVM
+                socialVM = socialVM,
+                userVM = userVM
             )
         }
     }
@@ -122,7 +126,7 @@ fun ProscuttoApp(navController: NavHostController = rememberNavController()) {
 @Composable
 fun TabNavigationBar(navController: NavHostController, bottomBarState: MutableState<Boolean>) {
     var selectedItem by remember { mutableIntStateOf(0) }
-    var items = listOf(Screens.Home.name, Screens.Tasks.name, Screens.Quiz.name, Screens.Settings.name)
+    val items = listOf(Screens.Home.name, Screens.Tasks.name, Screens.Quiz.name, Screens.Settings.name)
     val selectedIcons = listOf(Icons.Filled.Home,
                                 Icons.Filled.TaskAlt,
                                 Icons.Filled.Quiz,

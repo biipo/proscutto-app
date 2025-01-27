@@ -6,7 +6,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.ingegneria.app.ui.common.QrReader
 import com.ingegneria.app.ui.otherpages.FriendRequests
 import com.ingegneria.app.ui.otherpages.Login
@@ -16,6 +15,7 @@ import com.ingegneria.app.ui.otherpages.Signup
 import com.ingegneria.app.ui.otherpages.Social
 import com.ingegneria.app.ui.otherpages.SocialViewModel
 import com.ingegneria.app.ui.otherpages.Stats
+import com.ingegneria.app.ui.otherpages.UserViewModel
 import com.ingegneria.app.ui.tabs.Home
 import com.ingegneria.app.ui.tabs.Quiz
 import com.ingegneria.app.ui.tabs.Settings
@@ -28,15 +28,16 @@ fun Navigation(
     startScreen:String,
     taskVM: TaskViewModel,
     shopVM: ShopViewModel,
-    socialVM: SocialViewModel
+    socialVM: SocialViewModel,
+    userVM: UserViewModel
 ) {
 
     NavHost(navController = navController, startDestination = startScreen) {
         composable(Screens.Login.name) {
-            Login(navController = navController)
+            Login(navController = navController, userVM = userVM)
         }
         composable(Screens.Signup.name) {
-            Signup(navController = navController)
+            Signup(navController = navController, userVM = userVM)
         }
         // TODO: forgot password
         composable(Screens.Home.name) {

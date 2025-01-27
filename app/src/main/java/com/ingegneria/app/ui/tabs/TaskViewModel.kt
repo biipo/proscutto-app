@@ -30,8 +30,6 @@ data class Task(
 
 class TaskViewModel : ViewModel() {
 
-    // TODO: maybe set some fields private??
-
     val database = FirebaseDatabase.getInstance().reference.child("task")
     var dailyTasks by mutableStateOf<List<Task>>(emptyList())
     var weeklyTasks by mutableStateOf<List<Task>>(emptyList())
@@ -42,10 +40,14 @@ class TaskViewModel : ViewModel() {
     var userMonthlyTasks: MutableSet<Task> = mutableSetOf()
 
     var showTasks: Boolean = false
-    private lateinit var userId: String
+    lateinit var userId: String
+        private set
+    lateinit var username: String
+        private set
 
-    fun retrieveFirebaseData(userId: String) {
+    fun retrieveFirebaseData(userId: String, username: String) {
         this.userId = userId
+        this.username = username
         database.child("daily").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 dailyTasks = snapshot.children.mapNotNull {
