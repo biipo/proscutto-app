@@ -186,6 +186,21 @@ fun Login(navController: NavController) {
                     color = MaterialTheme.colorScheme.secondary
                 )
             }
+
+            Spacer(modifier = Modifier.padding(10.dp))
+            Row {
+                Text(
+                    text = "Forgot Password? ",
+                )
+                Text(
+                    text = "Click here",
+                    modifier = Modifier.clickable(onClick = {
+                        navController.navigate(Screens.ForgotPassword.name)
+                    }),
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+
             Spacer(modifier = Modifier.padding(20.dp))
             if (loading) {
                 LoadingDialog()

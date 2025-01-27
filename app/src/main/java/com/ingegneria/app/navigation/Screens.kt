@@ -11,5 +11,6 @@ enum class Screens {
     Shop,
     Stats,
     Camera,
+    ForgotPassword,
     RequestsPage
 }
