@@ -115,7 +115,6 @@ fun Login(navController: NavController, userVM: UserViewModel) {
                     try {
                         userVM.login(email.value, password.value)
                         val user = Firebase.auth.currentUser
-//                        userVM.initializeAfterLogin(user?.uid)
                         Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
                         navController.navigate(Screens.Home.name) {
                             popUpTo(0)
@@ -184,6 +183,6 @@ private fun inputCheck(sEmail: String?, sPassword: String?, view: View): Boolean
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewLogin(navController: NavController = rememberNavController()) {
+fun PreviewLogin(navController: NavController = rememberNavController()){
 //    AppTheme { Login(navController = navController) }
 }

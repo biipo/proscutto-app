@@ -209,6 +209,6 @@ fun Signup(navController: NavHostController, userVM: UserViewModel){
 
 @Preview
 @Composable
-fun PreviewSignup(navController: NavHostController = rememberNavController()) {
+fun PreviewSignup(navController: NavHostController = rememberNavController()){
 //    AppTheme { Signup(navController = navController) }
 }

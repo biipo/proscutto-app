@@ -49,10 +49,6 @@ class TaskViewModel : ViewModel() {
     var selectedMonthlyTasks by mutableStateOf<List<Task>>(emptyList())
 
     var showTasks = false
-    lateinit var userId: String
-        private set
-    lateinit var username: String
-        private set
 
     init {
         currentUser?.let { user ->

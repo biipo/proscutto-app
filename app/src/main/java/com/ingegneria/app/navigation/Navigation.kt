@@ -37,9 +37,6 @@ fun Navigation(
     userVM: UserViewModel
 ) {
 
-    //val petVM = viewModel<PetViewModel>()
-    //petVM.retrieveFirebaseData()
-
     NavHost(navController = navController, startDestination = startScreen) {
         composable(Screens.Login.name) {
             Login(navController = navController, userVM = userVM)
