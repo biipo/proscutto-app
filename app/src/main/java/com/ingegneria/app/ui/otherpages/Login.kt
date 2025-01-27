@@ -11,14 +11,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,8 +40,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.LoadingDialog
 import com.ingegneria.app.ui.common.MascotImage
@@ -117,6 +114,9 @@ fun Login(navController: NavController, userVM: UserViewModel) {
                     loading = true
                     try {
                         userVM.login(email.value, password.value)
+                        val user = Firebase.auth.currentUser
+                        userVM.initializeAfterLogin(user?.uid)
+                        Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
                         navController.navigate(Screens.Home.name) {
                             popUpTo(0)
                         }

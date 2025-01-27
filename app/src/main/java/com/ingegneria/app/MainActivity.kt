@@ -43,8 +43,8 @@ import com.ingegneria.app.navigation.Navigation
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.otherpages.ShopViewModel
 import com.ingegneria.app.ui.otherpages.SocialViewModel
-import com.ingegneria.app.ui.screens.PetViewModel
 import com.ingegneria.app.ui.otherpages.UserViewModel
+import com.ingegneria.app.ui.screens.PetViewModel
 import com.ingegneria.app.ui.tabs.TaskViewModel
 import com.ingegneria.app.ui.theme.AppTheme
 
@@ -68,7 +68,8 @@ fun ProscuttoApp(
     userVM: UserViewModel = viewModel<UserViewModel>(),
     taskVM: TaskViewModel = viewModel<TaskViewModel>(),
     shopVM: ShopViewModel = viewModel<ShopViewModel>(),
-    socialVM: SocialViewModel = viewModel<SocialViewModel>()
+    socialVM: SocialViewModel = viewModel<SocialViewModel>(),
+    petVM: PetViewModel = viewModel<PetViewModel>()
 ) {
     val user = Firebase.auth.currentUser
     val startScreen =
