@@ -115,7 +115,7 @@ fun Login(navController: NavController, userVM: UserViewModel) {
                     try {
                         userVM.login(email.value, password.value)
                         val user = Firebase.auth.currentUser
-                        userVM.initializeAfterLogin(user?.uid)
+//                        userVM.initializeAfterLogin(user?.uid)
                         Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
                         navController.navigate(Screens.Home.name) {
                             popUpTo(0)

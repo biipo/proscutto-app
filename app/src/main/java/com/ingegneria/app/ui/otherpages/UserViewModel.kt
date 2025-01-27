@@ -18,7 +18,9 @@ class UserViewModel : ViewModel() {
         if (email.isNotEmpty() && password.isNotEmpty()) {
             FirebaseAuth.getInstance()
                 .signInWithEmailAndPassword(email, password)
-                .addOnFailureListener {
+                .addOnSuccessListener { authRes ->
+                    initializeAfterLogin(authRes.user?.uid)
+                }.addOnFailureListener {
                     throw IllegalArgumentException("Wrong credentials")
                 }
         } else {
@@ -26,11 +28,11 @@ class UserViewModel : ViewModel() {
         }
     }
 
-    fun initializeAfterLogin(userId: String?) {
+    private fun initializeAfterLogin(userId: String?) {
         if (userId == null) {
-            throw IllegalArgumentException("There has been an error on login")
+            throw IllegalArgumentException("There has been an error on login dio cane")
         }
-        val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+        val firestore = FirebaseFirestore.getInstance()
         firestore.collection("users")
             .document(userId)
             .update("lastLogin", FieldValue.serverTimestamp())
@@ -39,7 +41,7 @@ class UserViewModel : ViewModel() {
             }
     }
 
-    fun initializeUserOnSignup(user: FirebaseUser) {
+    private fun initializeUserOnSignup(user: FirebaseUser) {
         val id = user.uid
         val firestore = FirebaseFirestore.getInstance()
         val db = Firebase.database
