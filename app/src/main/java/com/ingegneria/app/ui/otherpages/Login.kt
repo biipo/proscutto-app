@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,6 +44,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.LoadingDialog
 import com.ingegneria.app.ui.common.MascotImage
@@ -58,6 +62,7 @@ fun Login(navController: NavController) {
         mutableStateOf(false)
     }
     var loading by remember { mutableStateOf(false) }
+
     Surface {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -73,7 +78,7 @@ fun Login(navController: NavController) {
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 50.dp, 0.dp, 0.dp)
             )
 
-            // email input field
+            // Email input field
             OutlinedTextField(
                 value = email.value,
                 onValueChange = { email.value = it },
@@ -86,7 +91,7 @@ fun Login(navController: NavController) {
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
             )
-            // password input field
+            // Password input field
             OutlinedTextField(
                 value = password.value,
                 onValueChange = { password.value = it },
@@ -112,7 +117,7 @@ fun Login(navController: NavController) {
                 visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
             )
-            // login button
+            // Login button
             val context = LocalContext.current
             Button(
                 onClick = {
@@ -120,17 +125,50 @@ fun Login(navController: NavController) {
                     if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
                         FirebaseAuth.getInstance()
                             .signInWithEmailAndPassword(email.value, password.value)
-                            .addOnSuccessListener() {
-                                navController.navigate(Screens.Home.name) {
-                                    popUpTo(0)
+                            .addOnSuccessListener { authResult ->
+                                val userId = authResult.user?.uid
+                                val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+
+                                // Update lastLogin in Firestore
+                                if (userId != null) {
+                                    firestore.collection("users")
+                                        .document(userId)
+                                        .update("lastLogin", FieldValue.serverTimestamp())
+                                        .addOnSuccessListener {
+                                            Toast.makeText(
+                                                context,
+                                                "Login successful!",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+
+                                            // Navigate to the Home screen
+                                            navController.navigate(Screens.Home.name) {
+                                                popUpTo(0)
+                                            }
+                                        }
+                                        .addOnFailureListener {
+                                            loading = false
+                                            Toast.makeText(
+                                                context,
+                                                "Error updating last login",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                } else {
+                                    loading = false
+                                    Toast.makeText(
+                                        context,
+                                        "Unexpected error: User ID is null",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
-                            .addOnFailureListener() {
+                            .addOnFailureListener { e ->
                                 loading = false
                                 Toast.makeText(
                                     context,
-                                    it.message,
-                                    Toast.LENGTH_SHORT,
+                                    e.message,
+                                    Toast.LENGTH_SHORT
                                 ).show()
                             }
                     } else {
@@ -148,7 +186,7 @@ fun Login(navController: NavController) {
                     text = "Login"
                 )
             }
-            // sign up prompt
+            // Sign up prompt
             Spacer(modifier = Modifier.padding(10.dp))
             Row {
                 Text(
@@ -162,6 +200,21 @@ fun Login(navController: NavController) {
                     color = MaterialTheme.colorScheme.secondary
                 )
             }
+
+            Spacer(modifier = Modifier.padding(10.dp))
+            Row {
+                Text(
+                    text = "Forgot Password? ",
+                )
+                Text(
+                    text = "Click here",
+                    modifier = Modifier.clickable(onClick = {
+                        navController.navigate(Screens.ForgotPassword.name)
+                    }),
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+
             Spacer(modifier = Modifier.padding(20.dp))
             if (loading) {
                 LoadingDialog()
@@ -171,12 +224,12 @@ fun Login(navController: NavController) {
 }
 
 private fun inputCheck(sEmail: String?, sPassword: String?, view: View): Boolean {
-    if(TextUtils.isEmpty(sEmail)) {
+    if (TextUtils.isEmpty(sEmail)) {
         Snackbar.make(view, "Missing email", Snackbar.LENGTH_SHORT).show()
         return false
     }
 
-    if(TextUtils.isEmpty(sPassword)) {
+    if (TextUtils.isEmpty(sPassword)) {
         Snackbar.make(view, "Missing password", Snackbar.LENGTH_SHORT).show()
         return false
     }
@@ -185,6 +238,6 @@ private fun inputCheck(sEmail: String?, sPassword: String?, view: View): Boolean
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewLogin(navController: NavController = rememberNavController()){
+fun PreviewLogin(navController: NavController = rememberNavController()) {
     AppTheme { Login(navController = navController) }
 }

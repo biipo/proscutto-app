@@ -1,5 +1,7 @@
 package com.ingegneria.app.ui.otherpages
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
@@ -27,6 +30,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,32 +45,26 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.userProfileChangeRequest
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.LoadingDialog
 import com.ingegneria.app.ui.common.MascotImage
 import com.ingegneria.app.ui.theme.AppTheme
 
 @Composable
-fun Signup(navController: NavHostController){
-    val username = remember {
-        mutableStateOf("")
-    }
-    val email = remember {
-        mutableStateOf("")
-    }
-    val password = remember {
-        mutableStateOf("")
-    }
-    val confirmPassword = remember {
-        mutableStateOf("")
-    }
-    val passwordVisible = remember {
-        mutableStateOf(false)
-    }
-    val confirmPasswordVisible = remember {
-        mutableStateOf(false)
-    }
+fun Signup(navController: NavHostController) {
+    val username = remember { mutableStateOf("") }
+    val email = remember { mutableStateOf("") }
+    val password = remember { mutableStateOf("") }
+    val confirmPassword = remember { mutableStateOf("") }
+    val passwordVisible = remember { mutableStateOf(false) }
+    val confirmPasswordVisible = remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val firestore = FirebaseFirestore.getInstance()
+
     Surface {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -81,7 +80,7 @@ fun Signup(navController: NavHostController){
                 fontSize = 25.sp,
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 50.dp, 0.dp, 0.dp)
             )
-            // email input field
+            // Email input field
             OutlinedTextField(
                 value = email.value,
                 onValueChange = { email.value = it },
@@ -94,7 +93,7 @@ fun Signup(navController: NavHostController){
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
             )
-            // username input field
+            // Username input field
             OutlinedTextField(
                 value = username.value,
                 onValueChange = { username.value = it },
@@ -107,143 +106,108 @@ fun Signup(navController: NavHostController){
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
             )
-            // password input field
+            // Password input field
             OutlinedTextField(
                 value = password.value,
                 onValueChange = { password.value = it },
                 leadingIcon = {
-                    Icon(
-                        Icons.Default.Lock,
-                        contentDescription = "",
-                        //tint= MaterialTheme.colorScheme.primary
-                    )
+                    Icon(Icons.Default.Lock, contentDescription = "")
                 },
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
                         Icon(
-                            imageVector = if (passwordVisible.value) Icons.Default.Visibility
-                                            else Icons.Default.VisibilityOff,
+                            imageVector = if (passwordVisible.value) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = "Password visibility",
-                            tint = if (passwordVisible.value) MaterialTheme.colorScheme.tertiary
-                                    else Color.Gray
+                            tint = if (passwordVisible.value) MaterialTheme.colorScheme.tertiary else Color.Gray
                         )
                     }
                 },
                 label = { Text(text = "Password") },
                 placeholder = { Text(text = "Password") },
                 singleLine = true,
-                visualTransformation = if (passwordVisible.value) VisualTransformation.None
-                                        else PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
             )
-            // confirm password input field
+            // Confirm password input field
             OutlinedTextField(
                 value = confirmPassword.value,
                 onValueChange = { confirmPassword.value = it },
                 leadingIcon = {
-                    Icon(
-                        Icons.Default.Lock,
-                        contentDescription = "",
-                        //tint= MaterialTheme.colorScheme.primary
-                    )
+                    Icon(Icons.Default.Lock, contentDescription = "")
                 },
                 trailingIcon = {
                     IconButton(onClick = { confirmPasswordVisible.value = !confirmPasswordVisible.value }) {
                         Icon(
-                            imageVector = if (confirmPasswordVisible.value) Icons.Default.Visibility
-                                            else Icons.Default.VisibilityOff,
+                            imageVector = if (confirmPasswordVisible.value) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = "Password visibility",
-                            tint = if (confirmPasswordVisible.value) MaterialTheme.colorScheme.tertiary
-                                    else Color.Gray
+                            tint = if (confirmPasswordVisible.value) MaterialTheme.colorScheme.tertiary else Color.Gray
                         )
                     }
                 },
                 label = { Text(text = "Confirm Password") },
                 placeholder = { Text(text = "Confirm password") },
                 singleLine = true,
-                visualTransformation = if (confirmPasswordVisible.value) VisualTransformation.None
-                                        else PasswordVisualTransformation(),
+                visualTransformation = if (confirmPasswordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
             )
-            // sign up button
-            val context = LocalContext.current
-
+            // Sign up button
             Button(
                 onClick = {
                     loading = true
-                    if (username.value.isEmpty() || email.value.isEmpty()
-                        || password.value.isEmpty() || confirmPassword.value.isEmpty()) {
+                    if (username.value.isEmpty() || email.value.isEmpty() || password.value.isEmpty() || confirmPassword.value.isEmpty()) {
                         loading = false
-                        Toast.makeText(
-                            context,
-                            "One or more fields are empty",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(context, "One or more fields are empty", Toast.LENGTH_SHORT).show()
+                    } else if (username.value.length > 12) {
+                        loading = false
+                        Toast.makeText(context, "Username must be under 12 characters", Toast.LENGTH_SHORT).show()
+                    } else if (password.value != confirmPassword.value) {
+                        loading = false
+                        Toast.makeText(context, "Password and confirmation mismatch", Toast.LENGTH_SHORT).show()
                     } else {
-                        if (username.value.length > 12) {
-                            loading = false
-                            Toast.makeText(
-                                context,
-                                "Username must be under 12 characters",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            if (password.value == confirmPassword.value) {
-                                FirebaseAuth.getInstance().createUserWithEmailAndPassword(
-                                    email.value,
-                                    password.value
-                                ).addOnSuccessListener {
-                                    val user = FirebaseAuth.getInstance().currentUser
-                                    val profileUpdates = userProfileChangeRequest {
-                                        displayName = username.value
-                                    }
-                                    user!!.updateProfile(profileUpdates)
-                                        .addOnCompleteListener { task ->
-                                            if (task.isSuccessful) {
-                                                loading = false
-                                                Toast.makeText(
-                                                    context,
-                                                    "Welcome, " + user.displayName,
-                                                    Toast.LENGTH_SHORT,
-                                                ).show()
-                                                navController.navigate(Screens.Home.name)  {
-                                                    popUpTo(0)
-                                                }
-                                            }
-                                        }
-                                    /*
-                                    val userId = FirebaseAuth.getInstance().currentUser?.uid
-                                    val user = hashMapOf(
-                                        "username" to username.value
+                        FirebaseAuth.getInstance().createUserWithEmailAndPassword(
+                            email.value,
+                            password.value
+                        ).addOnSuccessListener { authResult ->
+                            val userId = authResult.user?.uid
+                            val user = hashMapOf(
+                                "userId" to userId,
+                                "email" to email.value,
+                                "username" to username.value,
+                                "createdAt" to FieldValue.serverTimestamp(),
+                                "lastLogin" to FieldValue.serverTimestamp(),
+                                "dailyQuestionLimit" to 0,
+                                "lastDailyReset" to com.google.firebase.Timestamp.now(),
+                                "lastWeeklyReset" to com.google.firebase.Timestamp.now(),
+                                "lastMonthlyReset" to com.google.firebase.Timestamp.now(),
+                                "selectedDailyTasks" to emptyList<String>(),
+                                "selectedWeeklyTasks" to emptyList<String>(),
+                                "selectedMonthlyTasks" to emptyList<String>()
+                            )
+                            firestore.collection("users")
+                                .document(userId ?: "")
+                                .set(user)
+                                .addOnSuccessListener {
+                                    val tasksData = mapOf(
+                                        "dailyTasks" to emptyList<Any>(),
+                                        "weeklyTasks" to emptyList<Any>(),
+                                        "monthlyTasks" to emptyList<Any>()
                                     )
-                                    Firebase.firestore.collection("users")
-                                        .document(userId!!)
-                                        .set(user)
-                                        .addOnSuccessListener {}
-                                        .addOnFailureListener {
-                                            Toast.makeText(
-                                                context,
-                                                it.message,
-                                                Toast.LENGTH_SHORT,
-                                            ).show()
-                                        }
-                                     */
-                                }.addOnFailureListener {
+                                    firestore.collection("users")
+                                        .document(userId ?: "")
+                                        .collection("tasks")
+                                        .document("categories")
+                                        .set(tasksData)
                                     loading = false
-                                    Toast.makeText(
-                                        context,
-                                        it.message,
-                                        Toast.LENGTH_SHORT,
-                                    ).show()
+                                    Toast.makeText(context, "Account created successfully!", Toast.LENGTH_SHORT).show()
+                                    navController.navigate(Screens.Home.name) { popUpTo(0) }
                                 }
-                            } else {
-                                loading = false
-                                Toast.makeText(
-                                    context,
-                                    "Password and confirmation password mismatch",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                                .addOnFailureListener { e ->
+                                    loading = false
+                                    Toast.makeText(context, "Firestore error: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        }.addOnFailureListener { e ->
+                            loading = false
+                            Toast.makeText(context, "Signup error: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
                 },
@@ -255,9 +219,7 @@ fun Signup(navController: NavHostController){
             }
             Spacer(modifier = Modifier.padding(10.dp))
             Row {
-                Text(
-                    text = "Already have an account? ",
-                )
+                Text(text = "Already have an account? ")
                 Text(
                     text = "Log in",
                     modifier = Modifier.clickable(onClick = {
@@ -276,6 +238,6 @@ fun Signup(navController: NavHostController){
 
 @Preview
 @Composable
-fun PreviewSignup(navController: NavHostController = rememberNavController()){
+fun PreviewSignup(navController: NavHostController = rememberNavController()) {
     AppTheme { Signup(navController = navController) }
 }

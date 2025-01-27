@@ -1,12 +1,14 @@
 package com.ingegneria.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.ingegneria.app.ui.common.QrReader
+import com.ingegneria.app.ui.otherpages.ForgotPassword
 import com.ingegneria.app.ui.otherpages.FriendRequests
 import com.ingegneria.app.ui.otherpages.Login
 import com.ingegneria.app.ui.otherpages.Shop
@@ -21,6 +23,7 @@ import com.ingegneria.app.ui.tabs.Quiz
 import com.ingegneria.app.ui.tabs.Settings
 import com.ingegneria.app.ui.tabs.TaskViewModel
 import com.ingegneria.app.ui.tabs.Tasks
+import com.ingegneria.app.ui.otherpages.ForgotPassword
 
 @Composable
 fun Navigation(
@@ -42,7 +45,9 @@ fun Navigation(
         composable(Screens.Signup.name) {
             Signup(navController = navController)
         }
-        // TODO: forgot password
+        composable(Screens.ForgotPassword.name){
+            ForgotPassword(navController = navController)
+        }
         composable(Screens.Home.name) {
             Home(navController = navController, petVM = petVM)
         }
