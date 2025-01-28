@@ -36,7 +36,7 @@ class PetViewModel : ViewModel() {
             }
         })
         if (pet != null) {
-            Log.e("Retrieving pet's information", "Successfully")
+            Log.e("Pet information synchronization", "Successfully")
             petFb = PetFirebaseSync(database.child(userId), pet!!)
         }
     }
