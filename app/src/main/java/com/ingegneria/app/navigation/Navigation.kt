@@ -1,7 +1,6 @@
 package com.ingegneria.app.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,14 +16,13 @@ import com.ingegneria.app.ui.otherpages.Signup
 import com.ingegneria.app.ui.otherpages.Social
 import com.ingegneria.app.ui.otherpages.SocialViewModel
 import com.ingegneria.app.ui.otherpages.Stats
-import com.ingegneria.app.ui.screens.PetViewModel
 import com.ingegneria.app.ui.otherpages.UserViewModel
+import com.ingegneria.app.ui.screens.PetViewModel
 import com.ingegneria.app.ui.tabs.Home
 import com.ingegneria.app.ui.tabs.Quiz
 import com.ingegneria.app.ui.tabs.Settings
 import com.ingegneria.app.ui.tabs.TaskViewModel
 import com.ingegneria.app.ui.tabs.Tasks
-import com.ingegneria.app.ui.otherpages.ForgotPassword
 
 @Composable
 fun Navigation(
@@ -54,7 +52,7 @@ fun Navigation(
             Tasks(navController = navController, taskVM = taskVM, petVM = petVM)
         }
         composable(Screens.Quiz.name) {
-            Quiz(navController = navController)
+            Quiz(navController = navController, petVM = petVM)
         }
         composable(Screens.Settings.name) {
             Settings(navController = navController)

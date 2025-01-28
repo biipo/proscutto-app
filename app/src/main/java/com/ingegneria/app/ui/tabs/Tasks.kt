@@ -258,7 +258,7 @@ fun SingleTaskSelectionDialog(
     tasks: List<Task>,
     taskVM: TaskViewModel,
 ) {
-    // TODO: show the tasks passed so the user can choose new ones
+    // TODO: show the other tasks
 }
 
 @Composable

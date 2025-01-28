@@ -1,6 +1,7 @@
 package com.ingegneria.app.ui.tabs
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -8,9 +9,12 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ingegneria.app.ui.screens.PetViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.util.*
+import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.Date
 
 class QuizViewModel : ViewModel() {
     private val database = FirebaseDatabase.getInstance().reference.child("quiz")
@@ -78,6 +82,38 @@ class QuizViewModel : ViewModel() {
                 .addOnSuccessListener {
                     _answeredQuestionsCount.value = newCount
                 }
+        }
+    }
+
+    fun finalResult(correctCount: Int, petVM: PetViewModel) {
+        when (correctCount) {
+            in 2..3 -> { // more than 3 correct answers but less than 5
+                viewModelScope.launch {
+                    petVM.isPetFbInit.collect { isInitialized ->
+                        if (isInitialized) {
+                            petVM.petFb!!.increaseMult(0.5)
+                        }
+                    }
+                }
+            }
+            4 -> { // 5 correct answers
+                viewModelScope.launch {
+                    petVM.isPetFbInit.collect { isInitialized ->
+                        if (isInitialized) {
+                            petVM.petFb!!.increaseMult(1.0)
+                        }
+                    }
+                }
+            }
+            else -> {
+                viewModelScope.launch {
+                    petVM.isPetFbInit.collect { isInitialized ->
+                        if (isInitialized) {
+                            petVM.petFb!!.resetMult()
+                        }
+                    }
+                }
+            }
         }
     }
 
