@@ -1,5 +1,6 @@
 package com.ingegneria.app.ui.common
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import com.ingegneria.app.navigation.Screens
 
 @Composable
 fun HomeStats(navController: NavController, pet: Pet?) {
+    Log.e("Diocane di PET", "Mi sa che è null: ${pet != null}")
     if (pet != null) {
         Column(
             modifier = Modifier
@@ -59,6 +61,7 @@ fun HomeStats(navController: NavController, pet: Pet?) {
 
 @Composable
 fun PetStats(navController: NavController, pet: Pet?) {
+    Log.e("Diocane di PET", "Mi sa che è null: ${pet != null}")
     if (pet != null) {
         Row(
             modifier = Modifier

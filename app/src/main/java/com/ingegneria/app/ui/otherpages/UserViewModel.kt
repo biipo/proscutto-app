@@ -1,5 +1,6 @@
 package com.ingegneria.app.ui.otherpages
 
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -10,9 +11,6 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 class UserViewModel : ViewModel() {
-
-    private lateinit var userA: FirebaseUser
-
 
     fun login(email: String, password: String) {
         if (email.isNotEmpty() && password.isNotEmpty()) {
@@ -30,7 +28,7 @@ class UserViewModel : ViewModel() {
 
     private fun initializeAfterLogin(userId: String?) {
         if (userId == null) {
-            throw IllegalArgumentException("There has been an error on login dio cane")
+            throw IllegalArgumentException("There has been an error on login")
         }
         val firestore = FirebaseFirestore.getInstance()
         firestore.collection("users")
@@ -53,9 +51,9 @@ class UserViewModel : ViewModel() {
             mapOf(
                Pair("hat", ""),
                Pair("hp", 0),
-               Pair("level", 1),
-               Pair("mult", 0),
-               Pair("name", 0),
+               Pair("level", 0),
+               Pair("mult", 1.0),
+               Pair("name", ""),
                Pair("xp", 0)
             )
         )
@@ -130,8 +128,8 @@ class UserViewModel : ViewModel() {
                         initializeUserOnSignup(user)
                     }
                 }
-            }.addOnFailureListener {
-                throw IllegalArgumentException("Something went wrong, try again")
+            }.addOnFailureListener { e ->
+                throw IllegalArgumentException("Something went wrong, error: ${e.message}")
             }
     }
 
@@ -140,6 +138,6 @@ class UserViewModel : ViewModel() {
     }
 
     private fun emailCheck(email: String) : Boolean {
-        return Regex("[a-zA-Z0-9]*@[a-zA-Z]*.[a-z]*").matches(email)
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 }

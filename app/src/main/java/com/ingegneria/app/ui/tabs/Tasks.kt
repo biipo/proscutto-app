@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -43,9 +41,6 @@ import com.ingegneria.app.ui.screens.PetViewModel
 
 @Composable
 fun Tasks(navController: NavController, taskVM: TaskViewModel, petVM: PetViewModel) {
-
-    /*  TODO: retrieve tasks when app is opened (not when the user open the tasks' tab)
-    *   TODO: when a tab is changed the viewModel is cleared, it has to be declared in the Activity (MainActivity) */
 
     // Used for opening the dialog of a specific task
     var openSingleTaskDialog by remember { mutableStateOf(false) }

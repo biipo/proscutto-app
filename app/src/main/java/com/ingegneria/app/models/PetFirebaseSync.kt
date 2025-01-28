@@ -41,11 +41,11 @@ class PetFirebaseSync(
         dbRef.setValue(pet)
             .addOnSuccessListener {
                 // Update successful
-                Log.d("Firebase", "Character updated successfully")
+                Log.d("Firebase PET", "Character updated successfully")
             }
             .addOnFailureListener { error ->
                 // Update failed
-                Log.e("Firebase", "Error updating character: ${error.message}")
+                Log.e("Firebase PET", "Error updating character: ${error.message}")
             }
     }
 

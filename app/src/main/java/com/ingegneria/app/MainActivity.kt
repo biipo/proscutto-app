@@ -82,6 +82,7 @@ fun ProscuttoApp(
     val bottomBarState = rememberSaveable { mutableStateOf(true) }
 
     if (user != null) {
+        petVM.retrieveFirebaseData(user.uid)
         taskVM.retrieveFirebaseData(user.uid)
         shopVM.retrieveFirebaseData(user.uid, user.displayName!!)
         socialVM.retrieveFirebaseData(user.uid, user.displayName!!)

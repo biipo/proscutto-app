@@ -1,16 +1,14 @@
 package com.ingegneria.app.ui.screens
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import com.ingegneria.app.models.Pet
 import com.ingegneria.app.models.PetFirebaseSync
 
@@ -28,14 +26,18 @@ class PetViewModel : ViewModel() {
                 pet = ds.getValue(Pet::class.java)
                 if (pet != null) {
                     println("Pet: ${pet.toString()}")
+                } else {
+                    Log.e("RetrieveFirebaseData pet", "Something went wrong inside OnDataChange")
                 }
             }
 
             override fun onCancelled(p0: DatabaseError) {
+                Log.e("RetrieveFirebaseData pet", "Something went wrong, ${p0.message}")
             }
         })
         if (pet != null) {
-            petFb = PetFirebaseSync(database, pet!!)
+            Log.e("Retrieving pet's information", "Successfully")
+            petFb = PetFirebaseSync(database.child(userId), pet!!)
         }
     }
 }
