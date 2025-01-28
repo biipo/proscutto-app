@@ -18,6 +18,7 @@ import com.ingegneria.app.ui.otherpages.Social
 import com.ingegneria.app.ui.otherpages.SocialViewModel
 import com.ingegneria.app.ui.otherpages.Stats
 import com.ingegneria.app.ui.screens.PetViewModel
+import com.ingegneria.app.ui.otherpages.UserViewModel
 import com.ingegneria.app.ui.tabs.Home
 import com.ingegneria.app.ui.tabs.Quiz
 import com.ingegneria.app.ui.tabs.Settings
@@ -32,18 +33,16 @@ fun Navigation(
     taskVM: TaskViewModel,
     shopVM: ShopViewModel,
     socialVM: SocialViewModel,
-    petVM: PetViewModel
+    petVM: PetViewModel,
+    userVM: UserViewModel
 ) {
-
-    //val petVM = viewModel<PetViewModel>()
-    //petVM.retrieveFirebaseData()
 
     NavHost(navController = navController, startDestination = startScreen) {
         composable(Screens.Login.name) {
-            Login(navController = navController)
+            Login(navController = navController, userVM = userVM)
         }
         composable(Screens.Signup.name) {
-            Signup(navController = navController)
+            Signup(navController = navController, userVM = userVM)
         }
         composable(Screens.ForgotPassword.name){
             ForgotPassword(navController = navController)
