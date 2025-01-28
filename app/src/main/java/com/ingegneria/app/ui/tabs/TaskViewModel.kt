@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -15,6 +16,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ingegneria.app.ui.screens.PetViewModel
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
 
@@ -56,18 +58,20 @@ class TaskViewModel : ViewModel() {
 
     var showTasks = false
 
-    private lateinit var petVM: PetViewModel
+    private var petVM: PetViewModel? = null
 
     init {
         currentUser?.let { user ->
             // Prima controlliamo se bisogna resettare le tasks
             checkTaskResets(user.uid)
             // Poi carichiamo i dati dal realtime DB (lista completa di tasks)
-            retrieveFirebaseData(user.uid)
+            retrieveFirebaseData(user.uid, null)
         }
+
     }
 
-    fun retrieveFirebaseData(userId: String) {
+    fun retrieveFirebaseData(userId: String, petVM: PetViewModel?) {
+        this.petVM = petVM
         database.child("daily").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 dailyTasks = snapshot.children.mapNotNull {
@@ -128,34 +132,92 @@ class TaskViewModel : ViewModel() {
                     val isNewMonth = isNextMonth(lastMonthlyReset, now)
 
                     val db = firestore.collection("users").document(userId)
+                    var cnt = 0
                     // Se è un nuovo giorno, resettiamo le daily tasks
                     if (isNewDay) {
+                        db.addSnapshotListener { snapshot, error ->
+                            if (error != null) return@addSnapshotListener
+                            if (snapshot != null && snapshot.exists()) {
+                                val dailyTitles = snapshot.get("selectedDailyTasks") as? Map<String, Boolean> ?: emptyMap()
+                                // For each task not completed it deals damage to the pet
+                                dailyTitles.forEach { title, isCompleted ->
+                                    if (!isCompleted) {
+                                        cnt += 1 // counts the number of uncompleted tasks
+                                    }
+                                }
+                            }
+                        }
                         db.update(
                                 mapOf(
                                     "selectedDailyTasks" to emptyList<String>(),
                                     "lastDailyReset" to FieldValue.serverTimestamp()
                                 )
                             )
+                        viewModelScope.launch {
+                            petVM?.isPetFbInit?.collect { isInitialized ->
+                                if (isInitialized) {
+                                    petVM!!.petFb!!.takeDamage(cnt * 7)
+                                }
+                            }
+                        }
                     }
 
                     // Se è una nuova settimana, resettiamo le weekly tasks
                     if (isNewWeek) {
+                        db.addSnapshotListener { snapshot, error ->
+                            if (error != null) return@addSnapshotListener
+                            if (snapshot != null && snapshot.exists()) {
+                                val weeklyTitles = snapshot.get("selectedWeeklyTasks") as? Map<String, Boolean> ?: emptyMap()
+                                // For each task not completed it deals damage to the pet
+                                weeklyTitles.forEach { title, isCompleted ->
+                                    if (!isCompleted) {
+                                        cnt += 1 // counts the number of uncompleted tasks
+                                    }
+                                }
+                            }
+                        }
                         db.update(
                                 mapOf(
                                     "selectedWeeklyTasks" to emptyList<String>(),
                                     "lastWeeklyReset" to FieldValue.serverTimestamp()
                                 )
                             )
+                        viewModelScope.launch {
+                            petVM?.isPetFbInit?.collect { isInitialized ->
+                                if (isInitialized) {
+                                    petVM!!.petFb!!.takeDamage(cnt * 40)
+                                }
+                            }
+                        }
                     }
 
                     // Se è un nuovo mese, resettiamo le monthly tasks
                     if (isNewMonth) {
+                        db.addSnapshotListener { snapshot, error ->
+                            if (error != null) return@addSnapshotListener
+                            if (snapshot != null && snapshot.exists()) {
+                                val monthlyTitles = snapshot.get("selectedMonthlyTasks") as? Map<String, Boolean> ?: emptyMap()
+                                // For each task not completed it deals damage to the pet
+                                monthlyTitles.forEach { title, isCompleted ->
+                                    if (!isCompleted) {
+                                        cnt += 1 // counts the number of uncompleted tasks
+                                    }
+                                }
+                            }
+                        }
                         db.update(
                                 mapOf(
                                     "selectedMonthlyTasks" to emptyList<String>(),
                                     "lastMonthlyReset" to FieldValue.serverTimestamp()
                                 )
                             )
+                        viewModelScope.launch {
+                            petVM?.isPetFbInit?.collect { isInitialized ->
+                                if (isInitialized) {
+                                    petVM!!.petFb!!.takeDamage(cnt * 100)
+                                }
+                            }
+                        }
                     }
                     // Dopo aver gestito eventuali reset, recuperiamo le task effettivamente selezionate sul db
                     loadSelectedTasks(userId)

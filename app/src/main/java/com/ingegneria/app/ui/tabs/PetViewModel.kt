@@ -11,6 +11,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.ingegneria.app.models.Pet
 import com.ingegneria.app.models.PetFirebaseSync
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class PetViewModel : ViewModel() {
 
@@ -18,6 +20,10 @@ class PetViewModel : ViewModel() {
 
     var pet by mutableStateOf<Pet?>(null)
     var petFb by mutableStateOf<PetFirebaseSync?>(null)
+
+    // Used in TaskViewModel when we deal damage for uncompleted tasks
+    private val _isPetFbInit = MutableStateFlow(false)
+    val isPetFbInit: StateFlow<Boolean> get() = _isPetFbInit
 
     fun retrieveFirebaseData(userId: String) {
         database.child(userId).addValueEventListener(object : ValueEventListener {
@@ -38,6 +44,7 @@ class PetViewModel : ViewModel() {
         if (pet != null) {
             Log.e("Pet information synchronization", "Successfully")
             petFb = PetFirebaseSync(database.child(userId), pet!!)
+            _isPetFbInit.value = true
         }
     }
 }

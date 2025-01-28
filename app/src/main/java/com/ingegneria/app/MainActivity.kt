@@ -83,9 +83,9 @@ fun ProscuttoApp(
 
     if (user != null) {
         petVM.retrieveFirebaseData(user.uid)
-        taskVM.retrieveFirebaseData(user.uid)
         shopVM.retrieveFirebaseData(user.uid, user.displayName!!)
         socialVM.retrieveFirebaseData(user.uid, user.displayName!!)
+        taskVM.retrieveFirebaseData(user.uid, petVM)
     }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()

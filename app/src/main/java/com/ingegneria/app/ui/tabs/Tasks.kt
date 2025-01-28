@@ -372,7 +372,7 @@ fun TaskSelectionDialog(
                         /* TODO: maybe it's better to scan the list and keep only the tasks with isSelected == true?
                             rather than add and remove them immediately when clicked */
                         if (selectedDaily.size < 2 || selectedWeekly.size < 2 || selectedMonthly.size < 2) {
-                            Toast.makeText(context, "Select 2 tasks for each group", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Select at least 2 tasks for each group", Toast.LENGTH_SHORT).show()
                             return@Button
                         }
                         taskVM.saveSelectedTasks(
