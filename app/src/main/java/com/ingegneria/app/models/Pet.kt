@@ -20,7 +20,7 @@ fun updateDb(dbRef: DatabaseReference, pet: Pet) {
 data class Pet(
     // Stats
     var name: String = "",
-    var level: Int = 0,
+    var level: Int = 1,
     var mult: Double = 1.0,
     var xp: Int = 0,
     var hp: Int = 0,

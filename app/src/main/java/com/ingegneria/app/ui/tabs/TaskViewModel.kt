@@ -28,9 +28,6 @@ data class Task(
     private var isCompleted: MutableState<Boolean> = mutableStateOf(false),
     private var isSelected: MutableState<Boolean> = mutableStateOf(false)
 ) {
-    fun toggleSelection() {
-        isSelected.value = !isSelected.value
-    }
     fun toggleCompletion() {
         isCompleted.value = !isCompleted.value
     }
@@ -148,11 +145,11 @@ class TaskViewModel : ViewModel() {
                             }
                         }
                         db.update(
-                                mapOf(
-                                    "selectedDailyTasks" to emptyList<String>(),
-                                    "lastDailyReset" to FieldValue.serverTimestamp()
-                                )
+                            mapOf(
+                                "selectedDailyTasks" to emptyList<String>(),
+                                "lastDailyReset" to FieldValue.serverTimestamp()
                             )
+                        )
                         viewModelScope.launch {
                             petVM?.isPetFbInit?.collect { isInitialized ->
                                 if (isInitialized) {
@@ -177,11 +174,11 @@ class TaskViewModel : ViewModel() {
                             }
                         }
                         db.update(
-                                mapOf(
-                                    "selectedWeeklyTasks" to emptyList<String>(),
-                                    "lastWeeklyReset" to FieldValue.serverTimestamp()
-                                )
+                            mapOf(
+                                "selectedWeeklyTasks" to emptyList<String>(),
+                                "lastWeeklyReset" to FieldValue.serverTimestamp()
                             )
+                        )
                         viewModelScope.launch {
                             petVM?.isPetFbInit?.collect { isInitialized ->
                                 if (isInitialized) {
@@ -206,11 +203,11 @@ class TaskViewModel : ViewModel() {
                             }
                         }
                         db.update(
-                                mapOf(
-                                    "selectedMonthlyTasks" to emptyList<String>(),
-                                    "lastMonthlyReset" to FieldValue.serverTimestamp()
-                                )
+                            mapOf(
+                                "selectedMonthlyTasks" to emptyList<String>(),
+                                "lastMonthlyReset" to FieldValue.serverTimestamp()
                             )
+                        )
                         viewModelScope.launch {
                             petVM?.isPetFbInit?.collect { isInitialized ->
                                 if (isInitialized) {
@@ -295,31 +292,66 @@ class TaskViewModel : ViewModel() {
         }
     }
 
+    fun getUnselectedTasks(group: String): List<Task> {
+        return when (group) {
+            "Daily" -> dailyTasks.filter { task -> selectedDailyTasks.none { it.title == task.title } }
+            "Weekly" -> weeklyTasks.filter { task -> selectedWeeklyTasks.none { it.title == task.title } }
+            "Monthly" -> monthlyTasks.filter { task -> selectedMonthlyTasks.none { it.title == task.title } }
+            else -> emptyList()
+        }
+    }
 
     fun saveSelectedTasks(
         newDailyTasks: List<Task> = selectedDailyTasks,
         newWeeklyTasks: List<Task> = selectedWeeklyTasks,
         newMonthlyTasks: List<Task> = selectedMonthlyTasks
     ) {
-        currentUser?.uid?.let { uid ->
-            val dailyTitles = newDailyTasks.associate { it.title to false }
-            val weeklyTitles = newWeeklyTasks.associate { it.title to false }
-            val monthlyTitles = newMonthlyTasks.associate { it.title to false }
-            firestore.collection("users").document(uid).update(
-                mapOf(
-                    "selectedDailyTasks" to dailyTitles,
-                    "selectedWeeklyTasks" to weeklyTitles,
-                    "selectedMonthlyTasks" to monthlyTitles
-                )
-            )
-                .addOnSuccessListener {
-                    // Aggiorniamo lo stato locale
-                    selectedDailyTasks = newDailyTasks
-                    selectedWeeklyTasks = newWeeklyTasks
-                    selectedMonthlyTasks = newMonthlyTasks
-                }
-        }
+
+        val uid = currentUser?.uid ?: return
+        //sta roba serve per fare in modo che non refreshi a false sul db ogni mezzo secondo
+        firestore.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                val oldDailyMap   = document.get("selectedDailyTasks")   as? Map<String, Boolean> ?: emptyMap()
+                val oldWeeklyMap  = document.get("selectedWeeklyTasks")  as? Map<String, Boolean> ?: emptyMap()
+                val oldMonthlyMap = document.get("selectedMonthlyTasks") as? Map<String, Boolean> ?: emptyMap()
+
+                val newDailyMap   = mergeSelectedTasks(oldDailyMap,   newDailyTasks)
+                val newWeeklyMap  = mergeSelectedTasks(oldWeeklyMap,  newWeeklyTasks)
+                val newMonthlyMap = mergeSelectedTasks(oldMonthlyMap, newMonthlyTasks)
+
+                firestore.collection("users").document(uid)
+                    .update(
+                        mapOf(
+                            "selectedDailyTasks"   to newDailyMap,
+                            "selectedWeeklyTasks"  to newWeeklyMap,
+                            "selectedMonthlyTasks" to newMonthlyMap
+                        )
+                    )
+                    .addOnSuccessListener {
+                        selectedDailyTasks   = newDailyTasks
+                        selectedWeeklyTasks  = newWeeklyTasks
+                        selectedMonthlyTasks = newMonthlyTasks
+                    }
+            }
+
     }
+
+    private fun mergeSelectedTasks(
+        oldMap: Map<String, Boolean>,
+        newTasks: List<Task>,
+    ): Map<String, Boolean> {
+        val result = mutableMapOf<String, Boolean>()
+
+        // mettiamo solo le task contenute in newTasks
+        for (task in newTasks) {
+            // se la task esisteva già, manteniamo lo stato "true/false" precedente
+            // altrimenti la inizializziamo a false
+            val oldValue = oldMap[task.title] ?: false
+            result[task.title] = oldValue
+        }
+        return result
+    }
+
 
     private fun isNextDay(lastDate: Date?, currentDate: Date): Boolean {
         if (lastDate == null) return true
@@ -351,6 +383,43 @@ class TaskViewModel : ViewModel() {
         val currentYear = calNow.get(Calendar.YEAR)
 
         return (lastMonth != currentMonth) || (lastYear != currentYear)
+    }
+
+    fun swapTask(oldTask: Task, newTask: Task, group: String) {
+        currentUser?.uid?.let { uid ->
+            when(group) {
+                "Daily" -> {
+                    val newList = selectedDailyTasks.toMutableList()
+                    newList.remove(oldTask)
+                    newList.add(newTask)
+                    saveSelectedTasks(
+                        newDailyTasks = newList,
+                        newWeeklyTasks = selectedWeeklyTasks,
+                        newMonthlyTasks = selectedMonthlyTasks
+                    )
+                }
+                "Weekly" -> {
+                    val newList = selectedWeeklyTasks.toMutableList()
+                    newList.remove(oldTask)
+                    newList.add(newTask)
+                    saveSelectedTasks(
+                        newDailyTasks = selectedDailyTasks,
+                        newWeeklyTasks = newList,
+                        newMonthlyTasks = selectedMonthlyTasks
+                    )
+                }
+                "Monthly" -> {
+                    val newList = selectedMonthlyTasks.toMutableList()
+                    newList.remove(oldTask)
+                    newList.add(newTask)
+                    saveSelectedTasks(
+                        newDailyTasks = selectedDailyTasks,
+                        newWeeklyTasks = selectedWeeklyTasks,
+                        newMonthlyTasks = newList
+                    )
+                }
+            }
+        }
     }
 
 
