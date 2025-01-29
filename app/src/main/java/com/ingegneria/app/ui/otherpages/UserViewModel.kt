@@ -50,8 +50,8 @@ class UserViewModel : ViewModel() {
         petDb.child(id).setValue(
             mapOf(
                Pair("hat", ""),
-               Pair("hp", 0),
-               Pair("level", 0),
+               Pair("hp", 10),
+               Pair("level", 1),
                Pair("mult", 1.0),
                Pair("name", ""),
                Pair("xp", 0)
@@ -71,9 +71,9 @@ class UserViewModel : ViewModel() {
             "lastDailyReset" to com.google.firebase.Timestamp.now(),
             "lastWeeklyReset" to com.google.firebase.Timestamp.now(),
             "lastMonthlyReset" to com.google.firebase.Timestamp.now(),
-            "selectedDailyTasks" to emptyList<String>(),
-            "selectedWeeklyTasks" to emptyList<String>(),
-            "selectedMonthlyTasks" to emptyList<String>()
+            "selectedDailyTasks" to emptyMap<String, Boolean>(),
+            "selectedWeeklyTasks" to emptyMap<String, Boolean>(),
+            "selectedMonthlyTasks" to emptyMap<String, Boolean>()
         )
         firestore.collection("users")
             .document(id ?: "")

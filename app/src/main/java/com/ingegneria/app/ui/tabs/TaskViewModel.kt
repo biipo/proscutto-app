@@ -1,13 +1,13 @@
 package com.ingegneria.app.ui.tabs
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -15,6 +15,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ingegneria.app.ui.screens.PetViewModel
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
 
@@ -23,14 +25,20 @@ import java.util.Date
 data class Task(
     val title: String = "",
     val desc: String = "",
-    var isCompleted: MutableState<Boolean> = mutableStateOf(false),
-    var isSelected: MutableState<Boolean> = mutableStateOf(false)
+    private var isCompleted: MutableState<Boolean> = mutableStateOf(false),
+    private var isSelected: MutableState<Boolean> = mutableStateOf(false)
 ) {
     fun toggleSelection() {
         isSelected.value = !isSelected.value
     }
     fun toggleCompletion() {
         isCompleted.value = !isCompleted.value
+    }
+    fun isTaskCompleted() : Boolean {
+        return isCompleted.value
+    }
+    fun isTaskSelected() : Boolean {
+        return isSelected.value
     }
 }
 
@@ -50,16 +58,20 @@ class TaskViewModel : ViewModel() {
 
     var showTasks = false
 
+    private var petVM: PetViewModel? = null
+
     init {
         currentUser?.let { user ->
             // Prima controlliamo se bisogna resettare le tasks
             checkTaskResets(user.uid)
             // Poi carichiamo i dati dal realtime DB (lista completa di tasks)
-            retrieveFirebaseData(user.uid)
+            retrieveFirebaseData(user.uid, null)
         }
+
     }
 
-    fun retrieveFirebaseData(userId: String) {
+    fun retrieveFirebaseData(userId: String, petVM: PetViewModel?) {
+        this.petVM = petVM
         database.child("daily").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 dailyTasks = snapshot.children.mapNotNull {
@@ -119,40 +131,93 @@ class TaskViewModel : ViewModel() {
                     val isNewWeek = isNextWeek(lastWeeklyReset, now)
                     val isNewMonth = isNextMonth(lastMonthlyReset, now)
 
+                    val db = firestore.collection("users").document(userId)
+                    var cnt = 0
                     // Se è un nuovo giorno, resettiamo le daily tasks
                     if (isNewDay) {
-                        firestore.collection("users")
-                            .document(userId)
-                            .update(
+                        db.addSnapshotListener { snapshot, error ->
+                            if (error != null) return@addSnapshotListener
+                            if (snapshot != null && snapshot.exists()) {
+                                val dailyTitles = snapshot.get("selectedDailyTasks") as? Map<String, Boolean> ?: emptyMap()
+                                // For each task not completed it deals damage to the pet
+                                dailyTitles.forEach { title, isCompleted ->
+                                    if (!isCompleted) {
+                                        cnt += 1 // counts the number of uncompleted tasks
+                                    }
+                                }
+                            }
+                        }
+                        db.update(
                                 mapOf(
                                     "selectedDailyTasks" to emptyList<String>(),
                                     "lastDailyReset" to FieldValue.serverTimestamp()
                                 )
                             )
+                        viewModelScope.launch {
+                            petVM?.isPetFbInit?.collect { isInitialized ->
+                                if (isInitialized) {
+                                    petVM!!.petFb!!.takeDamage(cnt * 7)
+                                }
+                            }
+                        }
                     }
 
                     // Se è una nuova settimana, resettiamo le weekly tasks
                     if (isNewWeek) {
-                        firestore.collection("users")
-                            .document(userId)
-                            .update(
+                        db.addSnapshotListener { snapshot, error ->
+                            if (error != null) return@addSnapshotListener
+                            if (snapshot != null && snapshot.exists()) {
+                                val weeklyTitles = snapshot.get("selectedWeeklyTasks") as? Map<String, Boolean> ?: emptyMap()
+                                // For each task not completed it deals damage to the pet
+                                weeklyTitles.forEach { title, isCompleted ->
+                                    if (!isCompleted) {
+                                        cnt += 1 // counts the number of uncompleted tasks
+                                    }
+                                }
+                            }
+                        }
+                        db.update(
                                 mapOf(
                                     "selectedWeeklyTasks" to emptyList<String>(),
                                     "lastWeeklyReset" to FieldValue.serverTimestamp()
                                 )
                             )
+                        viewModelScope.launch {
+                            petVM?.isPetFbInit?.collect { isInitialized ->
+                                if (isInitialized) {
+                                    petVM!!.petFb!!.takeDamage(cnt * 40)
+                                }
+                            }
+                        }
                     }
 
                     // Se è un nuovo mese, resettiamo le monthly tasks
                     if (isNewMonth) {
-                        firestore.collection("users")
-                            .document(userId)
-                            .update(
+                        db.addSnapshotListener { snapshot, error ->
+                            if (error != null) return@addSnapshotListener
+                            if (snapshot != null && snapshot.exists()) {
+                                val monthlyTitles = snapshot.get("selectedMonthlyTasks") as? Map<String, Boolean> ?: emptyMap()
+                                // For each task not completed it deals damage to the pet
+                                monthlyTitles.forEach { title, isCompleted ->
+                                    if (!isCompleted) {
+                                        cnt += 1 // counts the number of uncompleted tasks
+                                    }
+                                }
+                            }
+                        }
+                        db.update(
                                 mapOf(
                                     "selectedMonthlyTasks" to emptyList<String>(),
                                     "lastMonthlyReset" to FieldValue.serverTimestamp()
                                 )
                             )
+                        viewModelScope.launch {
+                            petVM?.isPetFbInit?.collect { isInitialized ->
+                                if (isInitialized) {
+                                    petVM!!.petFb!!.takeDamage(cnt * 100)
+                                }
+                            }
+                        }
                     }
                     // Dopo aver gestito eventuali reset, recuperiamo le task effettivamente selezionate sul db
                     loadSelectedTasks(userId)
@@ -165,25 +230,69 @@ class TaskViewModel : ViewModel() {
             .addSnapshotListener { snapshot, error ->
                 if (error != null) return@addSnapshotListener
                 if (snapshot != null && snapshot.exists()) {
-                    val dailyTitles = snapshot.get("selectedDailyTasks") as? List<String> ?: emptyList()
-                    val weeklyTitles = snapshot.get("selectedWeeklyTasks") as? List<String> ?: emptyList()
-                    val monthlyTitles = snapshot.get("selectedMonthlyTasks") as? List<String> ?: emptyList()
+                    val dailyTitles = snapshot.get("selectedDailyTasks") as? Map<String, Boolean> ?: emptyMap()
+                    val weeklyTitles = snapshot.get("selectedWeeklyTasks") as? Map<String, Boolean> ?: emptyMap()
+                    val monthlyTitles = snapshot.get("selectedMonthlyTasks") as? Map<String, Boolean> ?: emptyMap()
 
                     // Filtra e crea un nuovo elenco di Task con isSelected = true
                     val matchedDaily = dailyTasks.filter { dailyTitles.contains(it.title) }
-                        .map { it.copy(isSelected = mutableStateOf(true)) }
+                        .map {
+                            it.copy(
+                                isSelected = mutableStateOf(true),
+                                isCompleted = mutableStateOf(dailyTitles[it.title] ?: false)
+                            )
+                        }
 
                     val matchedWeekly = weeklyTasks.filter { weeklyTitles.contains(it.title) }
-                        .map { it.copy(isSelected = mutableStateOf(true)) }
+                        .map {
+                            it.copy(
+                                isSelected = mutableStateOf(true),
+                                isCompleted = mutableStateOf(weeklyTitles[it.title] ?: false)
+                            )
+                        }
 
                     val matchedMonthly = monthlyTasks.filter { monthlyTitles.contains(it.title) }
-                        .map { it.copy(isSelected = mutableStateOf(true)) }
+                        .map {
+                            it.copy(
+                                isSelected = mutableStateOf(true),
+                                isCompleted = mutableStateOf(monthlyTitles[it.title] ?: false)
+                            )
+                        }
 
                     selectedDailyTasks = matchedDaily
                     selectedWeeklyTasks = matchedWeekly
                     selectedMonthlyTasks = matchedMonthly
                 }
             }
+    }
+
+    fun setTaskCompleted(taskTitle: String, group: String) {
+        currentUser?.uid?.let { id ->
+            val db = firestore.collection("users").document(id)
+            when(group) {
+                "Daily" -> {
+                    db.update(
+                        mapOf("selectedDailyTasks.$taskTitle" to true)
+                    )
+                }
+                "Weekly" -> {
+                    db.update(
+                        mapOf("selectedWeeklyTasks.$taskTitle" to true)
+                    )
+                }
+                "Monthly" -> {
+                    db.update(
+                        mapOf("selectedMonthlyTasks.$taskTitle" to true)
+                    )
+                }
+                else -> {
+                    Log.e(
+                        "Updating isCompleted on firestore",
+                        "Something went wrong, title: $taskTitle of group: $group"
+                    )
+                }
+            }
+        }
     }
 
 
@@ -193,9 +302,9 @@ class TaskViewModel : ViewModel() {
         newMonthlyTasks: List<Task> = selectedMonthlyTasks
     ) {
         currentUser?.uid?.let { uid ->
-            val dailyTitles = newDailyTasks.map { it.title }
-            val weeklyTitles = newWeeklyTasks.map { it.title }
-            val monthlyTitles = newMonthlyTasks.map { it.title }
+            val dailyTitles = newDailyTasks.associate { it.title to false }
+            val weeklyTitles = newWeeklyTasks.associate { it.title to false }
+            val monthlyTitles = newMonthlyTasks.associate { it.title to false }
             firestore.collection("users").document(uid).update(
                 mapOf(
                     "selectedDailyTasks" to dailyTitles,

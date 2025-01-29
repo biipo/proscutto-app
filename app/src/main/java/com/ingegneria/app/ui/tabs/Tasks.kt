@@ -1,5 +1,7 @@
 package com.ingegneria.app.ui.tabs
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +32,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,6 +53,7 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel, petVM: PetViewMod
 
     // Used for passing the selected task
     var selectedTask by remember { mutableStateOf(Task()) }
+    var groupOfSelectedTask by remember { mutableStateOf("") }
 
     // Retrieve the full task list from firebase db
 
@@ -69,43 +73,10 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel, petVM: PetViewMod
                 thickness = 1.dp,
                 color = Color.Gray
             )
-            /*
-            when { // When the user has selected the task in the task selection dialog the page should update and show the selected tasks
-                taskVM.showTasks -> {
-                    ShowTaskList(
-                        dailyTasks = taskVM.dailyTasks.toList(),
-                        weeklyTasks = taskVM.selectedWeeklyTasks,
-                        monthlyTasks = taskVM.selectedMonthlyTasks,
-
-                        itemClickedAction = {
-                            openSingleTaskDialog = !openSingleTaskDialog
-                        },
-                        selectItemSaver = { item, group ->
-                            selectedTask = item
-                        }
-                    )
-                }
-                !taskVM.showTasks -> {
-                    Text(
-                        text = "Any task has been selected",
-                        modifier = Modifier.padding(bottom = 10.dp),
-                        textAlign = TextAlign.Center
-                    )
-                    Button(
-                        modifier = Modifier,
-                        onClick = {
-                            openTaskChoiceDialog = !openTaskChoiceDialog
-                        }
-                    ) {
-                        Text(
-                            text = "Choose tasks"
-                        )
-                    }
-                }
-            }*/
             val noTasksSelected = taskVM.selectedDailyTasks.isEmpty()
                     && taskVM.selectedWeeklyTasks.isEmpty()
                     && taskVM.selectedMonthlyTasks.isEmpty()
+            Log.e("Selected TASKS", "No selected statement is $noTasksSelected")
 
             if (noTasksSelected) {
                 Text(
@@ -129,15 +100,16 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel, petVM: PetViewMod
                     },
                     selectItemSaver = { item, group ->
                         selectedTask = item
+                        groupOfSelectedTask = group
                     }
                 )
-                // Pulsante per scegliere/cambiare task
-                Button(
-                    modifier = Modifier.padding(top = 10.dp),
-                    onClick = { openTaskChoiceDialog = true }
-                ) {
-                    Text("Change tasks")
-                }
+                // Pulsante per scegliere/cambiare task (messo per ciascun gruppo)
+//                Button(
+//                    modifier = Modifier.padding(top = 10.dp),
+//                    onClick = { openTaskChoiceDialog = true }
+//                ) {
+//                    Text("Change tasks")
+//                }
             }
 
         }
@@ -147,7 +119,10 @@ fun Tasks(navController: NavController, taskVM: TaskViewModel, petVM: PetViewMod
                 // when the user tap on a task, openDialog is triggered and changed to true so this code open the corresponding dialog
                 TaskOptionDialog(
                     onDismissRequest = { openSingleTaskDialog = false },
-                    selectedTask = selectedTask
+                    selectedTask = selectedTask,
+                    groupOfSelectedTask = groupOfSelectedTask,
+                    petVM = petVM,
+                    taskVM = taskVM
                 )
             }
 
@@ -173,27 +148,41 @@ fun ShowSingleGroupList(
     itemClickedAction: () -> Unit,
     selectItemSaver: (Task, String) -> Unit
 ) {
+    Text(
+        text = taskType,
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(start = 10.dp, bottom = 2.dp),
+    )
+    HorizontalDivider(
+        modifier = Modifier
+            .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
+        thickness = 2.dp,
+        color = Color.Black
+    )
     if(tasks.isNotEmpty()) {
-        Text(
-            text = taskType,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(start = 5.dp, bottom = 2.dp),
-        )
-        HorizontalDivider(
-            modifier = Modifier
-                .padding(start = 10.dp, bottom = 8.dp, end = 10.dp),
-            thickness = 2.dp,
-            color = Color.Black
-        )
-    }
-    tasks.forEach { item ->
-        TaskBox(
-            openDialogAction = {
-                itemClickedAction()
-                selectItemSaver(item, taskType)
-            },
-            item
-        )
+        tasks.forEach { item ->
+            TaskBox(
+                openDialogAction = {
+                    itemClickedAction()
+                    selectItemSaver(item, taskType)
+                },
+                item
+            )
+        }
+    } else {
+        Column (
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            Button(
+                onClick = {
+                /* TODO: Open a dialog with only the tasks of the current group */
+                },
+                modifier = Modifier.wrapContentSize().padding(vertical = 5.dp)
+            ) {
+                Text ("Select tasks")
+            }
+        }
     }
 }
 
@@ -203,12 +192,8 @@ fun ShowTaskList(
     weeklyTasks: List<Task>,
     monthlyTasks: List<Task>,
     itemClickedAction: () -> Unit,
-    selectItemSaver: (Task, String) -> Unit,
+    selectItemSaver: (Task, String) -> Unit
 ) {
-    // In this composable are passed functions instead of the actual parameters because of the "state hoisting"; in kotlin we CAN'T pass a parameter
-    // as reference and CHANGE IT inside a function so we're obligated to pass a lambda function that do that (so we can change
-    // variable content from a different scope)
-
     LazyColumn {
         item {
             ShowSingleGroupList("Daily", dailyTasks, itemClickedAction, selectItemSaver)
@@ -216,30 +201,36 @@ fun ShowTaskList(
             ShowSingleGroupList("Monthly", monthlyTasks, itemClickedAction, selectItemSaver)
         }
     }
-
 }
 
 @Composable
 fun TaskBox(openDialogAction: () -> Unit, item: Task) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .padding(10.dp)
-            .clickable(onClick = openDialogAction)
+            .clickable(onClick = {
+                if (!item.isTaskCompleted()) {
+                    openDialogAction()
+                } else {
+                    Toast.makeText(context, "Task completed", Toast.LENGTH_SHORT).show()
+                }
+            })
             .border(1.dp, Color.Black, RoundedCornerShape(5.dp))
             .fillMaxWidth()
             .size(200.dp, 80.dp),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
-            containerColor = if(item.isSelected.value && !item.isCompleted.value) {
+            containerColor = if(item.isTaskSelected() && !item.isTaskCompleted()) {
                 MaterialTheme.colorScheme.primary
-            } else if(item.isCompleted.value) {
+            } else if(item.isTaskCompleted()) {
                 MaterialTheme.colorScheme.background
             }else {
                 MaterialTheme.colorScheme.secondaryContainer
             },
-            contentColor = if(item.isSelected.value && !item.isCompleted.value) {
+            contentColor = if(item.isTaskSelected() && !item.isTaskCompleted()) {
                 MaterialTheme.colorScheme.onPrimary
-            } else if(item.isCompleted.value) {
+            } else if(item.isTaskCompleted()) {
                 MaterialTheme.colorScheme.onBackground
             }else {
                 MaterialTheme.colorScheme.onSecondaryContainer
@@ -262,18 +253,28 @@ fun TaskBox(openDialogAction: () -> Unit, item: Task) {
 }
 
 @Composable
+fun SingleTaskSelectionDialog(
+    onDismissRequest: () -> Unit,
+    tasks: List<Task>,
+    taskVM: TaskViewModel,
+) {
+    // TODO: show the other tasks
+}
+
+@Composable
 fun TaskSelectionDialog(
     onDismissRequest: () -> Unit,
     dailyTasks: List<Task>,
     weeklyTasks: List<Task>,
     monthlyTasks: List<Task>,
-    taskVM: TaskViewModel
+    taskVM: TaskViewModel,
 ) {
 
     val selectedDaily = remember { taskVM.selectedDailyTasks.toMutableStateList() }
     val selectedWeekly = remember { taskVM.selectedWeeklyTasks.toMutableStateList() }
     val selectedMonthly = remember { taskVM.selectedMonthlyTasks.toMutableStateList() }
 
+    val context = LocalContext.current
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card (
@@ -290,7 +291,7 @@ fun TaskSelectionDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
                 item {
-                    Text("Select Your Tasks", style = MaterialTheme.typography.titleLarge)
+                    Text("Select Your Tasks (2 for each)", style = MaterialTheme.typography.titleLarge)
                 }
                 item {
                     Text("Daily Tasks", style = MaterialTheme.typography.titleMedium)
@@ -370,6 +371,10 @@ fun TaskSelectionDialog(
                     onClick = {
                         /* TODO: maybe it's better to scan the list and keep only the tasks with isSelected == true?
                             rather than add and remove them immediately when clicked */
+                        if (selectedDaily.size < 2 || selectedWeekly.size < 2 || selectedMonthly.size < 2) {
+                            Toast.makeText(context, "Select at least 2 tasks for each group", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
                         taskVM.saveSelectedTasks(
                             newDailyTasks = selectedDaily,
                             newWeeklyTasks = selectedWeekly,
@@ -419,8 +424,15 @@ fun SelectableTaskBox(
 }
 
 @Composable
-fun TaskOptionDialog(onDismissRequest: () -> Unit, selectedTask: Task) {
+fun TaskOptionDialog(
+    onDismissRequest: () -> Unit,
+    selectedTask: Task,
+    groupOfSelectedTask: String,
+    petVM: PetViewModel,
+    taskVM: TaskViewModel
+) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
+        val context = LocalContext.current
         Card (
             modifier = Modifier
                 .wrapContentSize(),
@@ -457,6 +469,28 @@ fun TaskOptionDialog(onDismissRequest: () -> Unit, selectedTask: Task) {
                         .padding(end = 20.dp, start = 20.dp)
                         .size(350.dp, 50.dp),
                     onClick = {
+                        when (groupOfSelectedTask) {
+                            "Daily" -> {
+                                petVM.petFb?.gainXp(4)
+                                petVM.petFb?.heal(4)
+                            }
+                            "Weekly" -> {
+                                petVM.petFb?.gainXp(20)
+                                petVM.petFb?.heal(20)
+                            }
+                            "Monthly" -> {
+                                petVM.petFb?.gainXp(50)
+                                petVM.petFb?.heal(50)
+                            }
+                            else -> {
+                                Toast.makeText(
+                                    context,
+                                    "There has been a problem, try again later",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                        taskVM.setTaskCompleted(selectedTask.title, groupOfSelectedTask)
                         selectedTask.toggleCompletion()
                         onDismissRequest()
                     },
