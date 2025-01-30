@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Agriculture
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -47,9 +48,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.ingegneria.app.navigation.Screens
+import com.ingegneria.app.ui.screens.PetViewModel
 
 @Composable
-fun Shop(navController: NavController, shopVM: ShopViewModel) {
+fun Shop(navController: NavController, shopVM: ShopViewModel, petVM: PetViewModel) {
 
     var currTabState by remember { mutableIntStateOf(0) }
     var openBuyDialog by remember { mutableStateOf(false) }
@@ -92,7 +94,9 @@ fun Shop(navController: NavController, shopVM: ShopViewModel) {
         } else {
             ShowList(
                 itemsList = shopVM.userItems,
-                openBuyDialogAction = {}
+                openBuyDialogAction = { item ->
+                    petVM.petFb?.setHat(item)
+                }
             )
         }
     }
@@ -134,7 +138,7 @@ fun ShowList(itemsList: List<String>, openBuyDialogAction: (String) -> Unit) {
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Agriculture, // TODO
+                            imageVector = Icons.Filled.Pets,
                             contentDescription = item
                         )
                         Text(

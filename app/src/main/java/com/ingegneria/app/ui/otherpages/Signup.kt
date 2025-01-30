@@ -1,5 +1,7 @@
 package com.ingegneria.app.ui.otherpages
 
+import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,12 +41,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.userProfileChangeRequest
+import com.google.firebase.database.database
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.LoadingDialog
 import com.ingegneria.app.ui.common.MascotImage
 
 @Composable
-fun Signup(navController: NavHostController, userVM: UserViewModel){
+fun Signup(navController: NavHostController){
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -126,6 +134,7 @@ fun Signup(navController: NavHostController, userVM: UserViewModel){
                         else PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
                     )
+                    // TODO: make appear password requirements
                     // confirm password input field
                     OutlinedTextField(
                         value = confirmPassword,
@@ -161,22 +170,105 @@ fun Signup(navController: NavHostController, userVM: UserViewModel){
                     Button(
                         onClick = {
                             loading = true
-                            try {
-                                userVM.signup(
-                                    username = username,
-                                    email = email,
-                                    password = password,
-                                    confirmPassword = confirmPassword
-                                )
-                                Toast.makeText(context, "Welcome, $username", Toast.LENGTH_SHORT).show()
-                                navController.navigate(Screens.Home.name)  {
-                                    popUpTo(0)
+                            if (username.isEmpty() || email.isEmpty()
+                                || password.isEmpty() || confirmPassword.isEmpty()) {
+                                Toast.makeText(context, "One or more fields are empty", Toast.LENGTH_SHORT).show()
+                            } else {
+                                if (emailCheck(email)) {
+                                    if (username.length > 12) {
+                                        Toast.makeText(context, "Username must be under 12 characters", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        if (!Regex("[a-zA-Z0-9]*").matches(username)) {
+                                            Toast.makeText(context, "Username cannot contains symbols", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            if (password != confirmPassword) {
+                                                Toast.makeText(context, "Password and confirmation password mismatch", Toast.LENGTH_SHORT).show()
+                                            } else {
+                                                if(!passwordCheck(password)) {
+                                                    Toast.makeText(context, "Invalid password; it must contains symbols, digits and capital letters", Toast.LENGTH_SHORT).show()
+                                                } else {
+                                                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+                                                        .addOnSuccessListener {
+                                                            val user = FirebaseAuth.getInstance().currentUser
+                                                            val profileUpdates = userProfileChangeRequest {
+                                                                displayName = username
+                                                            }
+                                                            user!!.updateProfile(profileUpdates)
+                                                                .addOnSuccessListener {
+                                                                    val id = user.uid
+                                                                    val firestore = FirebaseFirestore.getInstance()
+                                                                    val db = Firebase.database
+                                                                    val petDb = db.getReference("characters")
+                                                                    val friendsDb = db.getReference("friends")
+                                                                    val requestsDb = db.getReference("friendRequests")
+                                                                    val shopDb = db.getReference("shop")
+                                                                    petDb.child(id).setValue(
+                                                                        mapOf(
+                                                                            Pair("hat", ""),
+                                                                            Pair("hp", 10),
+                                                                            Pair("level", 1),
+                                                                            Pair("mult", 1.0),
+                                                                            Pair("name", "Pet"),
+                                                                            Pair("xp", 0)
+                                                                        )
+                                                                    )
+                                                                    friendsDb.child(id).setValue(listOf(""))
+                                                                    requestsDb.child(id).setValue(listOf(""))
+                                                                    shopDb.child(id).setValue(listOf(""))
+
+                                                                    val userData = hashMapOf(
+                                                                        "userId" to id,
+                                                                        "email" to user.email,
+                                                                        "username" to user.displayName,
+                                                                        "createdAt" to FieldValue.serverTimestamp(),
+                                                                        "lastLogin" to FieldValue.serverTimestamp(),
+                                                                        "dailyQuestionLimit" to 0,
+                                                                        "lastDailyReset" to com.google.firebase.Timestamp.now(),
+                                                                        "lastWeeklyReset" to com.google.firebase.Timestamp.now(),
+                                                                        "lastMonthlyReset" to com.google.firebase.Timestamp.now(),
+                                                                        "selectedDailyTasks" to emptyMap<String, Boolean>(),
+                                                                        "selectedWeeklyTasks" to emptyMap<String, Boolean>(),
+                                                                        "selectedMonthlyTasks" to emptyMap<String, Boolean>(),
+                                                                        "maxLevelReached" to 1,              // livello iniziale
+                                                                        "dailyTasksCompleted" to 0,         // numero di task daily completate (totali)
+                                                                        "weeklyTasksCompleted" to 0,        // numero di task weekly completate (totali)
+                                                                        "monthlyTasksCompleted" to 0,       // numero di task monthly completate (totali)
+                                                                        "quizCompleted" to 0,              // quanti quiz completati
+                                                                        "totalLoginDays" to 1              // conteggio di giorni in cui si è loggato (parte da 1, ad es.)
+                                                                    )
+                                                                    firestore.collection("users")
+                                                                        .document(id ?: "")
+                                                                        .set(userData)
+                                                                        .addOnSuccessListener {
+                                                                            Toast.makeText(context, "Welcome, $username", Toast.LENGTH_SHORT).show()
+                                                                            navController.navigate(Screens.Home.name)  {
+                                                                                popUpTo(0)
+                                                                            }
+                                                                        }.addOnFailureListener { e ->
+                                                                            Log.e("SIGNUP ERROR INITIALIZING FIRESTORE ON LOGIN", e.message.toString())
+                                                                            Toast.makeText(context, "Something went wrong, try again", Toast.LENGTH_SHORT).show()
+                                                                        }
+                                                                }.addOnFailureListener { e ->
+                                                                    Log.e("SIGNUP ERROR UPDATING USER", e.message.toString())
+                                                                    Toast.makeText(context, "Something went wrong, try again", Toast.LENGTH_SHORT).show()
+                                                                }
+                                                        }.addOnFailureListener { e ->
+                                                            if (e.message.toString() == "The email address is already in use by another account.") {
+                                                                Toast.makeText(context, e.message.toString(), Toast.LENGTH_SHORT).show()
+                                                            } else {
+                                                                Toast.makeText(context, "Something went wrong, try again", Toast.LENGTH_SHORT).show()
+                                                            }
+                                                            Log.e("SIGNUP ERROR CREATING USER", e.message.toString())
+                                                        }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    Toast.makeText(context, "Invalid email", Toast.LENGTH_SHORT).show()
                                 }
-                            } catch (e: IllegalArgumentException) {
-                                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-                            } finally {
-                                loading = false
                             }
+                            loading = false
                         },
                         modifier = Modifier.fillMaxWidth().padding(0.dp, 25.dp, 0.dp, 0.dp)
                     ) {
@@ -205,6 +297,14 @@ fun Signup(navController: NavHostController, userVM: UserViewModel){
             }
         }
     }
+}
+
+fun passwordCheck(password: String) : Boolean {
+    return Regex("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^!&+=]).{4,}$").matches(password)
+}
+
+fun emailCheck(email: String) : Boolean {
+    return Patterns.EMAIL_ADDRESS.matcher(email).matches()
 }
 
 @Preview

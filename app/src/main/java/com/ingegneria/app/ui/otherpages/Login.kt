@@ -1,7 +1,7 @@
 package com.ingegneria.app.ui.otherpages
 
+import android.content.Context
 import android.text.TextUtils
-import android.view.View
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,9 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ingegneria.app.navigation.Screens
@@ -51,7 +49,7 @@ import java.util.Calendar
 import java.util.Date
 
 @Composable
-fun Login(navController: NavController, userVM: UserViewModel) {
+fun Login(navController: NavController) {
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val passwordVisible = remember { mutableStateOf(false) }
@@ -116,34 +114,66 @@ fun Login(navController: NavController, userVM: UserViewModel) {
             Button(
                 onClick = {
                     loading = true
-                    try {
-                        userVM.login(email.value, password.value)
-                        val user = Firebase.auth.currentUser
-                        if(user != null){
-                            val docRef = FirebaseFirestore.getInstance().collection("users").document(user.uid)
-                            docRef.get().addOnSuccessListener { snapshot ->
-                                val lastLoginTimestamp = snapshot.getTimestamp("lastLogin")?.toDate()
-                                val now = Calendar.getInstance().time
-
-                                if(lastLoginTimestamp == null || isNewDay(lastLoginTimestamp, now)){
-                                    docRef.update(
-                                        mapOf(
-                                            "totalLoginDays" to FieldValue.increment(1),
-                                            "lastLogin" to FieldValue.serverTimestamp()
-                                        )
-                                    )
-                                }else{
-                                    docRef.update("lastLogin", FieldValue.serverTimestamp())
+                    if (inputCheck(email.value, password.value, context)) {
+                        FirebaseAuth.getInstance()
+                            .signInWithEmailAndPassword(email.value, password.value)
+                            .addOnSuccessListener { res ->
+                                val id = res.user?.uid
+                                val firestore = FirebaseFirestore.getInstance()
+                                if (id != null) {
+                                    firestore.collection("users")
+                                        .document(id)
+                                        .update("lastLogin", FieldValue.serverTimestamp())
+                                        .addOnSuccessListener {
+                                            val docRef =
+                                                FirebaseFirestore.getInstance().collection("users")
+                                                    .document(id)
+                                            docRef.get()
+                                                .addOnSuccessListener { snapshot ->
+                                                    val lastLoginTimestamp =
+                                                        snapshot.getTimestamp("lastLogin")?.toDate()
+                                                    val now = Calendar.getInstance().time
+                                                    if (lastLoginTimestamp == null  || isNewDay(lastLoginTimestamp, now)) {
+                                                        docRef.update(
+                                                            mapOf(
+                                                                "totalLoginDays" to FieldValue.increment(
+                                                                    1
+                                                                ),
+                                                                "lastLogin" to FieldValue.serverTimestamp()
+                                                            )
+                                                        )
+                                                    } else {
+                                                        docRef.update(
+                                                            "lastLogin",
+                                                            FieldValue.serverTimestamp()
+                                                        )
+                                                    }
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Login successful!",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                    navController.navigate(Screens.Home.name) {
+                                                        popUpTo(0)
+                                                    }
+                                                }.addOnFailureListener {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "There has been an error on login",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                        }.addOnFailureListener {
+                                            Toast.makeText(
+                                                context,
+                                                "Wrong credentials",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
                                 }
-                                Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
-                                navController.navigate(Screens.Home.name) {popUpTo(0)}
                             }
-                        }
-                    } catch (e: IllegalArgumentException) {
-                        Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-                    } finally {
-                        loading = false
                     }
+                    loading = false
                 },
                 modifier = Modifier.fillMaxWidth().padding(0.dp, 25.dp, 0.dp, 0.dp)
             ) {
@@ -188,24 +218,24 @@ fun Login(navController: NavController, userVM: UserViewModel) {
     }
 }
 
-private fun inputCheck(sEmail: String?, sPassword: String?, view: View): Boolean {
-    if (TextUtils.isEmpty(sEmail)) {
-        Snackbar.make(view, "Missing email", Snackbar.LENGTH_SHORT).show()
-        return false
-    }
-
-    if (TextUtils.isEmpty(sPassword)) {
-        Snackbar.make(view, "Missing password", Snackbar.LENGTH_SHORT).show()
-        return false
-    }
-    return true
-}
-
 private fun isNewDay(lastDate: Date, currentDate: Date): Boolean {
     val calLast = Calendar.getInstance().apply { time = lastDate }
     val calNow = Calendar.getInstance().apply { time = currentDate }
     return calLast.get(Calendar.DAY_OF_YEAR) != calNow.get(Calendar.DAY_OF_YEAR) ||
             calLast.get(Calendar.YEAR) != calNow.get(Calendar.YEAR)
+}
+
+private fun inputCheck(sEmail: String?, sPassword: String?, context: Context): Boolean {
+    if (TextUtils.isEmpty(sEmail)) {
+        Toast.makeText(context, "Missing email", Toast.LENGTH_SHORT).show()
+        return false
+    }
+
+    if (TextUtils.isEmpty(sPassword)) {
+        Toast.makeText(context, "Missing password", Toast.LENGTH_SHORT).show()
+        return false
+    }
+    return true
 }
 
 @Preview(showBackground = true)

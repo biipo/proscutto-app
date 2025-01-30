@@ -16,10 +16,10 @@ import com.ingegneria.app.ui.otherpages.Signup
 import com.ingegneria.app.ui.otherpages.Social
 import com.ingegneria.app.ui.otherpages.SocialViewModel
 import com.ingegneria.app.ui.otherpages.Stats
-import com.ingegneria.app.ui.otherpages.UserViewModel
 import com.ingegneria.app.ui.screens.PetViewModel
 import com.ingegneria.app.ui.tabs.Home
 import com.ingegneria.app.ui.tabs.Quiz
+import com.ingegneria.app.ui.tabs.QuizViewModel
 import com.ingegneria.app.ui.tabs.Settings
 import com.ingegneria.app.ui.tabs.TaskViewModel
 import com.ingegneria.app.ui.tabs.Tasks
@@ -32,15 +32,15 @@ fun Navigation(
     shopVM: ShopViewModel,
     socialVM: SocialViewModel,
     petVM: PetViewModel,
-    userVM: UserViewModel
+    quizVM: QuizViewModel
 ) {
 
     NavHost(navController = navController, startDestination = startScreen) {
         composable(Screens.Login.name) {
-            Login(navController = navController, userVM = userVM)
+            Login(navController = navController)
         }
         composable(Screens.Signup.name) {
-            Signup(navController = navController, userVM = userVM)
+            Signup(navController = navController)
         }
         composable(Screens.ForgotPassword.name){
             ForgotPassword(navController = navController)
@@ -52,13 +52,13 @@ fun Navigation(
             Tasks(navController = navController, taskVM = taskVM, petVM = petVM)
         }
         composable(Screens.Quiz.name) {
-            Quiz(navController = navController, petVM = petVM)
+            Quiz(navController = navController, quizViewModel = quizVM, petVM = petVM)
         }
         composable(Screens.Settings.name) {
             Settings(navController = navController)
         }
         composable(Screens.Shop.name) {
-            Shop(navController = navController, shopVM = shopVM)
+            Shop(navController = navController, shopVM = shopVM, petVM = petVM)
         }
         composable( // This is used to navigate with arguments (they are optional)
             "${Screens.Social.name}?qrValue={qrValue}",

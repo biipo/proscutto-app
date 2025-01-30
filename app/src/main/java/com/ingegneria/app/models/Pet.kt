@@ -51,8 +51,9 @@ data class Pet(
 
     fun takeDamage(dmg: Int) {
         hp -= dmg
-        if (hp < 0)
-            hp = 0
+        if (hp < 0) {
+            resetStats()
+        }
     }
 
     fun heal(amount: Int) {
@@ -96,4 +97,12 @@ data class Pet(
     fun decreaseMult(amount: Double) {
         mult -= amount
     }
+
+    private fun resetStats() {
+        hp = 10
+        level = 1
+        mult = 1.0
+        xp = 0
+    }
+
 }

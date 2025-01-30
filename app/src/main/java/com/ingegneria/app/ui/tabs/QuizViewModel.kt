@@ -1,6 +1,7 @@
 package com.ingegneria.app.ui.tabs
 
 import android.util.Log
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -30,6 +31,9 @@ class QuizViewModel : ViewModel() {
 
     private val _answeredQuestionsCount = MutableStateFlow(0)
     val answeredQuestionsCount: StateFlow<Int> = _answeredQuestionsCount
+
+    val currentQuestionIndex = mutableIntStateOf(0)
+    val correctCount = mutableIntStateOf(0)
 
     init {
         currentUser?.let { user ->

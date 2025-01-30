@@ -17,18 +17,17 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.ingegneria.app.navigation.Screens
-import com.ingegneria.app.ui.common.HomeStats
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.ingegneria.app.navigation.Screens
+import com.ingegneria.app.ui.common.HomeStats
 import com.ingegneria.app.ui.screens.PetViewModel
-import com.ingegneria.app.ui.theme.AppTheme
 
 @Composable
 fun Home(navController: NavController, petVM: PetViewModel) {
     Surface(modifier = Modifier.fillMaxSize()) {
         TopAppBar(navController)
-        HomeStats(navController, petVM.pet);
+        HomeStats(navController, petVM.pet, petVM.petFb);
     }
 }
 

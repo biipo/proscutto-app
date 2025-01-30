@@ -1,7 +1,17 @@
 package com.ingegneria.app.models
 
+import android.content.Context
 import android.util.Log
 import com.google.firebase.database.DatabaseReference
+import com.ingegneria.app.R
+
+fun getHatId(hat : String) : String? {
+    val hatIdMap: Map<String, String> = mapOf (
+        "Witch Hat" to "hat_witch",
+        "Santa Hat" to "hat_santa_beard",
+    )
+    return hatIdMap[hat] ?: ""
+}
 
 class PetFirebaseSync(
     private var dbRef: DatabaseReference,
@@ -49,4 +59,13 @@ class PetFirebaseSync(
             }
     }
 
+    fun setHat(hat: String) {
+        pet.hat = getHatId(hat)
+        updateDb()
+    }
+
+    fun changeName(newName: String) {
+        pet.name = newName
+        updateDb()
+    }
 }
