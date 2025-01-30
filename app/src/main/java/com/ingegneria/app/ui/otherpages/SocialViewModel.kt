@@ -90,7 +90,7 @@ class SocialViewModel : ViewModel() {
     }
 
     private fun addFriendDefinitively(friend: String) {
-        val friendId = Regex("([a-z0-9A-Z]*)-\\D*")
+        val friendId = Regex("([a-z0-9A-Z]*)-[a-z0-9A-Z]*")
             .find(friend)?.groups?.get(1)?.value ?: "bob"
         val friendDb = friendsDatabase.child(friendId)
         val myDb = friendsDatabase.child(userId)
@@ -109,7 +109,7 @@ class SocialViewModel : ViewModel() {
         if (userFriends.contains(friend)) {
             return false // The friend hasn't been added because already exists
         } else {
-            val friendId =  Regex("([a-z0-9A-Z]*)-\\D*")
+            val friendId =  Regex("([a-z0-9A-Z]*)-[a-z0-9A-Z]*")
                 .find(friend)?.groups?.get(1)?.value ?: "bob"
             val friendDb = requestsDatabase.child(friendId)
             val myRequestId = friendDb.push().key

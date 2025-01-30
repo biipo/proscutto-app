@@ -656,7 +656,8 @@ fun SelectableTaskBox(
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .border(width = 1.dp, color = Color.Black),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = backgroundColor,

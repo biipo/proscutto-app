@@ -1,6 +1,5 @@
 package com.ingegneria.app.ui.otherpages
 
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -71,9 +70,9 @@ fun FriendRequests(navController: NavController, socialVM: SocialViewModel) {
                         Card(
                             modifier = Modifier
                                 .padding(start = 10.dp, end = 10.dp, top = 10.dp)
-                                .border(1.dp, Color.Black, RoundedCornerShape(5.dp))
+                                .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(10.dp))
                                 .fillMaxWidth()
-                                .height(40.dp),
+                                .height(60.dp),
                             shape = MaterialTheme.shapes.medium,
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.secondary,
@@ -82,7 +81,7 @@ fun FriendRequests(navController: NavController, socialVM: SocialViewModel) {
                         ){
                             Row (
                                 modifier = Modifier
-                                    .fillMaxSize(),
+                                    .fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
@@ -94,35 +93,33 @@ fun FriendRequests(navController: NavController, socialVM: SocialViewModel) {
                                     )
                                     Text(
                                         modifier = Modifier.padding(start = 10.dp),
-                                        text = Regex("[a-z0-9A-Z]*-(\\D*)")
+                                        text = Regex("[a-z0-9A-Z]*-([a-zA-Z0-9]*)")
                                             .find(value)?.groups?.get(1)?.value ?: "bob", // "bob" is a tmp name if the regex fails
                                         textAlign = TextAlign.Center
                                     )
                                 }
                                 Row (modifier = Modifier.padding(vertical = 10.dp)){
                                     Button(
+                                        modifier = Modifier.wrapContentSize().padding(end = 10.dp),
                                         onClick = {
-                                            Log.e("Stringa chiave Reject", key)
                                             socialVM.rejectRequest(key)
                                         },
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = Color.Red,
                                             contentColor = Color.White
                                         ),
-                                        modifier = Modifier.padding(end = 10.dp)
                                     ) {
                                         Text(text = "Reject")
                                     }
                                     Button(
+                                        modifier = Modifier.wrapContentSize().padding(end = 10.dp),
                                         onClick = {
-                                            Log.e("Stringa chiave accept", key)
                                             socialVM.acceptRequest(key)
                                         },
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = Color.Green,
                                             contentColor = Color.White
-                                        ),
-                                        modifier = Modifier.padding(end = 10.dp)
+                                        )
                                     ) {
                                         Text(text = "Accept")
                                     }

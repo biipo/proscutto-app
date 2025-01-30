@@ -14,13 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -102,7 +103,7 @@ fun Settings(navController: NavController) {
             )
             Button(
                 modifier = Modifier
-                    .padding(vertical = 2.dp)
+                    .padding(vertical = 2.dp, horizontal = 10.dp)
                     .fillMaxWidth(),
                 onClick = {
                     val auth = FirebaseAuth.getInstance()
@@ -123,7 +124,7 @@ fun Settings(navController: NavController) {
             Spacer(modifier = Modifier.padding(5.dp))
             Button(
                 modifier = Modifier
-                    .padding(vertical = 2.dp)
+                    .padding(vertical = 2.dp, horizontal = 10.dp)
                     .fillMaxWidth(),
                 onClick = {
                     showDialog = true
@@ -144,99 +145,111 @@ fun Settings(navController: NavController) {
         Dialog(
             onDismissRequest = { showDialog = false },
         ) {
-           Column (
-               modifier = Modifier.wrapContentSize()
-           ){
-               Text(
-                   modifier = Modifier.padding(vertical = 5.dp),
-                   text = "Delete Account"
-               )
-               Text(
-                   modifier = Modifier.padding(vertical = 5.dp),
-                   text = "You need to enter your credentials to confirm"
-               )
+            Card (
+                modifier = Modifier.wrapContentSize(),
+                shape = RoundedCornerShape(10.dp)
+            ){
+                Column (
+                    modifier = Modifier.wrapContentSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ){
+                    Text(
+                        modifier = Modifier.padding(top = 10.dp, bottom = 5.dp),
+                        text = "Delete Account"
+                    )
+                    Text(
+                        modifier = Modifier.padding(vertical = 5.dp),
+                        text = "Enter your credentials to confirm"
+                    )
 
-               // Email input field
-               OutlinedTextField(
-                   value = email.value,
-                   onValueChange = { email.value = it },
-                   leadingIcon = {
-                       Icon(Icons.Default.Mail, contentDescription = "person")
-                   },
-                   label = {
-                       Text(text = "Email")
-                   },
-                   singleLine = true,
-                   modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
-               )
-               // Password input field
-               OutlinedTextField(
-                   value = password.value,
-                   onValueChange = { password.value = it },
-                   leadingIcon = {
-                       Icon( Icons.Default.Lock, contentDescription = "", )
-                   },
-                   label = { Text(text = "Password") },
-                   placeholder = { Text(text = "Password") },
-                   singleLine = true,
-                   visualTransformation = PasswordVisualTransformation(),
-                   modifier = Modifier.fillMaxWidth().padding(0.dp, 20.dp, 0.dp, 0.dp)
-               )
-               Row (
-                   modifier = Modifier.fillMaxWidth()
-                       .padding(horizontal = 20.dp, vertical = 20.dp),
-                   horizontalArrangement = Arrangement.SpaceBetween
-               ){
-                   OutlinedButton(
-                       modifier = Modifier.padding(horizontal = 5.dp),
-                       onClick = { showDialog = false }
-                   ) {
-                       Text("CANCEL")
-                   }
+                    // Email input field
+                    OutlinedTextField(
+                        value = email.value,
+                        onValueChange = { email.value = it },
+                        leadingIcon = {
+                            Icon(Icons.Default.Mail, contentDescription = "person")
+                        },
+                        label = {
+                            Text(text = "Email")
+                        },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().padding(10.dp, 20.dp, 10.dp, 0.dp)
+                    )
+                    // Password input field
+                    OutlinedTextField(
+                        value = password.value,
+                        onValueChange = { password.value = it },
+                        leadingIcon = {
+                            Icon( Icons.Default.Lock, contentDescription = "", )
+                        },
+                        label = { Text(text = "Password") },
+                        placeholder = { Text(text = "Password") },
+                        singleLine = true,
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth().padding(10.dp, 20.dp, 10.dp, 0.dp)
+                    )
+                    Row (
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 20.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ){
+                        OutlinedButton(
+                            modifier = Modifier.padding(horizontal = 5.dp),
+                            onClick = { showDialog = false }
+//                            colors = ButtonDefaults.buttonColors(
+//                                MaterialTheme.colorScheme.onSecondaryContainer,
+//                                MaterialTheme.colorScheme.secondaryContainer
+//                            )
+                        ) {
+                            Text("CANCEL")
+                        }
 
-                   FilledTonalButton(
-                       modifier = Modifier.padding(horizontal = 5.dp),
-                       onClick = {
-                           if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
-                               FirebaseAuth.getInstance()
-                                   .signInWithEmailAndPassword(email.value, password.value)
-                                   .addOnSuccessListener { res ->
-                                       val id = res.user?.uid
-                                       val db = Firebase.database
-                                       if (id != null) {
-                                           FirebaseFirestore.getInstance().collection("users").document(id).delete()
-                                           db.getReference("characters").child(id).removeValue()
-                                           db.getReference("friends").child(id).removeValue()
-                                           db.getReference("friendRequests").child(id).removeValue()
-                                           db.getReference("shop").child(id).removeValue()
-                                       }
-                                       res.user?.delete()
-                                           ?.addOnSuccessListener {
-                                               Toast.makeText(context, "Account deleted successfully", Toast.LENGTH_SHORT).show()
-                                               navController.navigate(Screens.Login.name) {
-                                                   popUpTo(0)
-                                               }
-                                           }?.addOnFailureListener { e ->
-                                               Log.e("FAILED DELETING USER", e.message.toString())
-                                               Toast.makeText(context, "Something went wrong, try again", Toast.LENGTH_SHORT).show()
-                                           }
-                                   }.addOnFailureListener {
-                                       Toast.makeText(context, "Wrong credentials", Toast.LENGTH_SHORT).show()
-                                   }
-                           } else {
-                               Toast.makeText(context, "One or more fields are empty", Toast.LENGTH_SHORT).show()
-                           }
-                           showDialog = false
-                       },
-                       colors = ButtonDefaults.buttonColors(
-                           MaterialTheme.colorScheme.errorContainer,
-                           MaterialTheme.colorScheme.error
-                       )
-                   ) {
-                       Text("CONFIRM")
-                   }
-               }
-           }
+                        Button(
+                            modifier = Modifier.padding(horizontal = 5.dp),
+                            onClick = {
+                                if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
+                                    FirebaseAuth.getInstance()
+                                        .signInWithEmailAndPassword(email.value, password.value)
+                                        .addOnSuccessListener { res ->
+                                            val id = res.user?.uid
+                                            val db = Firebase.database
+                                            if (id != null) {
+                                                FirebaseFirestore.getInstance().collection("users").document(id).delete()
+                                                db.getReference("characters").child(id).removeValue()
+                                                db.getReference("friends").child(id).removeValue()
+                                                db.getReference("friendRequests").child(id).removeValue()
+                                                db.getReference("shop").child(id).removeValue()
+                                            }
+                                            res.user?.delete()
+                                                ?.addOnSuccessListener {
+                                                    Toast.makeText(context, "Account deleted successfully", Toast.LENGTH_SHORT).show()
+                                                    navController.navigate(Screens.Login.name) {
+                                                        popUpTo(0)
+                                                    }
+                                                }?.addOnFailureListener { e ->
+                                                    Log.e("FAILED DELETING USER", e.message.toString())
+                                                    Toast.makeText(context, "Something went wrong, try again", Toast.LENGTH_SHORT).show()
+                                                }
+                                        }.addOnFailureListener {
+                                            Toast.makeText(context, "Wrong credentials", Toast.LENGTH_SHORT).show()
+                                        }
+                                } else {
+                                    Toast.makeText(context, "One or more fields are empty", Toast.LENGTH_SHORT).show()
+                                }
+                                showDialog = false
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                MaterialTheme.colorScheme.errorContainer,
+                                MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text("CONFIRM")
+                        }
+                    }
+                }
+            }
+
         }
     }
 }

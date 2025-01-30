@@ -140,7 +140,7 @@ fun Social(navController: NavController, socialVM: SocialViewModel, qrValue: Str
                     Card(
                         modifier = Modifier
                             .padding(start = 10.dp, end = 10.dp, top = 10.dp)
-                            .border(1.dp, Color.Black, RoundedCornerShape(5.dp))
+                            .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(10.dp))
                             .fillMaxWidth()
                             .height(40.dp),
                         shape = MaterialTheme.shapes.medium,
@@ -161,7 +161,7 @@ fun Social(navController: NavController, socialVM: SocialViewModel, qrValue: Str
                             )
                             Text(
                                 modifier = Modifier.padding(5.dp),
-                                text = Regex("[a-z0-9A-Z]*-(\\D*)")
+                                text = Regex("[a-z0-9A-Z]*-([a-z0-9A-Z]*)")
                                     .find(friend)?.groups?.get(1)?.value ?: "bob", // "bob" is a tmp name if the regex fails
                                 textAlign = TextAlign.Center
                             )
