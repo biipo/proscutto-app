@@ -43,8 +43,8 @@ import com.ingegneria.app.navigation.Navigation
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.otherpages.ShopViewModel
 import com.ingegneria.app.ui.otherpages.SocialViewModel
-import com.ingegneria.app.ui.otherpages.UserViewModel
 import com.ingegneria.app.ui.screens.PetViewModel
+import com.ingegneria.app.ui.tabs.QuizViewModel
 import com.ingegneria.app.ui.tabs.TaskViewModel
 import com.ingegneria.app.ui.theme.AppTheme
 
@@ -65,11 +65,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ProscuttoApp(
     navController: NavHostController = rememberNavController(),
-    userVM: UserViewModel = viewModel<UserViewModel>(),
     taskVM: TaskViewModel = viewModel<TaskViewModel>(),
     shopVM: ShopViewModel = viewModel<ShopViewModel>(),
     socialVM: SocialViewModel = viewModel<SocialViewModel>(),
-    petVM: PetViewModel = viewModel<PetViewModel>()
+    petVM: PetViewModel = viewModel<PetViewModel>(),
+    quizVM: QuizViewModel = viewModel<QuizViewModel>()
 ) {
     val user = Firebase.auth.currentUser
     val startScreen =
@@ -121,7 +121,7 @@ fun ProscuttoApp(
                 shopVM = shopVM,
                 socialVM = socialVM,
                 petVM = petVM,
-                userVM = userVM
+                quizVM = quizVM
             )
         }
     }

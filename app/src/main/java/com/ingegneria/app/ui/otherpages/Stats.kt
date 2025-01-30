@@ -11,7 +11,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,14 +25,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.theme.AppTheme
 
 @Composable
 fun Stats(navController: NavController) {
     val currentUser = FirebaseAuth.getInstance().currentUser
     val firestore = FirebaseFirestore.getInstance()
-
     // Stati locali in cui salviamo i valori letti da Firestore
     var maxLevelReached by remember { mutableStateOf(1) }
     var dailyTasksCompleted by remember { mutableStateOf(0) }
@@ -35,7 +38,6 @@ fun Stats(navController: NavController) {
     var monthlyTasksCompleted by remember { mutableStateOf(0) }
     var quizCompleted by remember { mutableStateOf(0) }
     var totalLoginDays by remember { mutableStateOf(0) }
-
     // Quando questo composable viene caricato, se c'è un utente loggato,
     // facciamo un addSnapshotListener per tenere i valori sincronizzati.
     LaunchedEffect(currentUser) {
@@ -54,7 +56,6 @@ fun Stats(navController: NavController) {
                 }
         }
     }
-
     Scaffold (
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -62,7 +63,7 @@ fun Stats(navController: NavController) {
                 modifier = Modifier
                     .padding(start = 7.dp, top = 10.dp)
                     .wrapContentSize(),
-                onClick = { navController.popBackStack() }
+                onClick = {navController.popBackStack()}
             ) {
                 Icon(
                     imageVector = Icons.Filled.Close,
@@ -80,7 +81,6 @@ fun Stats(navController: NavController) {
             verticalArrangement = Arrangement.Center
         ){
             Text(text = "Stats Page", modifier = Modifier.padding(bottom = 20.dp))
-
             Text(text = "Max Level Reached: $maxLevelReached")
             Text(text = "Daily Tasks Completed: $dailyTasksCompleted")
             Text(text = "Weekly Tasks Completed: $weeklyTasksCompleted")

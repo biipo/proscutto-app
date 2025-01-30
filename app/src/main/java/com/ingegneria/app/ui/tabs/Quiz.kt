@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.database.PropertyName
@@ -45,18 +43,16 @@ data class Question(
 )
 
 @Composable
-fun Quiz(navController: NavController, quizViewModel: QuizViewModel = viewModel(), petVM: PetViewModel) {
+fun Quiz(navController: NavController, quizViewModel: QuizViewModel, petVM: PetViewModel) {
     val context = LocalContext.current
     val questions by quizViewModel.questions.collectAsState()
     val isQuestionsLoaded by quizViewModel.isQuestionsLoaded.collectAsState()
     val answeredQuestionsCount by quizViewModel.answeredQuestionsCount.collectAsState()
     val dailyQuestionLimit = 5
 
-    var currentQuestionIndex by remember { mutableIntStateOf(0) }
     var selectedAnswer by remember { mutableStateOf<String?>(null) }
     var feedbackMessage by remember { mutableStateOf<String?>(null) }
 
-    var correctCount = 0
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -74,11 +70,11 @@ fun Quiz(navController: NavController, quizViewModel: QuizViewModel = viewModel(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                quizViewModel.finalResult(correctCount, petVM)
+                quizViewModel.finalResult(quizViewModel.correctCount.intValue, petVM)
             }
 
             isQuestionsLoaded && questions.isNotEmpty() -> {
-                val currentQuestion = questions[currentQuestionIndex]
+                val currentQuestion = questions[quizViewModel.currentQuestionIndex.intValue]
 
                 Column(
                     modifier = Modifier
@@ -108,7 +104,7 @@ fun Quiz(navController: NavController, quizViewModel: QuizViewModel = viewModel(
                         onClick = {
                             if (selectedAnswer == currentQuestion.correctAnswer) {
                                 petVM.petFb?.gainXp(2)
-                                correctCount += 1
+                                quizViewModel.correctCount.intValue += 1
                                 feedbackMessage = "Correct Answer!"
                             } else {
                                 feedbackMessage = "Wrong answer! The correct answer was: ${currentQuestion.correctAnswer}"
@@ -116,7 +112,8 @@ fun Quiz(navController: NavController, quizViewModel: QuizViewModel = viewModel(
 
                             quizViewModel.updateAnsweredQuestionsCount()
                             selectedAnswer = null
-                            currentQuestionIndex = (currentQuestionIndex + 1) % questions.size
+                            quizViewModel.currentQuestionIndex.intValue =
+                                (quizViewModel.currentQuestionIndex.intValue + 1) % questions.size
                         },
                         enabled = selectedAnswer != null,
                         modifier = Modifier.fillMaxWidth()

@@ -17,9 +17,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.ChildFriendly
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -191,7 +191,7 @@ fun Social(navController: NavController, socialVM: SocialViewModel, qrValue: Str
                 onClick = { navController.navigate(Screens.RequestsPage.name) }
             ) {
                 Icon(
-                    imageVector = Icons.Filled.ChildFriendly,
+                    imageVector = Icons.Filled.PersonAdd,
                     contentDescription = "Friend requests page"
                 )
             }
