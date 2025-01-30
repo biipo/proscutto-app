@@ -270,17 +270,23 @@ class TaskViewModel : ViewModel() {
                 "Daily" -> {
                     db.update(
                         mapOf("selectedDailyTasks.$taskTitle" to true)
-                    )
+                    ).addOnSuccessListener {
+                        db.update("dailyTasksCompleted", FieldValue.increment(1))
+                    }
                 }
                 "Weekly" -> {
                     db.update(
                         mapOf("selectedWeeklyTasks.$taskTitle" to true)
-                    )
+                    ).addOnSuccessListener {
+                        db.update("weeklyTasksCompleted", FieldValue.increment(1))
+                    }
                 }
                 "Monthly" -> {
                     db.update(
                         mapOf("selectedMonthlyTasks.$taskTitle" to true)
-                    )
+                    ).addOnSuccessListener {
+                        db.update("monthlyTasksCompleted", FieldValue.increment(1))
+                    }
                 }
                 else -> {
                     Log.e(

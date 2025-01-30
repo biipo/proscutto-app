@@ -1,5 +1,6 @@
 package com.ingegneria.app.ui.tabs
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -114,6 +115,13 @@ class QuizViewModel : ViewModel() {
                     }
                 }
             }
+        }
+        currentUser?.uid?.let { userId ->
+            firestore.collection("users").document(userId)
+                .update("quizCompleted", FieldValue.increment(1))
+                .addOnSuccessListener {
+                    Log.d("QuizViewModel", "Quiz completed incremented")
+                }
         }
     }
 

@@ -42,9 +42,13 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ingegneria.app.navigation.Screens
 import com.ingegneria.app.ui.common.LoadingDialog
 import com.ingegneria.app.ui.common.MascotImage
+import java.util.Calendar
+import java.util.Date
 
 @Composable
 fun Login(navController: NavController, userVM: UserViewModel) {
@@ -115,9 +119,25 @@ fun Login(navController: NavController, userVM: UserViewModel) {
                     try {
                         userVM.login(email.value, password.value)
                         val user = Firebase.auth.currentUser
-                        Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
-                        navController.navigate(Screens.Home.name) {
-                            popUpTo(0)
+                        if(user != null){
+                            val docRef = FirebaseFirestore.getInstance().collection("users").document(user.uid)
+                            docRef.get().addOnSuccessListener { snapshot ->
+                                val lastLoginTimestamp = snapshot.getTimestamp("lastLogin")?.toDate()
+                                val now = Calendar.getInstance().time
+
+                                if(lastLoginTimestamp == null || isNewDay(lastLoginTimestamp, now)){
+                                    docRef.update(
+                                        mapOf(
+                                            "totalLoginDays" to FieldValue.increment(1),
+                                            "lastLogin" to FieldValue.serverTimestamp()
+                                        )
+                                    )
+                                }else{
+                                    docRef.update("lastLogin", FieldValue.serverTimestamp())
+                                }
+                                Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
+                                navController.navigate(Screens.Home.name) {popUpTo(0)}
+                            }
                         }
                     } catch (e: IllegalArgumentException) {
                         Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
@@ -179,6 +199,13 @@ private fun inputCheck(sEmail: String?, sPassword: String?, view: View): Boolean
         return false
     }
     return true
+}
+
+private fun isNewDay(lastDate: Date, currentDate: Date): Boolean {
+    val calLast = Calendar.getInstance().apply { time = lastDate }
+    val calNow = Calendar.getInstance().apply { time = currentDate }
+    return calLast.get(Calendar.DAY_OF_YEAR) != calNow.get(Calendar.DAY_OF_YEAR) ||
+            calLast.get(Calendar.YEAR) != calNow.get(Calendar.YEAR)
 }
 
 @Preview(showBackground = true)

@@ -73,7 +73,14 @@ class UserViewModel : ViewModel() {
             "lastMonthlyReset" to com.google.firebase.Timestamp.now(),
             "selectedDailyTasks" to emptyMap<String, Boolean>(),
             "selectedWeeklyTasks" to emptyMap<String, Boolean>(),
-            "selectedMonthlyTasks" to emptyMap<String, Boolean>()
+            "selectedMonthlyTasks" to emptyMap<String, Boolean>(),
+            "maxLevelReached" to 1,              // livello iniziale
+            "dailyTasksCompleted" to 0,         // numero di task daily completate (totali)
+            "weeklyTasksCompleted" to 0,        // numero di task weekly completate (totali)
+            "monthlyTasksCompleted" to 0,       // numero di task monthly completate (totali)
+            "quizCompleted" to 0,              // quanti quiz completati
+            "totalLoginDays" to 1              // conteggio di giorni in cui si è loggato (parte da 1, ad es.)
+
         )
         firestore.collection("users")
             .document(id ?: "")

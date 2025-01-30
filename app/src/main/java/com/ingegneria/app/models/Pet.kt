@@ -68,6 +68,7 @@ data class Pet(
             level++;
             hp = maxHp() * hpRatio
         }
+
     }
 
     fun resetMult() {
