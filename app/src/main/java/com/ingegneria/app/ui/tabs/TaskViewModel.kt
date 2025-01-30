@@ -42,7 +42,11 @@ data class Task(
 class TaskViewModel : ViewModel() {
 
     private val firestore = FirebaseFirestore.getInstance()
-    private val currentUser = FirebaseAuth.getInstance().currentUser
+
+    private val firebaseAuth = FirebaseAuth.getInstance()
+    private var authStateListener: FirebaseAuth.AuthStateListener? = null
+    private val _currentUser = mutableStateOf(firebaseAuth.currentUser)
+    private val currentUser = _currentUser
 
     val database = FirebaseDatabase.getInstance().reference.child("task")
     var dailyTasks by mutableStateOf<List<Task>>(emptyList())
@@ -58,12 +62,16 @@ class TaskViewModel : ViewModel() {
     private var petVM: PetViewModel? = null
 
     init {
-        currentUser?.let { user ->
-            // Prima controlliamo se bisogna resettare le tasks
-            checkTaskResets(user.uid)
-            // Poi carichiamo i dati dal realtime DB (lista completa di tasks)
-            retrieveFirebaseData(user.uid, null)
+        authStateListener = FirebaseAuth.AuthStateListener { auth ->
+            _currentUser.value = auth.currentUser
+            currentUser.value?.let { user ->
+                // Prima controlliamo se bisogna resettare le tasks
+                checkTaskResets(user.uid)
+                // Poi carichiamo i dati dal realtime DB (lista completa di tasks)
+                retrieveFirebaseData(user.uid, null)
+            }
         }
+        firebaseAuth.addAuthStateListener(authStateListener!!)
 
     }
 
@@ -264,7 +272,7 @@ class TaskViewModel : ViewModel() {
     }
 
     fun setTaskCompleted(taskTitle: String, group: String) {
-        currentUser?.uid?.let { id ->
+        currentUser.value?.uid?.let { id ->
             val db = firestore.collection("users").document(id)
             when(group) {
                 "Daily" -> {
@@ -313,7 +321,7 @@ class TaskViewModel : ViewModel() {
         newMonthlyTasks: List<Task> = selectedMonthlyTasks
     ) {
 
-        val uid = currentUser?.uid ?: return
+        val uid = currentUser.value?.uid ?: return
         //sta roba serve per fare in modo che non refreshi a false sul db ogni mezzo secondo
         firestore.collection("users").document(uid).get()
             .addOnSuccessListener { document ->
@@ -392,7 +400,7 @@ class TaskViewModel : ViewModel() {
     }
 
     fun swapTask(oldTask: Task, newTask: Task, group: String) {
-        currentUser?.uid?.let { uid ->
+        currentUser.value?.uid?.let { uid ->
             when(group) {
                 "Daily" -> {
                     val newList = selectedDailyTasks.toMutableList()

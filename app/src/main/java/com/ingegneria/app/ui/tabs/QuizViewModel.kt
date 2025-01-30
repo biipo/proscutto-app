@@ -2,6 +2,7 @@ package com.ingegneria.app.ui.tabs
 
 import android.util.Log
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -21,7 +22,11 @@ import java.util.Date
 class QuizViewModel : ViewModel() {
     private val database = FirebaseDatabase.getInstance().reference.child("quiz")
     private val firestore = FirebaseFirestore.getInstance()
-    private val currentUser = FirebaseAuth.getInstance().currentUser
+
+    private val firebaseAuth = FirebaseAuth.getInstance()
+    private var authStateListener: FirebaseAuth.AuthStateListener? = null
+    private val _currentUser = mutableStateOf(firebaseAuth.currentUser)
+    private val currentUser = _currentUser
 
     private val _questions = MutableStateFlow<List<Question>>(emptyList())
     val questions: StateFlow<List<Question>> = _questions
@@ -36,10 +41,16 @@ class QuizViewModel : ViewModel() {
     val correctCount = mutableIntStateOf(0)
 
     init {
-        currentUser?.let { user ->
-            resetDailyQuestionLimitIfNeeded(user.uid)
-            loadQuestions()
+        authStateListener = FirebaseAuth.AuthStateListener { auth ->
+            _currentUser.value = auth.currentUser
+            currentUser.value?.let { user ->
+                Log.e("QUESTION VM INIT", "START OF INIT CODE")
+                resetDailyQuestionLimitIfNeeded(user.uid)
+                loadQuestions()
+                Log.e("QUESTION VM INIT", "END OF INIT CODE")
+            }
         }
+        firebaseAuth.addAuthStateListener(authStateListener!!)
     }
 
     private fun loadQuestions() {
@@ -50,9 +61,11 @@ class QuizViewModel : ViewModel() {
                 }
                 _questions.value = loadedQuestions.shuffled()
                 _isQuestionsLoaded.value = true
+                Log.e("LOADING QUESTIONS", "QUESTIONS LOADED SUCCESSFULLY (${_isQuestionsLoaded.value}")
             }
 
             override fun onCancelled(error: DatabaseError) {
+                Log.e("ERROR LOADING QUESTIONS", error.message)
                 _isQuestionsLoaded.value = false
             }
         })
@@ -81,14 +94,14 @@ class QuizViewModel : ViewModel() {
     }
 
     fun updateAnsweredQuestionsCount() {
-        currentUser?.let { user ->
+        currentUser.value?.let { user ->
             val newCount = _answeredQuestionsCount.value + 1
             firestore.collection("users").document(user.uid).update("dailyQuestionLimit", newCount)
                 .addOnSuccessListener {
                     _answeredQuestionsCount.value = newCount
                 }
         }
-        currentUser?.uid?.let { userId ->
+        currentUser.value?.uid?.let { userId ->
             firestore.collection("users").document(userId)
                 .update("quizCompleted", FieldValue.increment(1))
                 .addOnSuccessListener {

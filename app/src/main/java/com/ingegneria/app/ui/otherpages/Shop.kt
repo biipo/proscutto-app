@@ -214,6 +214,7 @@ fun BuyItemDialog(onDismissRequest: () -> Unit, item: String, shopVM: ShopViewMo
                 )
                 Row (modifier = Modifier.padding(vertical = 20.dp)){
                     Button(
+                        modifier = Modifier.padding(horizontal = 5.dp),
                         onClick = onDismissRequest,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Red,
@@ -223,6 +224,7 @@ fun BuyItemDialog(onDismissRequest: () -> Unit, item: String, shopVM: ShopViewMo
                         Text(text = "Cancel")
                     }
                     Button(
+                        modifier = Modifier.padding(horizontal = 5.dp),
                         onClick = {
                             if (!shopVM.buyItem(item)) {
                                 Toast.makeText(context, "You already own that item", Toast.LENGTH_LONG).show()

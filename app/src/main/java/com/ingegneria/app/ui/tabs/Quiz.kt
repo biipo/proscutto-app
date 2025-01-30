@@ -1,5 +1,6 @@
 package com.ingegneria.app.ui.tabs
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,7 +54,7 @@ fun Quiz(navController: NavController, quizViewModel: QuizViewModel, petVM: PetV
     var selectedAnswer by remember { mutableStateOf<String?>(null) }
     var feedbackMessage by remember { mutableStateOf<String?>(null) }
 
-
+    Log.e("QUESTION PAGE", "BEGINNING OF THE PAGE")
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
