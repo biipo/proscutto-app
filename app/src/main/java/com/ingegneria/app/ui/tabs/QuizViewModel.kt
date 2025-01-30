@@ -84,6 +84,13 @@ class QuizViewModel : ViewModel() {
                     _answeredQuestionsCount.value = newCount
                 }
         }
+        currentUser?.uid?.let { userId ->
+            firestore.collection("users").document(userId)
+                .update("quizCompleted", FieldValue.increment(1))
+                .addOnSuccessListener {
+                    Log.d("QuizViewModel", "Quiz completed incremented")
+                }
+        }
     }
 
     fun finalResult(correctCount: Int, petVM: PetViewModel) {
@@ -116,13 +123,7 @@ class QuizViewModel : ViewModel() {
                 }
             }
         }
-        currentUser?.uid?.let { userId ->
-            firestore.collection("users").document(userId)
-                .update("quizCompleted", FieldValue.increment(1))
-                .addOnSuccessListener {
-                    Log.d("QuizViewModel", "Quiz completed incremented")
-                }
-        }
+
     }
 
     private fun isNextDay(lastDate: Date, currentDate: Date): Boolean {

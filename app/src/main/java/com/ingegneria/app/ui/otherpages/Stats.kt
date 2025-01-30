@@ -28,7 +28,6 @@ fun Stats(navController: NavController) {
     val currentUser = FirebaseAuth.getInstance().currentUser
     val firestore = FirebaseFirestore.getInstance()
 
-    // Stati locali in cui salviamo i valori letti da Firestore
     var maxLevelReached by remember { mutableStateOf(1) }
     var dailyTasksCompleted by remember { mutableStateOf(0) }
     var weeklyTasksCompleted by remember { mutableStateOf(0) }
@@ -36,8 +35,6 @@ fun Stats(navController: NavController) {
     var quizCompleted by remember { mutableStateOf(0) }
     var totalLoginDays by remember { mutableStateOf(0) }
 
-    // Quando questo composable viene caricato, se c'è un utente loggato,
-    // facciamo un addSnapshotListener per tenere i valori sincronizzati.
     LaunchedEffect(currentUser) {
         currentUser?.let { user ->
             firestore.collection("users")

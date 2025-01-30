@@ -4,6 +4,8 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.Exclude
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 fun updateDb(dbRef: DatabaseReference, pet: Pet) {
     dbRef.setValue(pet)
@@ -61,14 +63,26 @@ data class Pet(
 
     fun gainXp(amount: Int) {
         xp += (amount*mult).toInt()
+
+        val user = FirebaseAuth.getInstance().currentUser
+        val firestore = FirebaseFirestore.getInstance()
         // If xp > max
         while (xp >= maxXp()) {
             xp -= maxXp()
             var hpRatio = hp / maxHp()
             level++;
             hp = maxHp() * hpRatio
-        }
 
+            user?.let {
+                val userRef = firestore.collection("users").document(it.uid)
+                userRef.get().addOnSuccessListener { document ->
+                    val maxLevelReached = document.getLong("maxLevelReached")?.toInt() ?: 1
+                    if (level > maxLevelReached) {
+                        userRef.set(mapOf("maxLevelReached" to level), SetOptions.merge())
+                    }
+                }
+            }
+        }
     }
 
     fun resetMult() {
